@@ -182,6 +182,43 @@ class HandoffTests(unittest.TestCase):
         finally:
             cs.send_ntfy = orig
 
+    def test_watchdog_survives_backup_overwrite(self):
+        """App-forced backup check overwrote the PC status; PC then dies -> still warned once."""
+        sent = []
+        orig = cs.send_ntfy
+        cs.send_ntfy = lambda topic, title, *a, **k: sent.append(title)
+        try:
+            with tempfile.TemporaryDirectory() as tmp:
+                old = (datetime.now(timezone.utc) - timedelta(minutes=20)).isoformat(timespec="seconds")
+                prev = {"source": "github", "checked_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                        "models": [], "pc": {"checked_at": old, "error": None, "warned": False}}
+                prev_p, out, cfg = (os.path.join(tmp, n) for n in ("prev.json", "status.json", "config.json"))
+                with open(prev_p, "w") as f:
+                    json.dump(prev, f)
+                with open(cfg, "w") as f:
+                    json.dump(dict(BASE, ntfy_topic="t"), f)
+                fx = os.path.join(ROOT, "tests", "fixtures", "live_sample_nyc.json")
+                args = ["--config", cfg, "--prev", prev_p, "--out", out, "--fixture", fx, "--source", "github", "--defer-to-pc", "300"]
+                cs.main(args)
+                self.assertEqual(sum("stopped checking" in t for t in sent), 1)
+                with open(out) as f:
+                    self.assertTrue(json.load(f)["pc"]["warned"])
+                os.replace(out, prev_p)
+                sent.clear()
+                cs.main(args)
+                self.assertFalse(any("stopped checking" in t for t in sent))
+        finally:
+            cs.send_ntfy = orig
+
+    def test_merge_pc_heartbeat_keeps_backup_data(self):
+        remote = {"source": "github", "checked_at": "T2", "models": [{"part": "A"}]}
+        merged = lr.merge_pc_heartbeat(remote, {"checked_at": "T3", "error": "541"})
+        self.assertEqual(merged["source"], "github")
+        self.assertEqual(merged["models"], [{"part": "A"}])
+        self.assertEqual(merged["pc"]["error"], "541")
+        self.assertIsNone(lr.merge_pc_heartbeat({"source": "pc", "models": [1]}, {}))
+        self.assertIsNone(lr.merge_pc_heartbeat(None, {}))
+
     def test_seconds_since_handles_z_suffix(self):
         self.assertLess(cs.seconds_since(datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")), 5)
 

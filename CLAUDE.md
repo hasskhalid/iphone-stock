@@ -31,8 +31,12 @@ home-screen dashboard. Keep it free to run and dependency-light.
   branch containing `status.json` + `history.json` (keeps main history clean).
 - `.github/workflows/test-alert.yml`: "Send test alert" sends a DRILL restock alert via
   `check_stock.py --drill` (real alert builder, NTFY_TOPIC secret). Dispatchable from the app.
-- Watchdog: when the backup runs and the last publisher was the PC (`source: "pc"`) silent
-  > `PC_OFFLINE_SECONDS` (900), it pushes "your PC stopped checking" once per outage.
+- PC heartbeat: every status carries `pc: {checked_at, error, poll_seconds, warned}`. The backup
+  copies it forward (`pc_info_from(prev)`); while the PC is erroring it does NOT overwrite the
+  backup's results, it reads status/history via the contents API and republishes them with
+  only `pc` updated (`merge_pc_heartbeat`). App header shows "PC blocked by Apple" / "PC offline Xm".
+- Watchdog: when the backup runs and `pc.checked_at` is older than `PC_OFFLINE_SECONDS` (900)
+  and `pc.warned` is false, it pushes "your PC stopped checking" once and sets `warned`.
   GitHub's own cron has not fired reliably on this repo; an external cron (cron-job.org)
   POSTs workflow_dispatch for check-stock.yml every 5 min.
 - `docs/`: static PWA "Duo Watch" served by GitHub Pages from `main:/docs`. Tabs:
@@ -66,7 +70,7 @@ home-screen dashboard. Keep it free to run and dependency-light.
 ## status.json shape
 `{source ("pc"|"github"|"cli"), poll_seconds?, runner?, radius_miles, checked_at, last_success_at, error, models:[{part, label, color, url,
 any_available, stores:[{id, name, city, distance, miles, available, quote, address,
-phone, store_url, maps_url}]}]}`. The public repo must never contain the ZIP or topic.
+phone, store_url, maps_url}]}], pc?: {checked_at, error, poll_seconds, warned}}`. The public repo must never contain the ZIP or topic.
 On failure the checker keeps the previous `models` and sets `error`.
 
 ## Conventions

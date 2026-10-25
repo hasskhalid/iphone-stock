@@ -658,6 +658,15 @@
       : `Watching ${stores.length} stores for you ✨`;
     if (text !== lastMood) { $("bubble").textContent = text; lastMood = text; }
   }
+  // When the backup published last, say what the PC is doing (from its carried heartbeat).
+  function pcNote() {
+    const pc = STATUS.pc;
+    if (!pc || !pc.checked_at) return "GitHub backup · every ~5 min";
+    const a = secondsAgo(pc.checked_at);
+    if (pc.error && a <= 1200) return "Backup on duty · PC blocked by Apple, retrying";
+    if (a > 600) return `Backup on duty · PC offline ${Math.round(a / 60)}m`;
+    return "GitHub backup · PC back any second";
+  }
   function renderHeader() {
     if (!STATUS) return;
     const sec = secondsAgo(STATUS.checked_at);
@@ -670,7 +679,7 @@
     $("source").textContent = pc
       ? (STATUS.error && sec <= 1200 ? "PC runner can't reach Apple · retrying"
          : cls === "ok" ? `Live · your PC checks every ${STATUS.poll_seconds || 60}s` : "PC runner looks offline · backup takes over")
-      : (cls === "ok" ? "GitHub backup · every ~5 min" : "Checker looks paused");
+      : (cls !== "ok" ? "Checker looks paused" : pcNote());
     $("age").textContent = checkingSince
       ? `checking Apple now… ${Math.round((Date.now() - checkingSince) / 1000)}s`
       : STATUS.error ? `last check failed · ${ago(sec)}` : `last Apple check ${tm(STATUS.checked_at)} · ${ago(sec)}`;

@@ -110,6 +110,17 @@ class GitHubPublisher:
             except json.JSONDecodeError:
                 return e.code, {}
 
+    def get_json(self, path: str) -> dict | None:
+        """Read a file from the status branch via the contents API (not cached like raw)."""
+        code, data = self._request("GET", f"/repos/{self.repo}/contents/{path}?ref={self.branch}")
+        if code != 200 or not isinstance(data, dict) or "content" not in data:
+            return None
+        try:
+            import base64
+            return json.loads(base64.b64decode(data["content"]))
+        except Exception:
+            return None
+
     def publish(self, files: dict[str, str], message: str) -> str:
         """Replace the branch with a single commit containing `files`. Returns commit sha."""
         r = f"/repos/{self.repo}"
@@ -186,6 +197,16 @@ def nag_message(rows: list[tuple[dict, dict]]) -> tuple[str, str, str]:
 # --------------------------------------------------------------------------
 # Main loop
 # --------------------------------------------------------------------------
+
+def merge_pc_heartbeat(remote: dict | None, pc: dict) -> dict | None:
+    """While the PC can't reach Apple, keep the backup's (fresher) results on the status
+    branch and only update the PC heartbeat block. Returns None if there's nothing to merge."""
+    if not isinstance(remote, dict) or remote.get("source") == "pc" or not remote.get("models"):
+        return None
+    merged = dict(remote)
+    merged["pc"] = pc
+    return merged
+
 
 def availability_signature(status: dict) -> tuple:
     return (bool(status.get("error")), tuple(sorted(cs.available_set(status))))
@@ -265,6 +286,8 @@ def main(argv: list[str] | None = None) -> int:
             checks += 1
             status["poll_seconds"] = poll
             status["runner"] = {"started_at": started, "checks": checks}
+            pc_hb = {"checked_at": status["checked_at"], "error": status.get("error"), "poll_seconds": poll, "warned": False}
+            status["pc"] = pc_hb
 
             for title, _, _ in alerts:
                 print(f"[{time.strftime('%H:%M:%S')}] >>> ALERT SENT: {title}")
@@ -295,6 +318,20 @@ def main(argv: list[str] | None = None) -> int:
                     note = "  ↑ published"
                 except Exception as e:
                     note = f"  ↑ publish failed: {e}"
+            elif publisher and status.get("error") and t0 - last_publish >= heartbeat:
+                # Blocked: don't overwrite the backup's good data, just refresh our heartbeat.
+                try:
+                    remote = publisher.get_json("status.json")
+                    merged = merge_pc_heartbeat(remote, pc_hb)
+                    if merged:
+                        remote_hist = publisher.get_json("history.json") or history
+                        publisher.publish({"status.json": json.dumps(merged, indent=1),
+                                           "history.json": json.dumps(remote_hist, indent=1)},
+                                          f"pc heartbeat {status['checked_at']}")
+                        note = "  ↑ heartbeat (backup's data kept)"
+                    last_publish = t0
+                except Exception as e:
+                    note = f"  ↑ heartbeat failed: {e}"
             elif not publisher:
                 last_sig = sig
 

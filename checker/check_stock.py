@@ -353,6 +353,15 @@ def check_once(settings: dict, prev: dict, history: dict, *, source: str = "cli"
     return status, history, alerts
 
 
+def pc_info_from(prev: dict) -> dict | None:
+    """The PC runner's last heartbeat, whether the PC or the backup published last."""
+    if prev.get("source") == "pc":
+        return {"checked_at": prev.get("checked_at"), "error": prev.get("error"),
+                "poll_seconds": prev.get("poll_seconds"), "warned": False}
+    pc = prev.get("pc")
+    return dict(pc) if isinstance(pc, dict) and pc.get("checked_at") else None
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Check Apple Store pickup stock for iPhones.")
     ap.add_argument("--config", default="config.json")
@@ -407,12 +416,14 @@ def main(argv: list[str] | None = None) -> int:
             print(f"PC runner is live (last check {int(age)}s ago); skipping this backup check.")
             return 0
 
-    # Watchdog: the backup only gets here when the PC runner isn't live. If the PC was the
-    # last publisher and has been silent 15+ min, warn once (after this run publishes,
-    # the last publisher is "github", so the next run won't repeat the warning).
-    if args.source == "github" and prev.get("source") == "pc" and settings["topic"]:
-        age = seconds_since(prev.get("checked_at"))
+    # Watchdog: the PC's last heartbeat is carried in status["pc"] across backup publishes,
+    # so this works even after a backup (or app-forced) check overwrote the PC's status.
+    # Warn once per outage ("warned" flag), reset when the PC publishes again.
+    pc = pc_info_from(prev) if args.source == "github" else None
+    if pc and settings["topic"] and not pc.get("warned"):
+        age = seconds_since(pc.get("checked_at"))
         if age is not None and age > PC_OFFLINE_SECONDS:
+            pc["warned"] = True
             try:
                 send_ntfy(settings["topic"], "Duo Watch: your PC stopped checking",
                           f"No check from your PC for {int(age // 60)} min (restart, sleep or crash?). "
@@ -428,6 +439,8 @@ def main(argv: list[str] | None = None) -> int:
                                     fixture=args.fixture, dry_run=args.dry_run,
                                     log=lambda m: print(m, file=sys.stderr if m.startswith(("ERROR", "WARN")) else sys.stdout))
 
+    if pc:
+        status["pc"] = pc
     history["updated_at"] = status["checked_at"]
     with open(args.out, "w", encoding="utf-8") as f:
         json.dump(status, f, indent=2)
