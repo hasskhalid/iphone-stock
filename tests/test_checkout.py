@@ -1,5 +1,6 @@
 """Offline tests for checkout_module.py (no browser, no Playwright needed)."""
 import os
+import re
 import sys
 import unittest
 
@@ -89,8 +90,8 @@ class GuestHandoffTests(unittest.TestCase):
         self.assertIn(("carrierModel", "UNLOCKED/US", None), opts)
         self.assertIn(("purchase_option_group", "fullprice", None), opts)
         self.assertEqual(opts[-1][0], "applecare-options")
-        self.assertRegex("No AppleCare coverage", opts[-1][2])
-        self.assertNotRegex("AppleCare+ with Theft and Loss", opts[-1][2])
+        self.assertTrue(re.search(opts[-1][2], "No AppleCare coverage", re.I))
+        self.assertFalse(re.search(opts[-1][2], "AppleCare+ with Theft and Loss", re.I))
 
     def test_guard_still_present(self):
         self.assertTrue(co.FORBIDDEN_CLICK.search("Place Your Order"))
