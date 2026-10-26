@@ -65,4 +65,9 @@ jobs:
           git config user.email "stock-bot@users.noreply.github.com"
           git add status.json history.json
           git commit -qm "status $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" status
+          # Retry: the PC runner may update the same branch at the same moment.
+          for i in 1 2 3 4; do
+            git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" status && exit 0
+            echo "push attempt $i failed, retrying"; sleep $((i * 3))
+          done
+          echo "::warning::Could not publish this check (the PC runner probably did at the same moment)"
