@@ -7,13 +7,29 @@
       "label": "iPhone Duo 256GB Night Sky",
       "color": "Night Sky",
       "part": "MK1F4LL/A",
-      "url": "https://www.apple.com/shop/buy-iphone/iphone-duo/7.6-inch-display-256gb-night-sky-unlocked"
+      "url": "https://www.apple.com/shop/buy-iphone/iphone-duo/7.6-inch-display-256gb-night-sky-unlocked",
+      "storage": "256GB"
     },
     {
       "label": "iPhone Duo 256GB Star White",
       "color": "Star White",
       "part": "MK1E4LL/A",
-      "url": "https://www.apple.com/shop/buy-iphone/iphone-duo/7.6-inch-display-256gb-star-white-unlocked"
+      "url": "https://www.apple.com/shop/buy-iphone/iphone-duo/7.6-inch-display-256gb-star-white-unlocked",
+      "storage": "256GB"
+    },
+    {
+      "label": "iPhone Duo 512GB Night Sky",
+      "color": "Night Sky",
+      "storage": "512GB",
+      "part": "MK1H4LL/A",
+      "url": "https://www.apple.com/shop/buy-iphone/iphone-duo/7.6-inch-display-512gb-night-sky-unlocked"
+    },
+    {
+      "label": "iPhone Duo 512GB Star White",
+      "color": "Star White",
+      "storage": "512GB",
+      "part": "MK1G4LL/A",
+      "url": "https://www.apple.com/shop/buy-iphone/iphone-duo/7.6-inch-display-512gb-star-white-unlocked"
     }
   ]
 }

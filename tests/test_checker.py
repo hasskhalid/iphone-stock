@@ -127,7 +127,7 @@ class AlertFormatTests(unittest.TestCase):
         models = [{"label": "iPhone Duo 256GB Night Sky", "color": "Night Sky", "part": "P1", "url": "u"}]
         st = {"id": "R1", "name": "Grand Central", "zip": "10017", "city": "New York, NY", "available": True}
         title, body, url = cs.build_alerts({"P1": [st]}, models)[0]
-        self.assertEqual(title, "NIGHT SKY @ Grand Central")
+        self.assertEqual(title, "256GB NIGHT SKY @ Grand Central")
         self.assertTrue(body.startswith("Grand Central · ZIP 10017"))
         self.assertIn("type ZIP 10017", body)
         self.assertNotIn(" mi", body)
@@ -136,6 +136,40 @@ class AlertFormatTests(unittest.TestCase):
         st = store("R001", "Market Street", "Springfield", "4.2 mi", True, False)
         st["address"] = {"address2": "1 Main St", "postalCode": "07078-1234"}
         self.assertEqual(cs.parse_response(response(st), MODELS, 8)[0]["stores"][0]["zip"], "07078")
+
+
+class ZoneTests(unittest.TestCase):
+    def settings(self):
+        return {"models": MODELS, "zip": "11111", "extra_zips": ["22222"], "max_stores": 12, "radius": 25,
+                "topic": "", "server": "s"}
+
+    def test_rotates_and_merges_without_false_alerts(self):
+        far = response(store("R900", "Far Mall", "Paramus", "3.0 mi", False, False))
+        near = SOLD_OUT
+        with tempfile.TemporaryDirectory() as tmp:
+            fn, ff = os.path.join(tmp, "n.json"), os.path.join(tmp, "f.json")
+            json.dump(near, open(fn, "w")); json.dump(far, open(ff, "w"))
+            st1, _, a1 = cs.check_once(self.settings(), {}, {"events": []}, fixture=fn, log=lambda m: None)
+            self.assertEqual(st1["next_zone"], 1)
+            st2, _, a2 = cs.check_once(self.settings(), st1, {"events": []}, fixture=ff, log=lambda m: None)
+            ids = [s["id"] for s in st2["models"][0]["stores"]]
+            self.assertEqual(set(ids), {"R001", "R002", "R900"})          # both zones merged
+            self.assertEqual(st2["next_zone"], 0)
+            self.assertEqual(a1 + a2, [])
+            self.assertNotIn("11111", json.dumps(st2))                     # ZIPs never in public status
+            self.assertNotIn("22222", json.dumps(st2))
+
+    def test_restock_in_second_zone_alerts(self):
+        far_sold = response(store("R900", "Far Mall", "Paramus", "3.0 mi", False, False))
+        far_hot = response(store("R900", "Far Mall", "Paramus", "3.0 mi", True, False))
+        with tempfile.TemporaryDirectory() as tmp:
+            p = lambda n, d: (json.dump(d, open(os.path.join(tmp, n), "w")), os.path.join(tmp, n))[1]
+            st, _, _ = cs.check_once(self.settings(), {}, {"events": []}, fixture=p("a", SOLD_OUT), log=lambda m: None)
+            st, _, _ = cs.check_once(self.settings(), st, {"events": []}, fixture=p("b", far_sold), log=lambda m: None)
+            st, _, _ = cs.check_once(self.settings(), st, {"events": []}, fixture=p("c", SOLD_OUT), log=lambda m: None)
+            st, _, alerts = cs.check_once(self.settings(), st, {"events": []}, fixture=p("d", far_hot), log=lambda m: None)
+            self.assertEqual(len(alerts), 1)
+            self.assertIn("Far Mall", alerts[0][0])
 
 
 class DispatchTests(unittest.TestCase):

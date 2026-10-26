@@ -212,6 +212,7 @@
   .store .rbtn { position: absolute; top: 12px; right: 12px; }
   @media (prefers-reduced-motion: reduce) { .scan i, .fresh .wrow::after, .fresh .store::after, .rbtn.spin span { animation: none !important; transition: none; } }
   .mini.pin { padding: 4px 7px; }
+  .mini .gb { font-size: 10.5px; font-weight: 800; color: var(--muted); letter-spacing: .02em; }
   .wrow b { font-size: 14.5px; display: block; }
   .wrow small { color: var(--muted); font-size: 12px; }
   .minis { display: flex; gap: 6px; flex: none; }
@@ -302,7 +303,7 @@
       </svg>
       <div>
         <div class="eyebrow" id="eyebrow">Within 25 mi · unlocked</div>
-        <h1>iPhone Duo <span>256GB</span></h1>
+        <h1>iPhone Duo <span>256 · 512</span></h1>
         <span class="bubble" id="bubble">Hi! Getting ready…</span>
       </div>
     </div>
@@ -441,7 +442,8 @@
     for (const m of status.models || []) {
       for (const s of m.stores || []) {
         if (!map.has(s.id)) map.set(s.id, { ...s, colors: [] });
-        map.get(s.id).colors.push({ color: m.color || m.label.replace(/.*256GB\s*/, ""), url: m.url, available: s.available, quote: s.quote });
+        const storage = m.storage || ((m.label || "").match(/\d+(GB|TB)/) || [""])[0];
+        map.get(s.id).colors.push({ color: m.color || m.label.replace(/.*\d+(GB|TB)\s*/, ""), storage, url: m.url, available: s.available, quote: s.quote });
       }
     }
     return [...map.values()]
@@ -466,7 +468,7 @@
     if (hot.length) {
       const s = hot[0], c = s.colors.find((x) => x.available);
       html += `<div class="banner hot"><div><b>In stock at ${esc(s.name)}${hot.length > 1 ? ` + ${hot.length - 1} more` : ""}</b>
-        <small>${esc(c.color)} · ${s.zip ? `type ZIP <b style="color:var(--text)">${esc(s.zip)}</b> at pickup` : esc(s.distance)} · ${esc(c.quote || "Available for pickup")}</small></div>
+        <small>${esc((c.storage ? c.storage + " " : "") + c.color)} · ${s.zip ? `type ZIP <b style="color:var(--text)">${esc(s.zip)}</b> at pickup` : esc(s.distance)} · ${esc(c.quote || "Available for pickup")}</small></div>
         <a class="cta ok" href="${esc(c.url)}" target="_blank" rel="noopener">Buy now →</a></div>`;
     } else {
       const r = restocks(), last = r[r.length - 1];
@@ -494,7 +496,7 @@
         <div class="colors">
           ${s.colors.map((c) => `
             <div class="crow">
-              <span class="swatch ${swatchClass(c.color)}">${esc(c.color)}</span>
+              <span class="swatch ${swatchClass(c.color)}">${esc(c.storage ? c.storage.replace("GB", "") + " · " : "")}${esc(c.color)}</span>
               ${c.available
                 ? `<a class="state yes" href="${esc(c.url)}" target="_blank" rel="noopener">${esc(c.quote || "Available")} · Buy →</a>`
                 : `<span class="state no">Sold out</span>`}
@@ -531,7 +533,7 @@
     return `
       <div class="wrow" ${delay}>
         <a class="wmain" href="${esc(buy)}" target="_blank" rel="noopener"><b>${esc(s.name)}</b><small>${sub}</small></a>
-        <div class="minis">${s.colors.map((c) => `<a class="mini" href="${esc(c.url)}" target="_blank" rel="noopener"><i class="${swatchClass(c.color)}"></i><span>${esc(c.color)}</span></a>`).join("")}
+        <div class="minis">${s.colors.map((c) => `<a class="mini" href="${esc(c.url)}" target="_blank" rel="noopener"><i class="${swatchClass(c.color)}"></i><b class="gb">${esc((c.storage || "").replace("GB", ""))}</b><span>${esc(c.color)}</span></a>`).join("")}
           ${s.maps_url ? `<a class="mini pin" href="${esc(s.maps_url)}" target="_blank" rel="noopener" aria-label="Directions">📍</a>` : ""}
           <button class="rbtn${spinningStore === s.id ? " spin" : ""}" data-store="${esc(s.id)}" aria-label="Re-check ${esc(s.name)}"><span>↻</span></button></div>
       </div>`;

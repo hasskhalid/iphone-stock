@@ -1,5 +1,6 @@
 {
   "zip": "YOUR_ZIP",
+  "extra_zips": ["SECOND_AREA_ZIP"],
   "ntfy_topic": "your-private-ntfy-topic",
   "telegram_bot_token": "",
   "telegram_chat_id": "",

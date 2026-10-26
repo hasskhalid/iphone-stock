@@ -299,7 +299,9 @@ def dispatch_alert(settings: dict, title: str, message: str, click: str, *, dry_
 
 
 def color_of(m: dict) -> str:
-    return m.get("color") or m.get("label", "").replace("iPhone Duo 256GB", "").strip() or m.get("part", "")
+    """'256GB Night Sky' (storage + color) so 256/512 alerts are never confused."""
+    label = m.get("label", "").replace("iPhone Duo", "").strip()
+    return label or m.get("color") or m.get("part", "")
 
 
 def store_line(s: dict) -> str:
@@ -343,6 +345,9 @@ def load_settings(config: dict) -> dict:
     return {
         "models": [m for m in config.get("models", []) if m.get("part") and "REPLACE" not in m["part"]],
         "zip": os.environ.get("APPLE_ZIP") or str(config.get("zip", "")),
+        # Extra search centers (Apple only returns the ~12 nearest stores per ZIP). Checks rotate
+        # through zones one per request, so adding a zone doesn't add requests to Apple.
+        "extra_zips": [z.strip() for z in (os.environ.get("APPLE_EXTRA_ZIPS") or ",".join(config.get("extra_zips", []))).split(",") if z.strip()],
         "max_stores": int(config.get("max_stores", 12)),
         "radius": float(radius) if radius else None,
         "topic": (os.environ.get("NTFY_TOPIC") or str(config.get("ntfy_topic", ""))).strip(),
@@ -368,6 +373,30 @@ def seconds_since(iso: str | None) -> float | None:
     return (datetime.now(timezone.utc) - then).total_seconds()
 
 
+ZONE_MAX_AGE = 1800   # drop a zone's cached stores if it hasn't been checked for 30 min
+
+
+def merge_zones(zones: dict, models: list[dict]) -> list[dict]:
+    """Union of stores across zones per model, freshest zone wins on overlap, nearest first."""
+    order = sorted(zones.items(), key=lambda kv: kv[1].get("checked_at", ""), reverse=True)
+    merged = []
+    for m in models:
+        seen, rows = set(), []
+        for _, z in order:
+            for zm in z.get("models", []):
+                if zm.get("part") != m["part"]:
+                    continue
+                for st in zm.get("stores", []):
+                    if st["id"] not in seen:
+                        seen.add(st["id"]); rows.append(st)
+        rows.sort(key=lambda r: (r.get("miles") is None, r.get("miles") or 0))
+        template = next((zm for _, z in order for zm in z.get("models", []) if zm.get("part") == m["part"]), {})
+        merged.append({**{k: v for k, v in template.items() if k != "stores"}, "part": m["part"],
+                       "label": m.get("label", m["part"]), "color": m.get("color", ""),
+                       "url": m.get("url") or BUY_URL, "any_available": any(r["available"] for r in rows), "stores": rows})
+    return merged
+
+
 def check_once(settings: dict, prev: dict, history: dict, *, source: str = "cli",
                fixture: str | None = None, dry_run: bool = False, log=print) -> tuple[dict, dict, list]:
     """One full check: fetch, parse, log history events, send alerts.
@@ -391,13 +420,29 @@ def check_once(settings: dict, prev: dict, history: dict, *, source: str = "cli"
             raise RuntimeError("No models configured. Add part numbers to config.json.")
         if not fixture and not settings["zip"]:
             raise RuntimeError("No ZIP code. Set the APPLE_ZIP secret or 'zip' in config.json.")
-        data = load_json(fixture, None) if fixture else fetch_apple([m["part"] for m in models], settings["zip"])
+        zips = [settings["zip"]] + list(settings.get("extra_zips") or [])
+        idx = int(prev.get("next_zone", 0) or 0) % len(zips)
+        data = load_json(fixture, None) if fixture else fetch_apple([m["part"] for m in models], zips[idx])
         if data is None:
             raise RuntimeError(f"Could not read fixture {fixture}")
-        status["models"] = parse_response(data, models, settings["max_stores"], settings["radius"])
+        parsed = parse_response(data, models, settings["max_stores"], settings["radius"])
+        if len(zips) == 1:
+            status["models"] = parsed
+        else:
+            # Zones are keyed z0, z1… (never the ZIP itself: status.json is public).
+            zones = {k: v for k, v in (prev.get("zones") or {}).items()
+                     if k in {f"z{i}" for i in range(len(zips))}
+                     and (seconds_since(v.get("checked_at")) or 0) < ZONE_MAX_AGE}
+            zones[f"z{idx}"] = {"checked_at": status["checked_at"], "models": parsed}
+            status["zones"] = zones
+            status["next_zone"] = (idx + 1) % len(zips)
+            status["models"] = merge_zones(zones, models)
     except Exception as e:  # keep the last good data visible on the dashboard
         status["error"] = str(e)
         status["models"] = prev.get("models", [])
+        for k in ("zones", "next_zone"):
+            if k in prev:
+                status[k] = prev[k]
         status["last_success_at"] = prev.get("last_success_at") or prev.get("checked_at")
         log(f"ERROR: {e}")
         return status, history, alerts
