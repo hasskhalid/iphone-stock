@@ -74,7 +74,7 @@ home-screen dashboard. Keep it free to run and dependency-light.
   dispatches check-stock.yml; with the PC live, Refresh dispatches it with input
   `force: true` (skips --defer-to-pc) when the last check is > 45s old, so a tap always means
   a real Apple check. Then it syncs every 8s until a fresh check lands.
-  Chibi mascot in the header (moods: watching / happy when in stock / sleepy when stale; tap for random tricks with quips). Live scan bar (fills toward the next check, "checks again in ~Xs"), shimmer across rows when a fresh check lands, sliding tab underline, 0.18s tab fade, staggered entrance on first load, stat pop on change, ↻ buttons spin continuously (fast while checking) and flip to a green ✓ wave top-to-bottom when a fresh check lands; twinkling star background, footer; per-store ↻ buttons (kick the same forced check; all stores are checked together). Stats strip (in stock / last seen / restocks), per-store "restocked Xm ago" from history,
+  Duo chibi mascots in the header (moods: watching / happy when in stock / sleepy when stale; rotating quips every ~14s; tap for random tricks). Live scan bar (fills toward the next check, "checks again in ~Xs"), shimmer across rows when a fresh check lands, sliding tab underline, 0.18s tab fade, staggered entrance on first load, stat pop on change, ↻ buttons spin continuously (fast while checking) and flip to a green ✓ wave top-to-bottom when a fresh check lands; twinkling star background, footer; per-store ↻ buttons (kick the same forced check; all stores are checked together). Stats strip (in stock / last seen / restocks), per-store "restocked Xm ago" from history,
   green page glow while anything is in stock. "Patterns & news" tab renders `docs/news.json`
   ({updated_at, summary, items:[{title, summary, source, url, date}]}), refreshed daily at 7:47 AM ET
   by a scheduled Claude task (paraphrased summaries with links, never copied text) and links out to other trackers (Manzana, Apple Inventory Check, iPhone Stock
@@ -103,7 +103,9 @@ On failure the checker keeps the previous `models` and sets `error`.
 ## Conventions
 - Run `python -m unittest discover tests` before committing; add a test for any
   parsing or alert-logic change. Tests are offline (fixtures built in the test file).
-- Dashboard: single HTML file, no build step, no frameworks, works in light and dark
-  mode and at phone width. Bump `CACHE` in `docs/sw.js` when changing shell files.
+- Dashboard: single HTML file, no build step, no frameworks, always dark (Night Sky + Star
+  White palette, two chibi mascots: Night Sky left, Star White right), works at iPhone PWA and
+  desktop widths. Store list is closest first (numbered); in-stock stores jump to the top as
+  cards and drop back when they sell out. Animations are transform/opacity only and pause when hidden. Bump `CACHE` in `docs/sw.js` when changing shell files.
 - Alerts must stay transition-based (no repeat pushes while still in stock).
 - No auto-checkout: purchases stay manual (owner taps the alert, buys with Apple Pay).

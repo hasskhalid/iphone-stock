@@ -4,7 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Duo Watch</title>
-<meta name="theme-color" content="#12101f">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#070a16">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -13,341 +14,353 @@
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon-180.png">
 <style>
+  /* Night Sky + Star White, always dark. */
   :root {
-    --bg: #12101f; --panel: #1a1730; --card: #1e1a36; --card-2: #262143;
-    --line: #322c55; --text: #f4f0ff; --muted: #a8a1cc; --faint: #6f6896;
-    --accent: #ff9ecf; --accent-ink: #2b0f1e; --accent-soft: rgba(255,158,207,.13);
-    --ok: #5cf2a3; --ok-ink: #062615; --ok-soft: rgba(92,242,163,.14);
-    --bad: #ff7a8a; --link: #bba8ff; --lilac: #c9b8ff;
-    --night: #2a2550; --night-ink: #e6e0ff; --white: #f7f2ea; --white-ink: #2a2433;
-    --radius: 22px;
-  }
-  @media (prefers-color-scheme: light) {
-    :root:not([data-theme="dark"]) {
-      --bg: #f6f2ff; --panel: #ffffff; --card: #ffffff; --card-2: #f3eeff;
-      --line: #e6dcff; --text: #231c3d; --muted: #6d6490; --faint: #a39cc0;
-      --accent: #e0559b; --accent-ink: #ffffff; --accent-soft: rgba(224,85,155,.10);
-      --ok: #14995a; --ok-ink: #ffffff; --ok-soft: rgba(20,153,90,.10);
-      --link: #6b4fd8; --lilac: #8f74f0;
-      --night: #2a2550; --night-ink: #f0ebff; --white: #f7f2ea; --white-ink: #2a2433;
-    }
+    color-scheme: dark;
+    --bg: #070a16; --bg-2: #0c1226;
+    --panel: #10172e; --card: #131b36; --card-2: #1a2347; --line: #253058;
+    --text: #f4f1ea; --muted: #a2abcf; --faint: #69739c;
+    --night: #6f8cff; --night-deep: #1d2a5c; --star: #f4f1ea; --star-ink: #20263f;
+    --gold: #ffd98a; --ok: #6ef2b1; --ok-ink: #04261a; --ok-soft: rgba(110,242,177,.12);
+    --bad: #ff8a9a; --link: #a9b9ff;
+    --sky: linear-gradient(90deg, #6f8cff, #c7d0ff 55%, #f4f1ea);
+    --r: 20px;
   }
   * { box-sizing: border-box; }
-  html, body { margin: 0; background: var(--bg); color: var(--text); }
-  body { background-image: radial-gradient(700px 380px at 20% -140px, rgba(201,184,255,.16), transparent 70%), radial-gradient(600px 340px at 95% -120px, rgba(255,158,207,.12), transparent 70%); background-repeat: no-repeat; }
-  body.instock { background-image: radial-gradient(900px 460px at 50% -160px, rgba(92,242,163,.24), transparent 70%); }
-  .brand { display: flex; align-items: center; gap: 10px; }
-  .mascot { width: 64px; height: 70px; flex: none; overflow: visible; }
-  .mascot .bod { transform-origin: 60px 112px; animation: idle 3.2s ease-in-out infinite; }
-  .mascot .eyes-open { transform-origin: 60px 58px; animation: blink 4.5s infinite; }
-  .mascot .pupils { animation: look 6s ease-in-out infinite; }
-  .mascot .eyes-shut, .mascot .zzz, .mascot .spark, .mascot .mouth-o { display: none; }
-  .mascot.happy .bod { animation: hop .55s ease-in-out infinite; }
-  .mascot.happy .spark { display: block; animation: twinkle 1s ease-in-out infinite; }
-  .mascot.happy .mouth-smile { display: none; } .mascot.happy .mouth-o { display: block; }
-  .mascot.happy .pupils { animation: none; }
-  .mascot.sleepy .eyes-open { display: none; } .mascot.sleepy .eyes-shut { display: block; }
-  .mascot.sleepy .zzz { display: block; animation: drift 2.4s ease-in-out infinite; }
-  .mascot.sleepy .bod { animation: idle 5s ease-in-out infinite; }
-  @keyframes idle { 0%,100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-2px) rotate(-1.5deg); } }
-  @keyframes hop { 0%,100% { transform: translateY(0) scale(1,1); } 40% { transform: translateY(-9px) scale(.97,1.03); } 80% { transform: translateY(0) scale(1.04,.96); } }
-  @keyframes blink { 0%,92%,100% { transform: scaleY(1); } 95% { transform: scaleY(.1); } }
-  @keyframes look { 0%,40%,100% { transform: translateX(0); } 50%,60% { transform: translateX(2.5px); } 75%,85% { transform: translateX(-2.5px); } }
-  @keyframes twinkle { 0%,100% { opacity: .2; transform: scale(.7); } 50% { opacity: 1; transform: scale(1.1); } }
-  @keyframes drift { 0% { opacity: 0; transform: translate(0,4px); } 50% { opacity: 1; } 100% { opacity: 0; transform: translate(6px,-8px); } }
-  .mascot { cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
-  .mascot .hearts, .mascot .notes, .mascot .wink { display: none; }
-  .mascot.t-spin .bod { animation: spin .8s cubic-bezier(.5,-0.3,.4,1.3); transform-origin: 60px 62px; }
-  .mascot.t-flip .bod { animation: flip .9s ease-in-out; transform-origin: 60px 62px; }
-  .mascot.t-wiggle .bod { animation: wiggle .6s ease-in-out 2; }
-  .mascot.t-fold .bod { animation: fold 1s ease-in-out; transform-origin: 60px 62px; }
-  .mascot.t-jump .bod { animation: jump .7s cubic-bezier(.3,1.6,.5,1); }
-  .mascot.t-love .hearts { display: block; animation: floatup 1.4s ease-out; }
-  .mascot.t-love .bod { animation: wiggle .5s ease-in-out 2; }
-  .mascot.t-dance .notes { display: block; animation: twinkle .5s ease-in-out 3; }
-  .mascot.t-dance .bod { animation: dance .5s ease-in-out 3; transform-origin: 60px 112px; }
-  .mascot.t-wink .wink { display: block; }
-  .mascot.t-wink .eyes-open ellipse:nth-of-type(2), .mascot.t-wink .pupils circle:nth-child(2), .mascot.t-wink .pupils circle:nth-child(4) { display: none; }
-  .mascot.t-squish .bod { animation: squish .5s ease-in-out 2; transform-origin: 60px 112px; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  @keyframes flip { 0% { transform: scaleX(1); } 50% { transform: scaleX(-1); } 100% { transform: scaleX(1); } }
-  @keyframes wiggle { 0%,100% { transform: rotate(0); } 25% { transform: rotate(-12deg); } 75% { transform: rotate(12deg); } }
-  @keyframes fold { 0%,100% { transform: scaleX(1); } 35%,60% { transform: scaleX(.18); } }
-  @keyframes jump { 0%,100% { transform: translateY(0); } 45% { transform: translateY(-22px) rotate(-8deg); } }
-  @keyframes floatup { 0% { opacity: 0; transform: translateY(10px) scale(.6); } 30% { opacity: 1; } 100% { opacity: 0; transform: translateY(-26px) scale(1.2); } }
-  @keyframes dance { 0%,100% { transform: rotate(0) translateY(0); } 25% { transform: rotate(-10deg) translateY(-4px); } 75% { transform: rotate(10deg) translateY(-4px); } }
-  @keyframes squish { 0%,100% { transform: scale(1,1); } 50% { transform: scale(1.18,.8); } }
-  @media (prefers-reduced-motion: reduce) { .mascot * { animation: none !important; } }
-  .bubble { display: inline-block; margin-top: 6px; background: var(--card-2); border: 1px solid var(--line); color: var(--text); font-size: 12.5px; font-weight: 600; padding: 5px 11px; border-radius: 14px 14px 14px 4px; }
-  body.instock .bubble { background: var(--ok-soft); border-color: var(--ok); color: var(--ok); }
-  /* Stats strip */
-  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
-  .stat { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; min-width: 0; }
-  .stat b { display: block; font-size: 20px; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .stat small { color: var(--muted); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; white-space: nowrap; }
-  .stat.hot { border-color: var(--ok); background: var(--ok-soft); }
-  .stat.hot b { color: var(--ok); }
-  .wrow small em { font-style: normal; color: var(--accent); }
-  /* Insights */
-  a.row { color: var(--text); } a.row b { color: var(--text); }
-  .row > div { min-width: 0; } .row .tag { flex: none; }
-  .insight { padding: 14px 16px; border-top: 1px solid var(--line); }
-  .insight:first-child { border-top: 0; }
-  .insight b { display: block; margin-bottom: 2px; }
-  .insight span { color: var(--muted); font-size: 13px; }
-  .insight a { font-size: 12px; }
+  html { background: var(--bg); -webkit-text-size-adjust: 100%; }
   body {
-    font: 15px/1.45 ui-rounded, "SF Pro Rounded", "Nunito", "Varela Round", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    padding: max(14px, env(safe-area-inset-top)) 16px max(28px, env(safe-area-inset-bottom));
-    -webkit-font-smoothing: antialiased;
+    margin: 0; color: var(--text); background: radial-gradient(900px 520px at 50% -220px, #18235a 0%, transparent 70%), var(--bg);
+    font: 15px/1.45 ui-rounded, "SF Pro Rounded", "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    padding: max(12px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(28px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+    -webkit-font-smoothing: antialiased; min-height: 100vh;
   }
-  .wrap { max-width: 1120px; margin: 0 auto; }
+  body.instock { background: radial-gradient(900px 520px at 50% -200px, rgba(110,242,177,.22) 0%, transparent 70%), var(--bg); }
+  /* One fixed starfield layer: cheap to animate (opacity only). */
+  body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: .7;
+    background-image:
+      radial-gradient(1.6px 1.6px at 12% 18%, #fff, transparent), radial-gradient(1px 1px at 78% 9%, #fff, transparent),
+      radial-gradient(1.2px 1.2px at 52% 32%, #c7d0ff, transparent), radial-gradient(1px 1px at 88% 41%, #fff, transparent),
+      radial-gradient(1.4px 1.4px at 22% 63%, #ffe7b0, transparent), radial-gradient(1px 1px at 66% 72%, #fff, transparent),
+      radial-gradient(1.3px 1.3px at 36% 88%, #c7d0ff, transparent), radial-gradient(1px 1px at 93% 84%, #fff, transparent),
+      radial-gradient(1px 1px at 5% 92%, #fff, transparent), radial-gradient(1.2px 1.2px at 44% 6%, #ffe7b0, transparent),
+      radial-gradient(1px 1px at 70% 55%, #fff, transparent), radial-gradient(1.1px 1.1px at 8% 40%, #c7d0ff, transparent);
+    animation: twinkleSky 7s ease-in-out infinite; }
+  @keyframes twinkleSky { 0%,100% { opacity: .7; } 50% { opacity: .3; } }
+  .wrap { max-width: 980px; margin: 0 auto; }
   a { color: var(--link); text-decoration: none; }
-  button { font: inherit; cursor: pointer; }
+  button { font: inherit; cursor: pointer; color: inherit; }
+  [hidden] { display: none !important; }
 
-  /* Header */
-  .top { display: flex; justify-content: space-between; align-items: flex-end; gap: 10px 12px; padding: 10px 2px 16px; flex-wrap: wrap; }
-  .top > div:first-child { min-width: 0; }
-  @media (max-width: 639px) { .top > div:first-child { flex: 1 1 100%; } .meta { width: 100%; } .meta .icon-btn { margin-left: auto; } }
-  .eyebrow { font-size: 11px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
-  h1 { font-size: 28px; letter-spacing: -0.02em; margin: 4px 0 0; white-space: nowrap; }
-  h1 span { color: var(--muted); font-weight: 600; }
-  .meta { display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: 13px; white-space: nowrap; }
-  .sync { display: flex; align-items: center; gap: 10px; min-width: 0; }
-  .sync-text { line-height: 1.25; min-width: 0; }
-  #source { color: var(--text); font-weight: 600; font-size: 13px; }
-  #age { font-size: 12px; font-variant-numeric: tabular-nums; }
+  /* ---------- Header: the Duo chibis ---------- */
+  .top { display: flex; align-items: center; gap: 12px; padding: 6px 0 12px; }
+  .mascot { width: 118px; height: 78px; flex: none; overflow: visible; cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+  .mascot .bod { transform-box: fill-box; transform-origin: 50% 100%; animation: idle 3.2s ease-in-out infinite; }
+  .mascot .b .bod { animation-delay: -1.6s; }
+  .mascot .eyes { transform-box: fill-box; transform-origin: 50% 50%; animation: blink 4.6s infinite; }
+  .mascot .b .eyes { animation-delay: .25s; }
+  .mascot .pupils { animation: look 6s ease-in-out infinite; }
+  .mascot .shut, .mascot .zzz, .mascot .spark, .mascot .oh, .mascot .wink, .mascot .hearts, .mascot .notes, .mascot .stars { display: none; }
+  .mascot.happy .bod { animation: hop .55s ease-in-out infinite; }
+  .mascot.happy .b .bod { animation-delay: -.27s; }
+  .mascot.happy .spark { display: block; animation: twinkle 1s ease-in-out infinite; }
+  .mascot.happy .smile { display: none; } .mascot.happy .oh { display: block; }
+  .mascot.sleepy .eyes { display: none; } .mascot.sleepy .shut { display: block; }
+  .mascot.sleepy .zzz { display: block; animation: drift 2.6s ease-in-out infinite; }
+  .mascot.sleepy .bod { animation: idle 5.5s ease-in-out infinite; }
+  .mascot.t-spin .bod { animation: spin .8s cubic-bezier(.5,-.3,.4,1.3); transform-origin: 50% 50%; }
+  .mascot.t-flip .bod { animation: flip .9s ease-in-out; transform-origin: 50% 50%; }
+  .mascot.t-wiggle .bod { animation: wiggle .6s ease-in-out 2; }
+  .mascot.t-jump .bod { animation: jump .7s cubic-bezier(.3,1.6,.5,1); }
+  .mascot.t-jump .b .bod, .mascot.t-wiggle .b .bod, .mascot.t-spin .b .bod, .mascot.t-flip .b .bod { animation-delay: .15s; }
+  .mascot.t-love .hearts { display: block; animation: floatup 1.4s ease-out; }
+  .mascot.t-love .bod { animation: lean .7s ease-in-out 2; }
+  .mascot.t-love .b .bod { animation-name: leanB; }
+  .mascot.t-dance .notes { display: block; animation: twinkle .5s ease-in-out 3; }
+  .mascot.t-dance .bod { animation: dance .5s ease-in-out 3; }
+  .mascot.t-dance .b .bod { animation-direction: reverse; }
+  .mascot.t-wink .wink { display: block; } .mascot.t-wink .eye-r { display: none; }
+  .mascot.t-squish .bod { animation: squish .5s ease-in-out 2; }
+  .mascot.t-star .stars { display: block; animation: floatup 1.3s ease-out; }
+  .mascot.t-star .bod { animation: jump .7s cubic-bezier(.3,1.6,.5,1); }
+  .mascot.t-swap .a .bod { animation: swapA 1s ease-in-out; } .mascot.t-swap .b .bod { animation: swapB 1s ease-in-out; }
+  @keyframes idle { 0%,100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-2px) rotate(-1.5deg); } }
+  @keyframes hop { 0%,100% { transform: translateY(0) scale(1,1); } 40% { transform: translateY(-8px) scale(.97,1.03); } 80% { transform: translateY(0) scale(1.04,.96); } }
+  @keyframes blink { 0%,92%,100% { transform: scaleY(1); } 95% { transform: scaleY(.1); } }
+  @keyframes look { 0%,40%,100% { transform: translateX(0); } 50%,60% { transform: translateX(2px); } 75%,85% { transform: translateX(-2px); } }
+  @keyframes twinkle { 0%,100% { opacity: .2; } 50% { opacity: 1; } }
+  @keyframes drift { 0% { opacity: 0; transform: translate(0,4px); } 50% { opacity: 1; } 100% { opacity: 0; transform: translate(6px,-8px); } }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes flip { 50% { transform: scaleX(-1); } }
+  @keyframes wiggle { 25% { transform: rotate(-12deg); } 75% { transform: rotate(12deg); } }
+  @keyframes jump { 45% { transform: translateY(-18px) rotate(-8deg); } }
+  @keyframes lean { 50% { transform: rotate(10deg) translateX(3px); } }
+  @keyframes leanB { 50% { transform: rotate(-10deg) translateX(-3px); } }
+  @keyframes dance { 25% { transform: rotate(-10deg) translateY(-4px); } 75% { transform: rotate(10deg) translateY(-4px); } }
+  @keyframes squish { 50% { transform: scale(1.16,.82); } }
+  @keyframes swapA { 50% { transform: translateX(46px) translateY(-10px); } }
+  @keyframes swapB { 50% { transform: translateX(-46px) translateY(6px); } }
+  @keyframes floatup { 0% { opacity: 0; transform: translateY(8px); } 30% { opacity: 1; } 100% { opacity: 0; transform: translateY(-22px); } }
+  .title { min-width: 0; flex: 1; }
+  .eyebrow { font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--faint); }
+  h1 { margin: 2px 0 0; font-size: 26px; letter-spacing: -.02em; line-height: 1.1;
+       background: var(--sky); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .bubble { display: inline-block; margin-top: 7px; max-width: 100%; background: var(--card-2); border: 1px solid var(--line);
+            font-size: 13px; font-weight: 600; padding: 6px 12px; border-radius: 16px 16px 16px 4px; }
+  .bubble.say { animation: say .35s cubic-bezier(.3,1.5,.5,1); }
+  @keyframes say { from { transform: scale(.9) translateY(4px); opacity: 0; } }
+  body.instock .bubble { background: var(--ok-soft); border-color: var(--ok); color: var(--ok); }
+
+  /* ---------- Status strip ---------- */
+  .status { display: flex; align-items: center; gap: 10px; background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 10px 10px 10px 14px; }
   .live { flex: none; width: 9px; height: 9px; border-radius: 50%; background: var(--faint); }
   .live.ok { background: var(--ok); animation: pulse 2s ease-out infinite; }
-  .live.warn { background: var(--accent); }
-  .live.stale { background: var(--bad); }
-  @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(61,220,132,.55); } 100% { box-shadow: 0 0 0 9px rgba(61,220,132,0); } }
+  .live.warn { background: var(--gold); } .live.stale { background: var(--bad); }
+  @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(110,242,177,.5); } 100% { box-shadow: 0 0 0 9px rgba(110,242,177,0); } }
+  .status-text { flex: 1; min-width: 0; line-height: 1.25; }
+  #source { font-weight: 700; font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #age { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+  .icon-btn { flex: none; border: 1px solid var(--line); background: var(--card-2); border-radius: 999px; padding: 8px 14px; font-size: 13px; font-weight: 700; }
   .icon-btn[disabled] { opacity: .6; }
   .spin { display: inline-block; width: 12px; height: 12px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: rot .7s linear infinite; vertical-align: -2px; margin-right: 6px; }
   @keyframes rot { to { transform: rotate(360deg); } }
-  .ptr { height: 0; overflow: hidden; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 12.5px; transition: height .15s; }
-  .toast { max-width: calc(100vw - 32px); white-space: normal; text-align: center; position: fixed; left: 50%; bottom: max(18px, env(safe-area-inset-bottom)); transform: translateX(-50%) translateY(20px); background: var(--card-2); color: var(--text); border: 1px solid var(--line); padding: 8px 14px; border-radius: 999px; font-size: 13px; font-weight: 600; opacity: 0; transition: .2s; pointer-events: none; z-index: 5; }
-  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-  @media (prefers-reduced-motion: reduce) { .live.ok, .spin { animation: none; } }
-  .icon-btn { border: 1px solid var(--line); background: var(--card); color: var(--text); border-radius: 999px; padding: 7px 12px; font-size: 13px; font-weight: 600; }
+  .scan { position: relative; height: 5px; border-radius: 99px; background: var(--card-2); overflow: hidden; margin: 10px 2px 4px; }
+  .scan i { position: absolute; inset: 0 auto 0 0; width: 0%; border-radius: 99px; background: var(--sky); transition: width 1s linear; }
+  .scan.due i { width: 100% !important; background: linear-gradient(90deg, #6f8cff, #f4f1ea, #6f8cff); background-size: 200% 100%; animation: slide 1.2s linear infinite; }
+  @keyframes slide { to { background-position: -200% 0; } }
+  .scan-label { display: flex; justify-content: space-between; gap: 8px; color: var(--faint); font-size: 11.5px; margin: 0 4px 12px; }
 
-  /* Tabs */
-  .tabs { display: flex; gap: 22px; border-bottom: 1px solid var(--line); margin-bottom: 16px; overflow-x: auto; }
-  .tab { background: none; border: 0; color: var(--muted); padding: 10px 0 12px; font-weight: 600; font-size: 14px; border-bottom: 2px solid transparent; white-space: nowrap; }
-  .tab[aria-selected="true"] { color: var(--text); border-bottom-color: var(--accent); }
+  /* ---------- Tabs ---------- */
+  .tabs { position: relative; display: flex; gap: 6px; background: var(--panel); border: 1px solid var(--line); border-radius: 999px; padding: 4px; margin: 4px 0 14px; }
+  .tab { position: relative; z-index: 1; flex: 1; background: none; border: 0; color: var(--muted); padding: 8px 6px; font-weight: 700; font-size: 13.5px; border-radius: 999px; white-space: nowrap; transition: color .2s; }
+  .tab[aria-selected="true"] { color: var(--star-ink); }
+  .tab-ink { position: absolute; top: 4px; bottom: 4px; left: 0; border-radius: 999px; background: var(--star); box-shadow: 0 2px 10px rgba(199,208,255,.25);
+             transition: transform .28s cubic-bezier(.3,.9,.3,1.1), width .28s ease; will-change: transform; }
+  section.enter { animation: tabIn .18s ease-out; }
+  @keyframes tabIn { from { opacity: 0; transform: translateY(6px); } }
 
-  /* Banner */
-  .banner { border-radius: var(--radius); padding: 16px; margin-bottom: 16px; display: flex; gap: 14px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
-  .banner.calm { background: var(--accent-soft); border: 1px solid rgba(255,158,207,.35); }
-  .banner.hot { background: var(--ok-soft); border: 1px solid var(--ok); }
-  .banner.err { background: rgba(255,107,107,.1); border: 1px solid rgba(255,107,107,.4); color: var(--text); }
+  /* ---------- Stats ---------- */
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
+  .stat { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 10px 12px; min-width: 0; }
+  .stat small { display: block; color: var(--faint); font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; white-space: nowrap; }
+  .stat b { display: inline-block; font-size: 19px; letter-spacing: -.02em; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .stat.hot { border-color: var(--ok); background: var(--ok-soft); } .stat.hot b { color: var(--ok); }
+  .stat b.pop { animation: pop .45s cubic-bezier(.3,1.8,.5,1); }
+  @keyframes pop { 40% { transform: scale(1.25); } }
+  body:not([data-tab="stock"]) .stats, body:not([data-tab="stock"]) #banner .calm { display: none; }
+
+  /* ---------- Banner ---------- */
+  .banner { border-radius: var(--r); padding: 14px 16px; margin-bottom: 12px; display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
   .banner b { display: block; font-size: 15px; margin-bottom: 2px; }
   .banner small { color: var(--muted); font-size: 13px; }
-  .cta { display: inline-flex; align-items: center; gap: 8px; border-radius: 999px; padding: 11px 18px; font-weight: 700; font-size: 14px; border: 0; white-space: nowrap; }
-  .cta.accent { background: var(--accent); color: var(--accent-ink); }
+  .banner.calm { background: var(--panel); border: 1px solid var(--line); }
+  .banner.hot { background: var(--ok-soft); border: 1px solid var(--ok); animation: breathe 1.6s ease-in-out infinite; }
+  .banner.err { background: rgba(255,138,154,.08); border: 1px solid rgba(255,138,154,.4); }
+  @keyframes breathe { 50% { box-shadow: 0 0 26px 2px rgba(110,242,177,.28); } }
+  .cta { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 11px 18px; font-weight: 800; font-size: 14px; white-space: nowrap; }
+  .cta.star { background: var(--star); color: var(--star-ink); }
   .cta.ok { background: var(--ok); color: var(--ok-ink); }
 
-  /* Sections */
-  .sec { display: flex; justify-content: space-between; align-items: baseline; margin: 18px 2px 10px; }
-  .sec h2 { margin: 0; }
+  /* ---------- Store list ---------- */
+  .sec { display: flex; justify-content: space-between; align-items: baseline; margin: 16px 4px 8px; }
+  .sec h2 { margin: 0; font-size: 12px; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); }
   .sec span { color: var(--faint); font-size: 12px; }
   .sec.hot h2 { color: var(--ok); }
-  /* Compact sold-out list */
-  .watch { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
-  .wrow { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 11px 14px; border-top: 1px solid var(--line); color: var(--text); }
+  .grid { display: grid; gap: 12px; }
+  @media (min-width: 720px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+  .watch { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; }
+  @media (min-width: 900px) { .watch { display: grid; grid-template-columns: 1fr 1fr; } .watch .wrow:nth-child(2) { border-top: 0; } .watch .wrow:nth-child(odd) { border-right: 1px solid var(--line); } }
+  .wrow { position: relative; display: flex; align-items: center; gap: 10px; padding: 11px 12px 11px 14px; border-top: 1px solid var(--line); }
   .wrow:first-child { border-top: 0; }
-  .wmain { color: var(--text); min-width: 0; flex: 1; }
-  /* Live scan bar: fills up toward the next PC check */
-  .scan { position: relative; height: 6px; border-radius: 99px; background: var(--card-2); overflow: hidden; margin: -4px 2px 14px; }
-  .scan i { position: absolute; inset: 0 auto 0 0; width: 0%; border-radius: 99px; background: linear-gradient(90deg, var(--lilac), var(--accent)); transition: width 1s linear; }
-  .scan.due i { width: 100% !important; background: linear-gradient(90deg, var(--lilac), var(--accent), var(--lilac)); background-size: 200% 100%; animation: slide 1.2s linear infinite; }
-  .scan-label { display: flex; justify-content: space-between; color: var(--faint); font-size: 11.5px; margin: -10px 4px 14px; }
-  @keyframes slide { to { background-position: -200% 0; } }
-  /* Fresh-check shimmer across store rows */
-  .wrow, .store { position: relative; }
-  .fresh .wrow::after, .fresh .store::after { content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
-    background: linear-gradient(100deg, transparent 20%, rgba(201,184,255,.14) 50%, transparent 80%); background-size: 250% 100%; animation: shimmer 1.1s ease-out 1; }
-  @keyframes shimmer { from { background-position: 150% 0; } to { background-position: -100% 0; } }
-  /* Snappy, GPU-friendly motion (transform/opacity only) */
-  button, .mini, .cta, .wrow, .stat { transition: transform .12s ease, background-color .2s ease, border-color .2s ease; }
-  button:active, .mini:active, .cta:active { transform: scale(.95); }
-  .wrow:active { transform: scale(.99); }
-  .tabs { position: relative; }
-  .tab { border-bottom-color: transparent !important; transition: color .2s ease; }
-  .tab-ink { position: absolute; bottom: -1px; height: 3px; border-radius: 3px; background: linear-gradient(90deg, var(--lilac), var(--accent)); transition: transform .25s cubic-bezier(.3,.9,.3,1.1), width .25s ease; will-change: transform; }
-  section.enter { animation: tabIn .18s ease-out; }
-  @keyframes tabIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-  .intro .wrow, .intro .store, .intro .stat { animation: rise .35s cubic-bezier(.2,.9,.3,1.2) both; }
-  @keyframes rise { from { opacity: 0; transform: translateY(10px) scale(.98); } to { opacity: 1; transform: none; } }
-  .stat b.pop { animation: pop .45s cubic-bezier(.3,1.8,.5,1); display: inline-block; }
-  @keyframes pop { 0% { transform: scale(1); } 40% { transform: scale(1.25); } 100% { transform: scale(1); } }
-  .rbtn span { display: inline-block; animation: rot 3.5s linear infinite; will-change: transform; }
-  .twirl .rbtn span { animation: rot .6s cubic-bezier(.4,1.6,.5,1) 1; }
-  /* "checked" wave: each store flips to a green tick, top to bottom */
-  .rbtn.done { border-color: var(--ok); background: var(--ok-soft); color: var(--ok); }
-  .rbtn.done span { display: none; }
-  .rbtn.done::after { content: "✓"; font-weight: 800; font-size: 14px; animation: pop .4s cubic-bezier(.3,1.8,.5,1); }
-  /* Cozy night sky: one fixed layer, a few twinkling stars */
-  body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: .55;
-    background-image:
-      radial-gradient(1.5px 1.5px at 12% 18%, #fff, transparent), radial-gradient(1px 1px at 78% 9%, #fff, transparent),
-      radial-gradient(1.2px 1.2px at 52% 32%, #e8dcff, transparent), radial-gradient(1px 1px at 88% 41%, #fff, transparent),
-      radial-gradient(1.4px 1.4px at 22% 63%, #ffd6ec, transparent), radial-gradient(1px 1px at 66% 72%, #fff, transparent),
-      radial-gradient(1.3px 1.3px at 36% 88%, #e8dcff, transparent), radial-gradient(1px 1px at 93% 84%, #fff, transparent),
-      radial-gradient(1px 1px at 5% 92%, #fff, transparent), radial-gradient(1.2px 1.2px at 44% 6%, #ffd6ec, transparent);
-    animation: twinkleSky 6s ease-in-out infinite; }
-  @keyframes twinkleSky { 0%,100% { opacity: .55; } 50% { opacity: .25; } }
-  @media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) body::before { display: none; } }
-  .foot { text-align: center; color: var(--faint); font-size: 12.5px; margin: 28px 0 6px; }
-  .foot b { color: var(--lilac); font-weight: 700; }
-  body.scanning .rbtn span, .rbtn.spin span { animation: rot .9s linear infinite; }
-  .banner.hot { animation: breathe 1.6s ease-in-out infinite; }
-  @keyframes breathe { 0%,100% { box-shadow: 0 0 0 0 rgba(92,242,163,.0); } 50% { box-shadow: 0 0 24px 2px rgba(92,242,163,.28); } }
-  @media (prefers-reduced-motion: reduce) { body::before, .rbtn.done::after, section.enter, .intro *, .stat b.pop, .twirl .rbtn span, body.scanning .rbtn span, .rbtn span, .banner.hot { animation: none !important; } }
-  /* Per-store refresh button */
+  .rank { flex: none; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-size: 11px; font-weight: 800; color: var(--muted); background: var(--card-2); }
+  .wmain { flex: 1; min-width: 0; color: var(--text); }
+  .wmain b { display: block; font-size: 14.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .wmain small { display: block; color: var(--muted); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .zipt { color: var(--text); font-weight: 800; letter-spacing: .03em; }
+  .wmain em { font-style: normal; color: var(--gold); }
+  .dots { display: flex; gap: 3px; flex: none; }
+  .dots i { width: 8px; height: 8px; border-radius: 50%; opacity: .35; }
+  .dots i.n { background: var(--night); } .dots i.w { background: var(--star); }
+  .pin { flex: none; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: var(--card-2); border: 1px solid var(--line); font-size: 13px; }
   .rbtn { flex: none; width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--line); background: var(--card-2); color: var(--muted); font-size: 15px; line-height: 1; display: inline-flex; align-items: center; justify-content: center; padding: 0; }
-  .rbtn:active { transform: scale(.92); }
-  .rbtn.spin { color: var(--accent); }
-  .rbtn.spin span { display: inline-block; animation: rot .8s linear infinite; }
-  .store .rbtn { position: absolute; top: 12px; right: 12px; }
-  @media (prefers-reduced-motion: reduce) { .scan i, .fresh .wrow::after, .fresh .store::after, .rbtn.spin span { animation: none !important; transition: none; } }
-  .mini.pin { padding: 4px 7px; }
-  .mini .gb { font-size: 10.5px; font-weight: 800; color: var(--muted); letter-spacing: .02em; }
-  .wrow b { font-size: 14.5px; display: block; }
-  .wrow small { color: var(--muted); font-size: 12px; }
-  .minis { display: flex; gap: 6px; flex: none; }
-  .mini { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 600; color: var(--faint); background: var(--card-2); border: 1px solid var(--line); padding: 4px 8px; border-radius: 999px; }
-  .mini i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
-  .mini i.night { background: #2c3650; box-shadow: 0 0 0 1px #4a5675 inset; }
-  .mini i.white { background: #f4f1ea; box-shadow: 0 0 0 1px #c9c3b6 inset; }
-  @media (max-width: 520px) { .mini span { display: none; } .mini { padding: 7px; } .mini i { width: 12px; height: 12px; } }
-  .wrow small { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .wrow small em { display: inline-block; margin-top: 2px; }
-  .wrow small .zipt { color: var(--text); font-weight: 700; letter-spacing: .03em; }
-  .demo-flag { background: var(--accent-soft); color: var(--accent); border: 1px dashed var(--accent); border-radius: 12px; padding: 8px 12px; font-size: 12.5px; margin-bottom: 12px; text-align: center; }
-  /* Store grid */
-  .grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
-  @media (min-width: 640px) { .grid { grid-template-columns: repeat(2, 1fr); } }
-  @media (min-width: 980px) { .grid { grid-template-columns: repeat(3, 1fr); } }
-  .store { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; text-align: center; }
-  .store.in { border-color: var(--ok); box-shadow: 0 0 0 1px var(--ok) inset; }
-  .store h3 { margin: 0 0 8px; font-size: 17px; letter-spacing: -0.01em; }
-  .chips { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin-bottom: 8px; }
-  .chip { font-size: 11.5px; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: var(--card-2); color: var(--muted); border: 1px solid var(--line); }
-  .chip.ok { background: var(--ok-soft); color: var(--ok); border-color: transparent; }
-  .chip.zip { color: var(--text); font-size: 13px; letter-spacing: .04em; border-color: var(--lilac); }
-  .addr { font-size: 13px; display: block; margin-bottom: 2px; }
-  .phone { font-size: 12.5px; color: var(--muted); }
-  .colors { margin-top: 14px; display: grid; gap: 8px; }
-  .crow { display: grid; grid-template-columns: 112px 1fr; gap: 8px; align-items: center; }
-  .swatch { border-radius: 10px; padding: 8px 6px; font-size: 12.5px; font-weight: 600; }
-  .swatch.night { background: var(--night); color: var(--night-ink); border: 1px solid #2c3650; }
-  .swatch.white { background: var(--white); color: var(--white-ink); border: 1px solid #d8d3c8; }
-  .state { border-radius: 10px; padding: 8px 10px; font-size: 13px; font-weight: 600; text-align: center; }
-  .state.no { background: var(--card-2); color: var(--faint); border: 1px dashed var(--line); }
-  .state.yes { background: var(--ok); color: var(--ok-ink); display: block; }
-  .size-note { color: var(--faint); font-size: 11.5px; margin-top: 10px; }
+  .rbtn span { display: inline-block; }
+  body.scanning .rbtn span, .rbtn.spin span { animation: rot .9s linear infinite; }
+  .rbtn.done { border-color: var(--ok); background: var(--ok-soft); color: var(--ok); }
+  .rbtn.done span { display: none; } .rbtn.done::after { content: "✓"; font-weight: 800; font-size: 14px; animation: pop .4s cubic-bezier(.3,1.8,.5,1); }
 
-  /* Lists */
-  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
-  .row { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 16px; border-top: 1px solid var(--line); }
-  .row:first-child { border-top: 0; }
-  .row .when { color: var(--muted); font-size: 12.5px; white-space: nowrap; }
-  .tag { font-size: 11.5px; font-weight: 700; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
-  .tag.in { background: var(--ok-soft); color: var(--ok); }
-  .tag.out { background: var(--card-2); color: var(--muted); }
-  .empty { color: var(--muted); text-align: center; padding: 36px 16px; font-size: 14px; }
-  h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); margin: 22px 2px 10px; }
+  /* In-stock card */
+  .store { position: relative; background: var(--card); border: 1px solid var(--ok); box-shadow: 0 0 0 1px var(--ok) inset, 0 8px 30px rgba(110,242,177,.12); border-radius: var(--r); padding: 16px; }
+  .store .rbtn { position: absolute; top: 12px; right: 12px; }
+  .store .kicker { color: var(--ok); font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+  .store h3 { margin: 2px 40px 6px 0; font-size: 19px; letter-spacing: -.01em; }
+  .bigzip { display: inline-flex; align-items: baseline; gap: 8px; background: var(--bg-2); border: 1px solid var(--line); border-radius: 12px; padding: 6px 12px; margin-bottom: 8px; }
+  .bigzip small { color: var(--muted); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
+  .bigzip b { font-size: 22px; letter-spacing: .08em; font-variant-numeric: tabular-nums; }
+  .addr { display: block; font-size: 13px; } .phone { font-size: 12.5px; color: var(--muted); }
+  .models { margin-top: 12px; display: grid; gap: 7px; }
+  .mrow { display: grid; grid-template-columns: 128px 1fr; gap: 8px; align-items: center; }
+  .sw { border-radius: 10px; padding: 8px 10px; font-size: 12.5px; font-weight: 700; white-space: nowrap; }
+  .sw.n { background: var(--night-deep); color: #dfe5ff; border: 1px solid #34478f; }
+  .sw.w { background: var(--star); color: var(--star-ink); }
+  .st { border-radius: 10px; padding: 8px 10px; font-size: 13px; font-weight: 700; text-align: center; }
+  .st.no { color: var(--faint); border: 1px dashed var(--line); }
+  .st.yes { display: block; background: var(--ok); color: var(--ok-ink); }
+  .demo-flag { background: rgba(255,217,138,.1); color: var(--gold); border: 1px dashed var(--gold); border-radius: 12px; padding: 8px 12px; font-size: 12.5px; margin-bottom: 12px; text-align: center; }
+  .demo-flag a { color: var(--gold); font-weight: 800; }
+
+  /* Fresh-check shimmer + first-load entrance (transform/opacity only) */
+  .fresh .wrow::after, .fresh .store::after { content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+    background: linear-gradient(100deg, transparent 20%, rgba(199,208,255,.12) 50%, transparent 80%); background-size: 250% 100%; animation: shimmer 1.1s ease-out 1; }
+  @keyframes shimmer { from { background-position: 150% 0; } to { background-position: -100% 0; } }
+  .intro .wrow, .intro .store, .intro .stat { animation: rise .35s cubic-bezier(.2,.9,.3,1.2) both; }
+  @keyframes rise { from { opacity: 0; transform: translateY(10px); } }
+  button:active, .cta:active, .pin:active { transform: scale(.94); }
+  button, .cta, .pin { transition: transform .12s ease; }
+
+  /* ---------- Changes / patterns ---------- */
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; }
+  .row { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 16px; border-top: 1px solid var(--line); color: var(--text); }
+  .row:first-child { border-top: 0; } .row > div { min-width: 0; }
+  .row .when { color: var(--muted); font-size: 12.5px; }
+  .tag { flex: none; font-size: 11.5px; font-weight: 800; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+  .tag.in { background: var(--ok-soft); color: var(--ok); } .tag.out { background: var(--card-2); color: var(--muted); }
+  .empty { color: var(--muted); text-align: center; padding: 34px 16px; font-size: 14px; }
+  .empty .big { display: block; font-size: 30px; margin-bottom: 6px; }
+  h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); margin: 20px 4px 8px; }
   .hours { display: grid; grid-template-columns: repeat(24, 1fr); gap: 3px; align-items: end; height: 90px; padding: 14px 16px 4px; }
-  .hours div { background: var(--accent); border-radius: 3px 3px 0 0; min-height: 2px; opacity: .85; }
+  .hours div { background: var(--sky); border-radius: 3px 3px 0 0; min-height: 2px; }
   .hours div.zero { background: var(--line); }
   .hour-labels { display: grid; grid-template-columns: repeat(24, 1fr); padding: 0 16px 12px; color: var(--faint); font-size: 10px; }
   .hour-labels span { text-align: center; }
+  .insight { padding: 14px 16px; border-top: 1px solid var(--line); } .insight:first-child { border-top: 0; }
+  .insight b { display: block; margin-bottom: 2px; } .insight span { color: var(--muted); font-size: 13px; } .insight a { font-size: 12px; }
 
-  /* Alerts settings */
-  .alerts { margin-top: 22px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; color: var(--muted); font-size: 13px; }
-  .alerts input { flex: 1 1 200px; min-width: 0; background: var(--card); color: var(--text); border: 1px solid var(--line); border-radius: 999px; padding: 9px 14px; font: inherit; font-size: 13px; }
-  .note { color: var(--faint); font-size: 12px; margin-top: 8px; }
-  [hidden] { display: none !important; }
-  body:not([data-tab="stock"]) #banner .banner.calm, body:not([data-tab="stock"]) .stats { display: none; }
+  /* ---------- Settings ---------- */
+  details.settings { margin-top: 22px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); padding: 0 16px; }
+  details.settings summary { list-style: none; cursor: pointer; padding: 14px 0; font-weight: 700; font-size: 14px; color: var(--muted); }
+  details.settings summary::-webkit-details-marker { display: none; }
+  details.settings[open] summary { color: var(--text); }
+  .alerts { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; color: var(--muted); font-size: 13px; }
+  .alerts input { flex: 1 1 200px; min-width: 0; background: var(--bg-2); color: var(--text); border: 1px solid var(--line); border-radius: 999px; padding: 10px 14px; font: inherit; font-size: 16px; }
+  .note { color: var(--faint); font-size: 12px; margin: 8px 0 16px; }
+  .foot { text-align: center; color: var(--faint); font-size: 12.5px; margin: 26px 0 6px; }
+  .foot b { background: var(--sky); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .ptr { height: 0; overflow: hidden; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 12.5px; transition: height .15s; }
+  .toast { max-width: calc(100vw - 32px); text-align: center; position: fixed; left: 50%; bottom: max(18px, env(safe-area-inset-bottom)); transform: translateX(-50%) translateY(20px);
+           background: var(--star); color: var(--star-ink); padding: 9px 16px; border-radius: 999px; font-size: 13px; font-weight: 700; opacity: 0; transition: .2s; pointer-events: none; z-index: 5; box-shadow: 0 8px 30px rgba(0,0,0,.4); }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* Phones */
+  @media (max-width: 420px) { h1 { font-size: 23px; } .mascot { width: 100px; height: 66px; } .mrow { grid-template-columns: 112px 1fr; } .dots { display: none; } }
+  /* Desktop: a bit more room */
+  @media (min-width: 900px) { body { padding-top: 28px; } h1 { font-size: 30px; } .mascot { width: 140px; height: 92px; } }
+  /* Save battery: pause everything when the app is in the background; respect reduced motion. */
+  .paused *, .paused *::before, .paused *::after, .paused body::before { animation-play-state: paused !important; }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 </style>
 </head>
 <body data-tab="stock">
 <div class="ptr" id="ptr">Pull to refresh</div>
 <div class="wrap">
   <header class="top">
-    <div class="brand">
-      <svg class="mascot" id="mascot" viewBox="0 0 120 132" aria-hidden="true">
-        <defs><linearGradient id="scr" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3b3270"/><stop offset="1" stop-color="#5a3f7e"/></linearGradient></defs>
-        <ellipse cx="60" cy="124" rx="28" ry="5" fill="rgba(0,0,0,.35)"/>
-        <g class="spark" fill="#ffe28a"><path d="M10 26l3 7 7 3-7 3-3 7-3-7-7-3 7-3z"/><path d="M106 14l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/><path d="M108 70l2 4 4 2-4 2-2 4-2-4-4-2 4-2z"/></g>
+    <!-- Two chibis: Night Sky (left) and Star White (right). Tap them. -->
+    <svg class="mascot" id="mascot" viewBox="0 0 180 120" aria-hidden="true">
+      <defs>
+        <linearGradient id="scrN" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22306b"/><stop offset="1" stop-color="#3b4fa8"/></linearGradient>
+        <linearGradient id="scrW" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#e4e0d6"/></linearGradient>
+      </defs>
+      <ellipse cx="90" cy="114" rx="62" ry="5" fill="rgba(0,0,0,.4)"/>
+      <g class="spark" fill="#ffd98a"><path d="M8 22l3 7 7 3-7 3-3 7-3-7-7-3 7-3z"/><path d="M168 12l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/><path d="M90 6l2 4 4 2-4 2-2 4-2-4-4-2 4-2z"/></g>
+      <g class="chibi a">
         <g class="bod">
-          <path d="M23 74 q-11 3 -10 15" stroke="#c9b8ff" stroke-width="6" stroke-linecap="round" fill="none"/>
-          <path d="M97 74 q11 3 10 15" stroke="#c9b8ff" stroke-width="6" stroke-linecap="round" fill="none"/>
-          <rect x="40" y="108" width="12" height="10" rx="5" fill="#c9b8ff"/><rect x="68" y="108" width="12" height="10" rx="5" fill="#c9b8ff"/>
-          <rect x="22" y="12" width="76" height="100" rx="20" fill="#26214a" stroke="#c9b8ff" stroke-width="3"/>
-          <rect x="29" y="19" width="62" height="86" rx="14" fill="url(#scr)"/>
-          <line x1="60" y1="20" x2="60" y2="104" stroke="rgba(255,255,255,.22)" stroke-width="2" stroke-dasharray="3 5"/>
-          <circle cx="40" cy="27" r="2.6" fill="#120f22"/><circle cx="80" cy="27" r="2.6" fill="#120f22"/>
-          <g class="eyes-open"><ellipse cx="46" cy="58" rx="6" ry="7.5" fill="#fff"/><ellipse cx="74" cy="58" rx="6" ry="7.5" fill="#fff"/>
-            <g class="pupils"><circle cx="47" cy="59.5" r="3.6" fill="#1b1733"/><circle cx="75" cy="59.5" r="3.6" fill="#1b1733"/><circle cx="48.4" cy="57.6" r="1.2" fill="#fff"/><circle cx="76.4" cy="57.6" r="1.2" fill="#fff"/></g></g>
-          <path class="wink" d="M68 59 q6 5 12 0" stroke="#fff" stroke-width="3" stroke-linecap="round" fill="none"/>
-          <g class="eyes-shut" stroke="#fff" stroke-width="3" stroke-linecap="round" fill="none"><path d="M40 59 q6 5 12 0"/><path d="M68 59 q6 5 12 0"/></g>
-          <ellipse cx="37" cy="71" rx="5.5" ry="3.2" fill="#ff8fc0" opacity=".75"/><ellipse cx="83" cy="71" rx="5.5" ry="3.2" fill="#ff8fc0" opacity=".75"/>
-          <path class="mouth-smile" d="M53 72 q7 6 14 0" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/>
-          <ellipse class="mouth-o" cx="60" cy="75" rx="5" ry="6" fill="#1b1733" stroke="#fff" stroke-width="2"/>
+          <path d="M22 64 q-9 3 -8 13" stroke="#6f8cff" stroke-width="5" stroke-linecap="round" fill="none"/>
+          <path d="M80 64 q8 2 9 9" stroke="#6f8cff" stroke-width="5" stroke-linecap="round" fill="none"/>
+          <rect x="34" y="96" width="10" height="9" rx="4.5" fill="#6f8cff"/><rect x="58" y="96" width="10" height="9" rx="4.5" fill="#6f8cff"/>
+          <rect x="21" y="12" width="60" height="88" rx="17" fill="#121a3d" stroke="#6f8cff" stroke-width="2.6"/>
+          <rect x="27" y="18" width="48" height="76" rx="12" fill="url(#scrN)"/>
+          <line x1="51" y1="19" x2="51" y2="93" stroke="rgba(255,255,255,.2)" stroke-width="1.6" stroke-dasharray="3 5"/>
+          <circle cx="36" cy="25" r="2.2" fill="#070a16"/><circle cx="66" cy="25" r="2.2" fill="#070a16"/>
+          <g transform="translate(51 52)" stroke="#fff">
+            <g class="eyes"><ellipse cx="-11" cy="0" rx="5" ry="6.3" fill="#fff" stroke="none"/><ellipse class="eye-r" cx="11" cy="0" rx="5" ry="6.3" fill="#fff" stroke="none"/>
+              <g class="pupils" stroke="none"><circle cx="-10" cy="1.3" r="3.1" fill="#141933"/><circle class="eye-r" cx="12" cy="1.3" r="3.1" fill="#141933"/>
+                <circle cx="-8.6" cy="-.6" r="1.1" fill="#fff"/><circle class="eye-r" cx="13.4" cy="-.6" r="1.1" fill="#fff"/></g></g>
+            <path class="wink" d="M6 1 q5 4 10 0" stroke-width="2.6" stroke-linecap="round" fill="none"/>
+            <g class="shut" stroke-width="2.6" stroke-linecap="round" fill="none"><path d="M-16 1 q5 4 10 0"/><path d="M6 1 q5 4 10 0"/></g>
+            <ellipse cx="-19" cy="10" rx="4.6" ry="2.7" fill="#ff9ec8" opacity=".75" stroke="none"/><ellipse cx="19" cy="10" rx="4.6" ry="2.7" fill="#ff9ec8" opacity=".75" stroke="none"/>
+            <path class="smile" d="M-5 11 q5 5 10 0" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+            <ellipse class="oh" cx="0" cy="13" rx="4" ry="5" fill="#141933" stroke-width="1.6"/>
+          </g>
         </g>
-        <g class="hearts" fill="#ff8fc0"><path d="M14 40c0-4 5-6 7-2 2-4 7-2 7 2 0 5-7 8-7 8s-7-3-7-8z"/><path d="M96 30c0-3 4-5 6-2 2-3 6-1 6 2 0 4-6 7-6 7s-6-3-6-7z"/></g>
-        <g class="notes" fill="#c9b8ff"><path d="M8 50v-14l10-3v14"/><circle cx="6" cy="51" r="3.5"/><circle cx="16" cy="48" r="3.5"/><path d="M104 44v-12l8-2v12"/><circle cx="102" cy="45" r="3"/><circle cx="110" cy="43" r="3"/></g>
-        <g class="zzz" fill="#c9b8ff" font-weight="800" font-family="ui-rounded, sans-serif"><text x="96" y="20" font-size="14">z</text><text x="106" y="8" font-size="10">z</text></g>
-      </svg>
-      <div>
-        <div class="eyebrow" id="eyebrow">Within 25 mi · unlocked</div>
-        <h1>iPhone Duo <span>256 · 512</span></h1>
-        <span class="bubble" id="bubble">Hi! Getting ready…</span>
-      </div>
-    </div>
-    <div class="meta">
-      <div class="sync">
-        <span class="live" id="live"></span>
-        <div class="sync-text"><div id="source">Connecting…</div><div id="age"></div></div>
-      </div>
-      <button class="icon-btn" id="refresh" type="button">Refresh</button>
+      </g>
+      <g class="chibi b">
+        <g class="bod">
+          <path d="M100 64 q-8 2 -9 9" stroke="#d9d3c5" stroke-width="5" stroke-linecap="round" fill="none"/>
+          <path d="M158 64 q9 3 8 13" stroke="#d9d3c5" stroke-width="5" stroke-linecap="round" fill="none"/>
+          <rect x="112" y="96" width="10" height="9" rx="4.5" fill="#d9d3c5"/><rect x="136" y="96" width="10" height="9" rx="4.5" fill="#d9d3c5"/>
+          <rect x="99" y="12" width="60" height="88" rx="17" fill="#f4f1ea" stroke="#d9d3c5" stroke-width="2.6"/>
+          <rect x="105" y="18" width="48" height="76" rx="12" fill="url(#scrW)"/>
+          <line x1="129" y1="19" x2="129" y2="93" stroke="rgba(20,25,51,.12)" stroke-width="1.6" stroke-dasharray="3 5"/>
+          <circle cx="114" cy="25" r="2.2" fill="#c9c2b1"/><circle cx="144" cy="25" r="2.2" fill="#c9c2b1"/>
+          <g transform="translate(129 52)" stroke="#141933">
+            <g class="eyes"><ellipse cx="-11" cy="0" rx="5" ry="6.3" fill="#1b2142" stroke="none"/><ellipse class="eye-r" cx="11" cy="0" rx="5" ry="6.3" fill="#1b2142" stroke="none"/>
+              <g class="pupils" stroke="none"><circle cx="-10" cy="1.3" r="3.1" fill="#1b2142"/><circle class="eye-r" cx="12" cy="1.3" r="3.1" fill="#1b2142"/>
+                <circle cx="-8.6" cy="-.6" r="1.1" fill="#fff"/><circle class="eye-r" cx="13.4" cy="-.6" r="1.1" fill="#fff"/></g></g>
+            <path class="wink" d="M6 1 q5 4 10 0" stroke-width="2.6" stroke-linecap="round" fill="none"/>
+            <g class="shut" stroke-width="2.6" stroke-linecap="round" fill="none"><path d="M-16 1 q5 4 10 0"/><path d="M6 1 q5 4 10 0"/></g>
+            <ellipse cx="-19" cy="10" rx="4.6" ry="2.7" fill="#ff9ec8" opacity=".75" stroke="none"/><ellipse cx="19" cy="10" rx="4.6" ry="2.7" fill="#ff9ec8" opacity=".75" stroke="none"/>
+            <path class="smile" d="M-5 11 q5 5 10 0" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+            <ellipse class="oh" cx="0" cy="13" rx="4" ry="5" fill="#141933" stroke-width="1.6"/>
+          </g>
+        </g>
+      </g>
+      <g class="hearts" fill="#ff9ec8"><path d="M82 30c0-4 5-6 7-2 2-4 7-2 7 2 0 5-7 8-7 8s-7-3-7-8z"/><path d="M4 40c0-3 4-5 6-2 2-3 6-1 6 2 0 4-6 7-6 7s-6-3-6-7z"/></g>
+      <g class="stars" fill="#ffd98a"><path d="M30 8l2 5 5 1-4 3 1 5-4-3-4 3 1-5-4-3 5-1z"/><path d="M150 4l2 5 5 1-4 3 1 5-4-3-4 3 1-5-4-3 5-1z"/><path d="M90 0l2 4 4 1-3 3 1 4-4-2-4 2 1-4-3-3 4-1z"/></g>
+      <g class="notes" fill="#c7d0ff"><path d="M4 46v-14l10-3v14"/><circle cx="2" cy="47" r="3.5"/><circle cx="12" cy="44" r="3.5"/><path d="M168 40v-12l8-2v12"/><circle cx="166" cy="41" r="3"/><circle cx="174" cy="39" r="3"/></g>
+      <g class="zzz" fill="#c7d0ff" font-weight="800" font-family="ui-rounded, sans-serif"><text x="160" y="16" font-size="14">z</text><text x="170" y="5" font-size="10">z</text></g>
+    </svg>
+    <div class="title">
+      <div class="eyebrow" id="eyebrow">Apple Stores · unlocked</div>
+      <h1>Duo Watch</h1>
+      <span class="bubble" id="bubble">Hi! Getting ready…</span>
     </div>
   </header>
 
-  <nav class="tabs" role="tablist" id="tabs">
-    <span class="tab-ink" id="tabInk"></span>
-    <button class="tab" role="tab" data-tab="stock" aria-selected="true">Stock</button>
-    <button class="tab" role="tab" data-tab="changes" aria-selected="false">Recent changes</button>
-    <button class="tab" role="tab" data-tab="patterns" aria-selected="false">Patterns &amp; news</button>
-  </nav>
-
+  <div class="status">
+    <span class="live" id="live"></span>
+    <div class="status-text"><div id="source">Connecting…</div><div id="age"></div></div>
+    <button class="icon-btn" id="refresh" type="button">Refresh</button>
+  </div>
   <div class="scan" id="scan"><i id="scanFill"></i></div>
   <div class="scan-label"><span id="scanLeft">Connecting…</span><span id="scanRight"></span></div>
+
+  <nav class="tabs" role="tablist" id="tabs">
+    <span class="tab-ink" id="tabInk"></span>
+    <button class="tab" role="tab" data-tab="stock" aria-selected="true">🌙 Stock</button>
+    <button class="tab" role="tab" data-tab="changes" aria-selected="false">⭐ Changes</button>
+    <button class="tab" role="tab" data-tab="patterns" aria-selected="false">✨ Patterns</button>
+  </nav>
+
   <div id="banner"></div>
   <div class="stats" id="stats"></div>
 
-  <section id="tab-stock"><div class="grid" id="grid"></div></section>
+  <section id="tab-stock"><div id="grid"></div></section>
   <section id="tab-changes" hidden><div class="panel" id="changes"></div></section>
-  <section id="tab-patterns" hidden>
-    <div id="patterns"></div>
-  </section>
+  <section id="tab-patterns" hidden><div id="patterns"></div></section>
 
-  <div class="alerts">
-    <span>Your ntfy topic</span>
-    <input id="topic" placeholder="optional with a GitHub token saved" autocomplete="off" autocapitalize="off" spellcheck="false">
-    <button class="icon-btn" id="testPush" type="button">Send test push</button>
-  </div>
-  <div class="note" id="pushNote">With your GitHub token saved below, leave this blank: the test goes through GitHub using your saved topic. Otherwise type your exact ntfy topic (saved on this device only). <a href="?demo=1">Preview what a restock looks like</a></div>
-  <div class="alerts">
-    <span>GitHub token</span>
-    <input id="ghToken" type="password" placeholder="optional · lets Refresh run a fresh check" autocomplete="off" autocapitalize="off" spellcheck="false">
-    <button class="icon-btn" id="saveToken" type="button">Save</button>
-  </div>
-  <div class="note" id="tokenNote">When your PC's data is old, Refresh asks GitHub to check Apple right now (about a minute). Use a fine-grained token for this repo only with <b>Actions: Read and write</b>. Stored on this device only.</div>
+  <details class="settings">
+    <summary>⚙️ Settings · test push &amp; GitHub token</summary>
+    <div class="alerts">
+      <input id="topic" placeholder="ntfy topic (optional with a token saved)" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <button class="icon-btn" id="testPush" type="button">Send test push</button>
+    </div>
+    <div class="note" id="pushNote">With your GitHub token saved below, leave this blank: the test goes through GitHub. Otherwise type your exact ntfy topic (saved on this device only). <a href="?demo=1">Preview a restock</a></div>
+    <div class="alerts">
+      <input id="ghToken" type="password" placeholder="GitHub token · lets Refresh run a fresh check" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <button class="icon-btn" id="saveToken" type="button">Save</button>
+    </div>
+    <div class="note" id="tokenNote">Fine-grained token for this repo only with <b>Actions: Read and write</b>. Stored on this device only.</div>
+  </details>
 </div>
-<div class="foot">🌙 <b>Duo Watch</b> · keeping watch so you don't have to · made with 💜</div>
+<div class="foot">🌙 <b>Duo Watch</b> ⭐ two little phones keeping watch for you</div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -459,47 +472,49 @@
   }
 
   // ---------- render ----------
+  const sw = (color) => /white/i.test(color) ? "w" : "n";
+  const gb = (s) => (s || "").replace(/GB$/i, "");
   function renderBanner(stores) {
     const hot = stores.filter((s) => s.any);
     let html = "";
     if (STATUS.error) {
-      html += `<div class="banner err"><div><b>Last check failed</b><small>${esc(STATUS.error)}${STATUS.last_success_at ? ` · showing data from ${esc(when(STATUS.last_success_at))}` : ""}</small></div></div>`;
+      html += `<div class="banner err"><div><b>😵 Last check failed</b><small>${esc(STATUS.error)}${STATUS.last_success_at ? ` · showing data from ${esc(when(STATUS.last_success_at))}` : ""}</small></div></div>`;
     }
     if (hot.length) {
       const s = hot[0], c = s.colors.find((x) => x.available);
-      html += `<div class="banner hot"><div><b>In stock at ${esc(s.name)}${hot.length > 1 ? ` + ${hot.length - 1} more` : ""}</b>
-        <small>${esc((c.storage ? c.storage + " " : "") + c.color)} · ${s.zip ? `type ZIP <b style="color:var(--text)">${esc(s.zip)}</b> at pickup` : esc(s.distance)} · ${esc(c.quote || "Available for pickup")}</small></div>
+      html += `<div class="banner hot"><div><b>🎉 ${esc((c.storage ? c.storage + " " : "") + c.color)} at ${esc(s.name)}${hot.length > 1 ? ` + ${hot.length - 1} more` : ""}</b>
+        <small>${s.zip ? `Pickup ZIP <b style="display:inline;color:var(--text)">${esc(s.zip)}</b> · ` : ""}${esc(c.quote || "Available for pickup")} · go go go!</small></div>
         <a class="cta ok" href="${esc(c.url)}" target="_blank" rel="noopener">Buy now →</a></div>`;
     } else {
       const r = restocks(), last = r[r.length - 1];
       const usual = typicalHour(last ? r.filter((e) => e.store_id === last.store_id) : []);
       const detail = last
-        ? `<b>${esc(last.store)} last restocked ${esc(when(last.t))}</b><small>${esc(last.color || last.label)}${usual !== null ? ` · usually around ${hourLabel(usual)}` : ""} · you'll get a push the moment it lands again</small>`
-        : `<b>No Duos nearby yet… but I'm on it 🫡</b><small>The second either color lands at one of these stores, your phone buzzes.</small>`;
+        ? `<b>🌙 ${esc(last.store)} last restocked ${esc(when(last.t))}</b><small>${esc(last.color || last.label)}${usual !== null ? ` · usually around ${hourLabel(usual)}` : ""} · you'll get a push the second it's back</small>`
+        : `<b>🌙 Nothing nearby yet… we're on it</b><small>The second a Duo lands at one of these stores, your phone rings.</small>`;
       html += `<div class="banner calm"><div>${detail}</div>
-        <a class="cta accent" href="${esc((STATUS.models[0] || {}).url || "https://www.apple.com/shop/buy-iphone")}" target="_blank" rel="noopener">Open Apple Store</a></div>`;
+        <a class="cta star" href="${esc((STATUS.models[0] || {}).url || "https://www.apple.com/shop/buy-iphone")}" target="_blank" rel="noopener">Apple Store ↗</a></div>`;
     }
     $("banner").innerHTML = html;
   }
 
+  // Big card for a store that has stock right now.
   function storeCard(s) {
+    const firstUrl = (s.colors.find((c) => c.available) || s.colors[0]).url;
     return `
-      <article class="store in">
+      <article class="store">
         <button class="rbtn${spinningStore === s.id ? " spin" : ""}" data-store="${esc(s.id)}" aria-label="Re-check ${esc(s.name)}"><span>↻</span></button>
-        <h3><a href="${esc((s.colors.find((c) => c.available) || s.colors[0]).url)}" target="_blank" rel="noopener" style="color:inherit">${esc(s.name)}</a></h3>
-        <div class="chips">
-          ${s.zip ? `<span class="chip zip">ZIP ${esc(s.zip)}</span>` : (s.distance ? `<span class="chip">${esc(s.distance)} away</span>` : "")}
-          <span class="chip ok">Available now</span>
-        </div>
-        ${s.address ? `<a class="addr" href="${esc(s.maps_url)}" target="_blank" rel="noopener">📍 ${esc(s.address)}</a>` : `<span class="addr">${esc(s.city)}</span>`}
-        ${s.phone ? `<a class="phone" href="tel:${esc(s.phone.replace(/[^0-9+]/g, ""))}">${esc(s.phone)}</a>` : ""}
-        <div class="colors">
-          ${s.colors.map((c) => `
-            <div class="crow">
-              <span class="swatch ${swatchClass(c.color)}">${esc(c.storage ? c.storage.replace("GB", "") + " · " : "")}${esc(c.color)}</span>
+        <div class="kicker">✨ Pickup today${s.miles != null ? ` · ${esc(Math.round(s.miles))} mi away` : ""}</div>
+        <h3><a href="${esc(firstUrl)}" target="_blank" rel="noopener" style="color:inherit">${esc(s.name)}</a></h3>
+        ${s.zip ? `<div class="bigzip"><small>Type at pickup</small><b>${esc(s.zip)}</b></div>` : ""}
+        ${s.address ? `<a class="addr" href="${esc(s.maps_url)}" target="_blank" rel="noopener">📍 ${esc(s.address)}</a>` : `<span class="addr">${esc(s.city || "")}</span>`}
+        ${s.phone ? `<a class="phone" href="tel:${esc(s.phone.replace(/[^0-9+]/g, ""))}">📞 ${esc(s.phone)}</a>` : ""}
+        <div class="models">
+          ${s.colors.slice().sort((a, b) => (b.available - a.available)).map((c) => `
+            <div class="mrow">
+              <span class="sw ${sw(c.color)}">${c.storage ? esc(gb(c.storage)) + " · " : ""}${esc(c.color)}</span>
               ${c.available
-                ? `<a class="state yes" href="${esc(c.url)}" target="_blank" rel="noopener">${esc(c.quote || "Available")} · Buy →</a>`
-                : `<span class="state no">Sold out</span>`}
+                ? `<a class="st yes" href="${esc(c.url)}" target="_blank" rel="noopener">Buy · ${esc(c.quote || "Available")} →</a>`
+                : `<span class="st no">sold out</span>`}
             </div>`).join("")}
         </div>
       </article>`;
@@ -518,50 +533,54 @@
     const sig = `${hot}|${last ? last.t : ""}|${r.length}`, changedStats = lastStats && sig !== lastStats;
     lastStats = sig;
     $("stats").innerHTML = `
-      <div class="stat ${hot ? "hot" : ""}"><small>In stock</small><b>${hot} / ${stores.length}</b></div>
-      <div class="stat"><small>Last seen</small><b>${last ? esc(shortAgo(last.t)) : "—"}</b></div>
-      <div class="stat"><small>Restocks</small><b>${r.length}</b></div>`;
+      <div class="stat ${hot ? "hot" : ""}"><small>${hot ? "🎉 In stock" : "🌙 In stock"}</small><b>${hot} / ${stores.length}</b></div>
+      <div class="stat"><small>⭐ Last seen</small><b>${last ? esc(shortAgo(last.t)) : "—"}</b></div>
+      <div class="stat"><small>✨ Restocks</small><b>${r.length}</b></div>`;
     document.body.classList.toggle("instock", hot > 0);
     if (changedStats) $("stats").querySelectorAll("b").forEach((b) => b.classList.add("pop"));
   }
+  // Compact row for a store with nothing in stock. Number = distance rank (1 = closest).
   let rowIdx = 0;
   function watchRow(s) {
     const delay = `style="animation-delay:${Math.min(rowIdx++, 12) * 28}ms"`;
     const lr = lastRestock(s.id);
-    const sub = (s.zip ? `<span class="zipt">ZIP ${esc(s.zip)}</span> · ` : (s.distance ? esc(s.distance) + " · " : "")) + esc(s.city || "") + (lr ? `<br><em>✨ restocked ${esc(shortAgo(lr.t))}</em>` : "");
+    const where = [s.zip ? `<span class="zipt">${esc(s.zip)}</span>` : "", s.miles != null ? `${esc(Math.round(s.miles))} mi` : esc(s.distance || ""), esc(s.city || "")].filter(Boolean).join(" · ");
     const buy = (s.colors[0] && s.colors[0].url) || "https://www.apple.com/shop/buy-iphone";
     return `
       <div class="wrow" ${delay}>
-        <a class="wmain" href="${esc(buy)}" target="_blank" rel="noopener"><b>${esc(s.name)}</b><small>${sub}</small></a>
-        <div class="minis">${s.colors.map((c) => `<a class="mini" href="${esc(c.url)}" target="_blank" rel="noopener"><i class="${swatchClass(c.color)}"></i><b class="gb">${esc((c.storage || "").replace("GB", ""))}</b><span>${esc(c.color)}</span></a>`).join("")}
-          ${s.maps_url ? `<a class="mini pin" href="${esc(s.maps_url)}" target="_blank" rel="noopener" aria-label="Directions">📍</a>` : ""}
-          <button class="rbtn${spinningStore === s.id ? " spin" : ""}" data-store="${esc(s.id)}" aria-label="Re-check ${esc(s.name)}"><span>↻</span></button></div>
+        <span class="rank">${s.rank}</span>
+        <a class="wmain" href="${esc(buy)}" target="_blank" rel="noopener"><b>${esc(s.name)}</b><small>${where}</small>${lr ? `<small><em>✨ restocked ${esc(shortAgo(lr.t))}</em></small>` : ""}</a>
+        <span class="dots" aria-hidden="true">${s.colors.map((c) => `<i class="${sw(c.color)}"></i>`).join("")}</span>
+        ${s.maps_url ? `<a class="pin" href="${esc(s.maps_url)}" target="_blank" rel="noopener" aria-label="Directions">📍</a>` : ""}
+        <button class="rbtn${spinningStore === s.id ? " spin" : ""}" data-store="${esc(s.id)}" aria-label="Re-check ${esc(s.name)}"><span>↻</span></button>
       </div>`;
   }
-  // In-stock stores pinned on top (nearest first); everything else stays in the default
-  // nearest-first order. When stock disappears the store drops back into its usual spot.
+  // Closest first. A store that restocks jumps to the top as a big card; when it sells out
+  // it drops back to its usual closest-first spot.
   function renderStock(stores) {
-    if (!stores.length) { $("grid").innerHTML = `<div class="empty">No stores within range yet. Start the PC runner or run the GitHub workflow once.</div>`; return; }
-    const hot = stores.filter((s) => s.any), rest = stores.filter((s) => !s.any);
+    if (!stores.length) { $("grid").innerHTML = `<div class="panel"><div class="empty"><span class="big">🔭</span>No stores within range yet. Start the PC runner or run the GitHub workflow once.</div></div>`; return; }
+    const byDistance = stores.slice().sort((a, b) => (a.miles ?? 999) - (b.miles ?? 999));
+    byDistance.forEach((s, i) => (s.rank = i + 1));
+    const hot = byDistance.filter((s) => s.any), rest = byDistance.filter((s) => !s.any);
     rowIdx = 0;
     renderStats(stores);
     const isFresh = lastRenderedCheck && STATUS.checked_at !== lastRenderedCheck;
     lastRenderedCheck = STATUS.checked_at;
     const first = !introDone; introDone = true;
-    $("grid").className = (isFresh ? "fresh twirl " : "") + (first ? "intro" : "");
+    $("grid").className = (isFresh ? "fresh " : "") + (first ? "intro" : "");
     if (isFresh) {
-      setTimeout(() => $("grid").classList.remove("fresh", "twirl"), 1300);
+      setTimeout(() => $("grid").classList.remove("fresh"), 1300);
       requestAnimationFrame(() => document.querySelectorAll("#grid .rbtn").forEach((b, i) => {
-        setTimeout(() => b.classList.add("done"), 120 + i * 70);
-        setTimeout(() => b.classList.remove("done"), 1300 + i * 70);
+        setTimeout(() => b.classList.add("done"), 120 + i * 60);
+        setTimeout(() => b.classList.remove("done"), 1300 + i * 60);
       }));
     }
     if (first) setTimeout(() => $("grid").classList.remove("intro"), 900);
     $("grid").innerHTML =
-      (DEMO ? `<div class="demo-flag">Preview only · fake restock to show what an in-stock moment looks like · <a href="./">exit</a></div>` : "") +
-      (hot.length ? `<div class="sec hot"><h2>In stock now · ${hot.length}</h2><span>nearest first</span></div>
+      (DEMO ? `<div class="demo-flag">✨ Preview · fake restock to show what it looks like · <a href="./">exit</a></div>` : "") +
+      (hot.length ? `<div class="sec hot"><h2>🎉 In stock now · ${hot.length}</h2><span>closest first</span></div>
                      <div class="grid">${hot.map(storeCard).join("")}</div>` : "") +
-      (rest.length ? `<div class="sec"><h2>${hot.length ? "Sold out" : "Watching"} · ${rest.length} stores</h2><span>nearest first</span></div>
+      (rest.length ? `<div class="sec"><h2>${hot.length ? "😴 Sold out" : "👀 Watching"} · ${rest.length}</h2><span>closest first</span></div>
                       <div class="watch">${rest.map(watchRow).join("")}</div>` : "");
   }
 
@@ -650,17 +669,47 @@
     const n = STATUS.runner && STATUS.runner.checks;
     $("scanRight").textContent = n ? `${n} checks this session` : "";
   }
+  // The Duo chibis talk: mood lines first, then a rotating quip every ~14s while watching.
+  function idleQuips(stores) {
+    const h = new Date().getHours();
+    const r = restocks(), usual = typicalHour(r);
+    const lines = [
+      `Watching ${stores.length} stores for you ✨`,
+      "Night Sky or Star White… why not both 🌙⭐",
+      "I'll yell the second one lands 📣",
+      "Bag ready? Apple Pay ready? 💳✨",
+      "Psst… keep your phone loud 🔔",
+      "We take turns blinking so one of us is always watching 👀",
+      "Closest stores are on top 📍",
+      "Stretching our screens 🙆 still watching",
+      "Two phones, one mission 🫡",
+    ];
+    if (usual !== null) lines.push(`Restocks here usually land around ${hourLabel(usual)} ⏰`);
+    if (h >= 6 && h < 12) lines.push("Good morning ☀️ mornings are prime restock time");
+    else if (h >= 12 && h < 18) lines.push("Afternoon shift 🍵 still watching");
+    else if (h >= 18 && h < 23) lines.push("Evening watch 🌆 stores close soon, eyes open");
+    else lines.push("Night shift 🌙 you sleep, we watch");
+    return lines;
+  }
+  let quipIdx = 0, quipAt = 0;
   function renderMascot(cls) {
     const stores = STATUS ? storesFrom(STATUS) : [];
     const hot = stores.filter((x) => x.any);
     const mood = hot.length ? "happy" : (cls === "stale" || (STATUS && STATUS.error)) ? "sleepy" : "watching";
     const m = $("mascot"); if (m && !trickBusy) m.setAttribute("class", "mascot " + mood);
     if (trickBusy) return;
-    const text = hot.length ? `IT'S HERE!! ${hot[0].name} has it, go go go! 🎉`
-      : mood === "sleepy" ? (STATUS && STATUS.error ? "Apple's ignoring me rn… retrying 💤" : "Zzz… my PC buddy stopped checking 💤")
-      : checkingSince ? "Peeking at Apple right now… 👀"
-      : `Watching ${stores.length} stores for you ✨`;
-    if (text !== lastMood) { $("bubble").textContent = text; lastMood = text; }
+    let text;
+    if (hot.length) text = `IT'S HERE!! ${hot[0].name}, go go go! 🎉📱`;
+    else if (mood === "sleepy") text = STATUS && STATUS.error ? "Apple's ignoring us rn… retrying 💤" : "Zzz… the PC stopped checking 💤";
+    else if (checkingSince) text = "Peeking at Apple right now… 👀";
+    else {
+      if (Date.now() - quipAt > 14000) { quipAt = Date.now(); quipIdx++; }
+      const q = idleQuips(stores); text = q[quipIdx % q.length];
+    }
+    if (text !== lastMood) {
+      const b = $("bubble"); b.textContent = text; lastMood = text;
+      b.classList.remove("say"); void b.offsetWidth; b.classList.add("say");
+    }
   }
   // When the backup published last, say what the PC is doing (from its carried heartbeat).
   function pcNote() {
@@ -788,11 +837,12 @@
     }, 800));
   });
 
-  // ---------- mascot tap tricks ----------
+  // ---------- chibi tap tricks ----------
   const TRICKS = [
-    ["t-spin", "Wheee! 🌀"], ["t-flip", "Ta-da! Two screens, twice the cute ✨"], ["t-wiggle", "Hehe that tickles 🤭"],
-    ["t-fold", "Fold… and unfold! Duo magic 📱"], ["t-jump", "Boing! 🐰"], ["t-love", "Your Duo is coming, I can feel it 💖"],
-    ["t-dance", "Restock dance! 💃 Manifesting…"], ["t-wink", "I got you 😉"], ["t-squish", "Squish! 🍡"],
+    ["t-spin", "Wheee! 🌀🌀"], ["t-flip", "Ta-da! Twice the cute ✨"], ["t-wiggle", "Hehe that tickles 🤭"],
+    ["t-jump", "Boing boing! 🐰🐰"], ["t-love", "Besties forever 💖"], ["t-dance", "Restock dance! 💃🕺 manifesting…"],
+    ["t-wink", "We got you 😉"], ["t-squish", "Squish! 🍡"], ["t-star", "Wish upon a Star White ⭐"],
+    ["t-swap", "Switcheroo! 🔄 Night Sky ⇄ Star White"],
   ];
   let trickBusy = false, lastTrick = -1, taps = 0, tapReset = null;
   $("mascot").addEventListener("click", () => {
@@ -800,18 +850,18 @@
     taps++; clearTimeout(tapReset); tapReset = setTimeout(() => (taps = 0), 2500);
     let i; do { i = Math.floor(Math.random() * TRICKS.length); } while (i === lastTrick);
     lastTrick = i;
-    const [cls, line] = taps >= 7 ? ["t-spin", "Okay okay I'm dizzy 😵‍💫 go check the Apple Store!"] : TRICKS[i];
+    const [cls, line] = taps >= 7 ? ["t-spin", "Okay okay we're dizzy 😵‍💫 go check the Apple Store!"] : TRICKS[i];
     const m = $("mascot"), base = m.getAttribute("class");
     trickBusy = true;
     m.setAttribute("class", base + " " + cls);
-    $("bubble").textContent = line;
+    const b = $("bubble"); b.textContent = line; b.classList.remove("say"); void b.offsetWidth; b.classList.add("say");
     try { navigator.vibrate && navigator.vibrate(15); } catch {}
-    setTimeout(() => {
-      m.setAttribute("class", base);
-      trickBusy = false;
-    }, 1500);
+    setTimeout(() => { m.setAttribute("class", base); trickBusy = false; }, 1500);
     setTimeout(() => { lastMood = ""; renderHeader(); }, 3200);
   });
+  // Pause all animation while the app is in the background (saves battery on iPhone).
+  const syncPaused = () => document.documentElement.classList.toggle("paused", document.hidden);
+  document.addEventListener("visibilitychange", syncPaused); syncPaused();
 
   // ---------- tabs ----------
   function moveInk() {
