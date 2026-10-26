@@ -40,7 +40,8 @@ import check_stock as cs  # noqa: E402
 DEFAULTS = {"poll_seconds": 90, "heartbeat_seconds": 60, "nag_minutes": 2, "nag_max": 15}
 MIN_POLL = 45          # faster than this gets your connection rate-limited by Apple (HTTP 541)
 MAX_BACKOFF = 900      # when Apple pushes back, wait up to 15 min between tries
-MAX_ADAPTIVE_POLL = 120  # each rate-limit episode slows normal polling by 25%, up to this
+MAX_ADAPTIVE_POLL = 120
+SPEEDUP_AFTER_SECONDS = 1800   # clean checking time before stepping the pace back up  # each rate-limit episode slows normal polling by 25%, up to this
 API = "https://api.github.com"
 
 
@@ -285,6 +286,7 @@ def main(argv: list[str] | None = None) -> int:
     env = {**load_env(".env.local"), **{k: v for k, v in os.environ.items() if k in ("GITHUB_TOKEN", "GITHUB_REPO")}}
     settings = cs.load_settings(config)
     poll = max(MIN_POLL, int(config["poll_seconds"]))
+    base_poll = poll
     # Remember the slower pace and any active Apple block across restarts.
     state = cs.load_json("runner_state.json", {})
     learned = int(state.get("poll_seconds") or 0)
@@ -330,7 +332,7 @@ def main(argv: list[str] | None = None) -> int:
 
     nagger = Nagger(float(config["nag_minutes"]), int(config["nag_max"]))
     started = datetime.now(timezone.utc).isoformat(timespec="seconds")
-    checks, errors_in_row, last_publish, last_sig = 0, 0, 0.0, None
+    checks, errors_in_row, last_publish, last_sig, clean_streak = 0, 0, 0.0, None, 0
 
     wait0 = blocked_until - time.time()
     if wait0 > 0 and not args.once:
@@ -408,8 +410,15 @@ def main(argv: list[str] | None = None) -> int:
             if not status.get("error"):
                 prev = status
                 errors_in_row = 0
+                clean_streak += 1
+                # Speed back up: after ~30 min of clean checks, step 15% back toward your setting.
+                if poll > base_poll and clean_streak * poll >= SPEEDUP_AFTER_SECONDS:
+                    poll = max(base_poll, int(poll / 1.15))
+                    clean_streak = 0
+                    print(f"           30 min with no Apple blocks; speeding back up to every {poll}s")
             else:
                 errors_in_row += 1
+                clean_streak = 0
                 # Each new Apple rate-limit episode: check a bit less often from now on.
                 if errors_in_row == 1 and "541" in (status.get("error") or "") and poll < MAX_ADAPTIVE_POLL:
                     poll = min(MAX_ADAPTIVE_POLL, int(poll * 1.25))
