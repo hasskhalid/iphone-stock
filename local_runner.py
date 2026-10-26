@@ -122,7 +122,18 @@ class GitHubPublisher:
         except Exception:
             return None
 
-    def publish(self, files: dict[str, str], message: str) -> str:
+    def publish(self, files: dict[str, str], message: str, attempts: int = 3) -> str:
+        """Publish, retrying briefly on network hiccups (GitHub timeouts happen now and then)."""
+        for i in range(attempts):
+            try:
+                return self._publish_once(files, message)
+            except Exception:
+                if i == attempts - 1:
+                    raise
+                time.sleep(2 * (i + 1))
+        raise RuntimeError("unreachable")
+
+    def _publish_once(self, files: dict[str, str], message: str) -> str:
         """Replace the branch with a single commit containing `files`. Returns commit sha."""
         r = f"/repos/{self.repo}"
         code, tree = self._request("POST", f"{r}/git/trees", {
