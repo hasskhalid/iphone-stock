@@ -82,6 +82,16 @@ class GuestHandoffTests(unittest.TestCase):
         self.assertEqual(cfg["beep_seconds"], 30)
         self.assertEqual(cfg["contact"]["first_name"], "H")
 
+    def test_wanted_options_match_apple_page(self):
+        opts = co.wanted_options("512GB", "Star White")
+        self.assertIn(("dimensionColor", "starwhite", None), opts)
+        self.assertIn(("dimensionCapacity", "512gb", None), opts)
+        self.assertIn(("carrierModel", "UNLOCKED/US", None), opts)
+        self.assertIn(("purchase_option_group", "fullprice", None), opts)
+        self.assertEqual(opts[-1][0], "applecare-options")
+        self.assertRegex("No AppleCare coverage", opts[-1][2])
+        self.assertNotRegex("AppleCare+ with Theft and Loss", opts[-1][2])
+
     def test_guard_still_present(self):
         self.assertTrue(co.FORBIDDEN_CLICK.search("Place Your Order"))
         self.assertFalse(co.FORBIDDEN_CLICK.search("Credit or Debit Card"))

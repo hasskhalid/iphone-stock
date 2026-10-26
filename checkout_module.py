@@ -256,27 +256,70 @@ def step_bag_precheck(page, storage: str, color: str) -> bool:
     raise StepFailed("already in bag", f"your bag already has: {lines[0]}")
 
 
+# Apple's iPhone buy page options (checked Oct 2026): radio inputs by name/value. The page
+# reveals them section by section, and AppleCare is never preselected, so Add to Bag stays
+# disabled until "No AppleCare coverage" is picked.
+def wanted_options(storage: str, color: str) -> list[tuple[str, str | None, str | None]]:
+    """(input name, value, label regex) to select, top to bottom."""
+    opts = []
+    if color:
+        opts.append(("dimensionColor", color.replace(" ", "").lower(), None))
+    if storage:
+        opts.append(("dimensionCapacity", storage.lower(), None))
+    opts += [
+        ("tradeupinline", "noTradeIn", None),
+        ("purchase_option_group", "fullprice", None),
+        ("carrierModel", "UNLOCKED/US", None),
+        ("applecare-options", None, r"no applecare coverage"),
+    ]
+    return opts
+
+
+def select_option(page, name: str, value: str | None, label_re: str | None) -> bool:
+    """Select one radio via its <label> (what a person clicks). True if it ends up checked."""
+    inputs = page.locator(f'input[name="{name}"]' + (f'[value="{value}"]' if value else ""))
+    for i in range(inputs.count()):
+        inp = inputs.nth(i)
+        try:
+            inp_id = inp.get_attribute("id") or ""
+            label = page.locator(f'label[for="{inp_id}"]') if inp_id else None
+            if label_re and not (label and label.count() and re.search(label_re, label.first.inner_text(), re.I)):
+                continue
+            if inp.is_checked():
+                return True
+            if label and label.count():
+                label.first.scroll_into_view_if_needed(timeout=3000)
+                label.first.click(timeout=5000)
+            else:
+                inp.check(timeout=5000, force=True)
+            page.wait_for_timeout(400)
+            return inp.is_checked()
+        except Exception:
+            continue
+    return False
+
+
 def step_product(page, url: str) -> None:
     log("Opening product page")
     page.goto(url, wait_until="domcontentloaded", timeout=STEP_TIMEOUT_MS)
     check_queue(page)
-    # The *-unlocked URL preselects color, storage, carrier, no trade-in and full price.
-    # Make sure "unlocked" and "No AppleCare coverage" are chosen; both enable Add to Bag.
-    for label_re in (r"connect to any carrier later", r"no trade-?in", r"no applecare coverage"):
-        lab = page.locator("label").filter(has_text=re.compile(label_re, re.I))
-        try:
-            if lab.count():
-                inp_id = lab.first.get_attribute("for")
-                checked = inp_id and page.locator(f"#{inp_id}").is_checked()
-                if not checked:
-                    lab.first.click(timeout=5000)
-        except Exception:
-            pass
+    storage, color = product_from_url(url)
+    btn_sel = page.locator('button[data-autom="add-to-cart"]:not([disabled]), button[name="add-to-cart"]:not([disabled])')
+    if storage or color:   # iPhone page: pick each option (the page reveals them one by one)
+        missing = []
+        deadline = time.time() + STEP_TIMEOUT_MS / 1000
+        while time.time() < deadline:
+            missing = [n for n, v, l in wanted_options(storage, color) if not select_option(page, n, v, l)]
+            if not missing:
+                break
+            page.wait_for_timeout(600)
+        if missing:
+            log(f"Couldn't select: {', '.join(missing)}")
     btn = first_visible(page, [
-        page.locator('button[data-autom="add-to-cart"]:not([disabled]), button[name="add-to-cart"]:not([disabled])'),
+        btn_sel,
         page.get_by_role("button", name=re.compile(r"^\s*add to bag\s*$", re.I)),
     ])
-    if not btn:
+    if not btn or not btn.is_enabled():
         raise StepFailed("add to bag", "Add to Bag never became clickable")
     safe_click(btn, "add to bag")
     log("Added to bag")
