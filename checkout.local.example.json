@@ -1,4 +1,5 @@
 {
+  "handoff": "phone",
   "guest_checkout": false,
   "contact": {
     "first_name": "First",

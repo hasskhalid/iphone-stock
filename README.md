@@ -99,7 +99,15 @@ The app header shows **"Live · your PC checks every 60s"** with a green dot whi
    (Apple's app only opens product pages from links, not the bag; the alert's
    "Bag in Safari" button is a backup.)
 
-## Checkout assist (optional, PC only)
+## Checkout assist (optional)
+**Phone handoff (default, `"handoff": "phone"` in checkout.local.json):** on a restock it checks
+this browser is signed in to your Apple Account, adds the exact phone to your bag (skips if a Duo
+is already there), confirms it's in the bag and pushes **"IN YOUR BAG: 512GB NIGHT SKY"**. You
+open the Apple Store app → Bag → Check Out → pickup → the ZIP in the push → Apple Pay. It never
+removes anything from your bag and never closes the window on its own. Test once with
+`--rehearse` that the item shows up in the Apple Store app's Bag on your iPhone.
+
+**PC mode (`"handoff": "pc"`):**
 `checkout_module.py` opens a visible browser when a restock alert fires and walks Apple's
 checkout up to the **payment step**: No AppleCare → Add to Bag → Check Out → your saved
 sign-in → "I'll pick it up" → store ZIP → store → time slot → pickup contact. Then it stops,

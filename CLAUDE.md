@@ -79,8 +79,12 @@ home-screen dashboard. Keep it free to run and dependency-light.
   checkout assist launched by the runner in a new console (`checkout_assist: true`) via
   `launch_checkout_assist(alerts[0])` / `checkout_target()`. Persistent profile `.checkout_profile/`
   (`--setup` to sign in), contact in `checkout.local.json`, lock `checkout.lock`, screenshots
-  `checkout_debug/` (all gitignored). Steps are text/role-locator based with fallbacks; stops
-  at the payment page and alarms. `safe_click` refuses FORBIDDEN_CLICK (place order / pay now /
+  `checkout_debug/` (all gitignored). Steps are text/role-locator based with fallbacks.
+  `handoff: "phone"` (default): require signed-in session (account page must not redirect to
+  signIn), skip if a Duo is already in the bag, add, verify the exact storage+color is in the bag,
+  push "IN YOUR BAG" (user buys in the Apple Store app; bag sync across devices is assumed, not
+  documented by Apple; user verifies with --rehearse). `handoff: "pc"`: continue to payment and stop.
+  Never removes bag items, never auto-closes on success; lock refreshed every 30s while open. `safe_click` refuses FORBIDDEN_CLICK (place order / pay now /
   buy now…): the purchase click stays manual, per the convention below. No anti-bot evasion.
 - `config.json`: models (`label`, `color`, `part`, `url`), `zip`, `radius_miles`, `max_stores`,
   optional `ntfy_topic`. Env vars `APPLE_ZIP` / `NTFY_TOPIC` (repo secrets) override.

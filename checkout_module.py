@@ -46,6 +46,7 @@ LOCK_FILE = os.path.join(HERE, "checkout.lock")
 CONFIG_FILE = os.path.join(HERE, "checkout.local.json")
 
 BAG_URL = "https://www.apple.com/shop/bag"
+ACCOUNT_URL = "https://www.apple.com/shop/account/home"   # requires sign-in; redirects if signed out
 SIGNIN_URL = "https://www.apple.com/shop/signIn"
 STEP_TIMEOUT_MS = 20_000
 HUMAN_WAIT_S = 240          # how long to wait for you to finish a sign-in / 2FA prompt
@@ -56,11 +57,18 @@ PAYMENT_PAGE = re.compile(r"billing|payment", re.I)
 QUEUE_PAGE = re.compile(r"you('|’)re in line|waiting room|high demand|please wait", re.I)
 
 DEFAULT_CONFIG = {
+    # "phone": add to your signed-in Apple bag, push you, you check out in the Apple Store app.
+    # "pc":    continue on the PC through pickup + contact, stop at payment, you finish on the PC.
+    "handoff": "phone",
     "guest_checkout": False,        # True: use guest checkout with the contact below
     "contact": {"first_name": "", "last_name": "", "email": "", "phone": ""},
     "browser_channel": "",          # "" = Playwright's Chromium, or "chrome" / "msedge"
     "close_on_failure": False,      # False keeps the window open so you can take over
 }
+
+
+class _Done(Exception):
+    """Internal: success path that skips the PC-only steps."""
 
 
 class StepFailed(Exception):
@@ -106,7 +114,8 @@ def alarm(title: str, message: str, url: str = BAG_URL) -> None:
         log(f"(alarm partly failed: {e})")
 
 
-def acquire_lock(max_age_s: int = 600) -> bool:
+def acquire_lock(max_age_s: int = 120) -> bool:
+    """One session at a time. The lock is refreshed every 30s while a window is open."""
     try:
         if os.path.exists(LOCK_FILE) and time.time() - os.path.getmtime(LOCK_FILE) < max_age_s:
             return False
@@ -115,6 +124,13 @@ def acquire_lock(max_age_s: int = 600) -> bool:
         return True
     except OSError:
         return False
+
+
+def touch_lock() -> None:
+    try:
+        os.utime(LOCK_FILE, None)
+    except OSError:
+        pass
 
 
 def release_lock() -> None:
@@ -169,9 +185,50 @@ def first_visible(page, candidates, timeout_ms: int = STEP_TIMEOUT_MS):
     return None
 
 
+def product_from_url(url: str) -> tuple[str, str]:
+    """('512GB', 'Night Sky') from .../7.6-inch-display-512gb-night-sky-unlocked."""
+    m = re.search(r"(\d+(?:gb|tb))-([a-z-]+?)(?:-unlocked)?/?$", url.lower())
+    if not m:
+        return "", ""
+    return m.group(1).upper(), m.group(2).replace("-", " ").title()
+
+
+def duo_lines(page) -> list[str]:
+    try:
+        return [t.strip() for t in page.locator("h2, h3").filter(has_text=re.compile(r"iPhone Duo", re.I)).all_inner_texts()]
+    except Exception:
+        return []
+
+
 # --------------------------------------------------------------------------
 # Steps
 # --------------------------------------------------------------------------
+
+def step_require_signin(page) -> None:
+    """The bag only follows you to the Apple Store app if this browser is signed in."""
+    log("Checking you're signed in to your Apple Account")
+    page.goto(ACCOUNT_URL, wait_until="domcontentloaded", timeout=STEP_TIMEOUT_MS)
+    page.wait_for_timeout(1500)
+    if "signin" in page.url.lower():
+        raise StepFailed("signed out", "this browser isn't signed in to your Apple Account; run --setup again")
+
+
+def step_bag_precheck(page) -> None:
+    """Don't stack phones: if a Duo is already in the bag, leave the bag alone."""
+    page.goto(BAG_URL, wait_until="domcontentloaded", timeout=STEP_TIMEOUT_MS)
+    page.wait_for_timeout(800)
+    lines = duo_lines(page)
+    if lines:
+        raise StepFailed("already in bag", f"your bag already has: {lines[0]}")
+
+
+def step_verify_in_bag(page, storage: str, color: str) -> str:
+    page.goto(BAG_URL, wait_until="domcontentloaded", timeout=STEP_TIMEOUT_MS)
+    page.wait_for_timeout(800)
+    for line in duo_lines(page):
+        if (not storage or storage.lower() in line.lower()) and (not color or color.lower() in line.lower()):
+            return line
+    raise StepFailed("verify bag", f"couldn't find {storage} {color} in the bag after adding")
 
 def step_product(page, url: str) -> None:
     log("Opening product page")
@@ -321,7 +378,7 @@ def wait_for_payment(page) -> bool:
 
 def trigger_checkout(product_url: str, store_zip: str | None = None, store_name: str | None = None,
                      rehearse: bool = False, cfg: dict | None = None) -> str:
-    """Run the guarded checkout. Returns 'ready', 'busy' or 'failed:<step>'.
+    """Run the guarded checkout. Returns 'in_bag' (phone mode), 'ready' (pc mode), 'busy' or 'failed:<step>'.
 
     Blocks until you close the browser window (so the session stays open for you).
     """
@@ -339,7 +396,21 @@ def trigger_checkout(product_url: str, store_zip: str | None = None, store_name:
                 viewport=None, args=["--start-maximized"])
             page = ctx.pages[0] if ctx.pages else ctx.new_page()
             started = time.time()
+            storage, color = product_from_url(product_url)
+            mode = (cfg.get("handoff") or "phone").lower()
             try:
+                if mode == "phone":
+                    step_require_signin(page)
+                    step_bag_precheck(page)
+                    step_product(page, product_url)
+                    line = step_verify_in_bag(page, storage, color)
+                    result = "in_bag"
+                    where = f"{store_name} · ZIP {store_zip}" if store_zip else (store_name or "the store in the alert")
+                    log(f"IN YOUR BAG after {time.time() - started:.0f}s: {line}. Finish in the Apple Store app.")
+                    alarm(("PRACTICE " if rehearse else "") + f"IN YOUR BAG: {storage} {color.upper()}".strip(),
+                          f"Apple Store app → Bag → Check Out → pickup → {where} → Apple Pay", product_url)
+                    raise _Done()
+                step_require_signin(page) if not cfg.get("guest_checkout") else None
                 step_product(page, product_url)
                 step_bag(page)
                 step_signin(page, cfg)
@@ -352,11 +423,19 @@ def trigger_checkout(product_url: str, store_zip: str | None = None, store_name:
                 log(f"READY at payment after {took:.0f}s. Enter payment and place the order yourself.")
                 alarm("Duo checkout READY on your PC",
                       f"{store_name or 'Store'} pickup is at the payment step. Finish it now on the PC.", product_url)
+            except _Done:
+                pass
             except StepFailed as e:
                 result = f"failed:{e.step}"
                 shot = screenshot(page, e.step)
                 log(f"Stopped at '{e.step}': {e}. Screenshot: {shot}")
-                if e.step != "rehearsal stop":
+                if e.step == "already in bag":
+                    alarm("Duo restock: bag already has a Duo",
+                          f"Didn't add another. Tap this to open the {storage} {color} page, or check out what's in your bag.", product_url)
+                elif e.step == "signed out":
+                    alarm("Duo checkout assist is signed out",
+                          "Couldn't add to your bag. Use the restock alert on your phone; run checkout_module.py --setup later.", product_url)
+                elif e.step != "rehearsal stop":
                     alarm("Duo checkout needs you", f"Stuck at {e.step}. Take over in the PC browser or use your phone.", product_url)
                 if cfg.get("close_on_failure") and e.step != "rehearsal stop":
                     ctx.close()
@@ -369,11 +448,16 @@ def trigger_checkout(product_url: str, store_zip: str | None = None, store_name:
                 if cfg.get("close_on_failure"):
                     ctx.close()
                     return result
-            log("Leaving the browser open for you. Close the window when you're done.")
-            try:
-                page.wait_for_event("close", timeout=0)
-            except Exception:
-                pass
+            # Never auto-close and never touch the bag again: you finish the purchase yourself.
+            log("Leaving the browser open. Close the window when you're done (your bag is unaffected).")
+            while True:
+                try:
+                    if page.is_closed():
+                        break
+                    touch_lock()
+                    page.wait_for_timeout(30_000)
+                except Exception:
+                    break
             try:
                 ctx.close()
             except Exception:
@@ -406,7 +490,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--url", help="Product buy-page URL (use the *-unlocked links from config.json)")
     ap.add_argument("--store-zip", default=None)
     ap.add_argument("--store-name", default=None)
-    ap.add_argument("--rehearse", action="store_true", help="Stop at the store search (for testing; empty your bag after)")
+    ap.add_argument("--rehearse", action="store_true",
+                    help="Practice run. Phone mode: adds to your bag so you can check it shows in the Apple Store app "
+                         "(then remove it). PC mode: stops at the store search.")
     args = ap.parse_args(argv)
     cfg = load_config()
     if args.setup:

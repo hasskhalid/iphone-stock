@@ -51,3 +51,16 @@ class RunnerHookTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class PhoneHandoffTests(unittest.TestCase):
+    def test_product_from_url(self):
+        self.assertEqual(co.product_from_url("https://www.apple.com/shop/buy-iphone/iphone-duo/7.6-inch-display-256gb-star-white-unlocked"),
+                         ("256GB", "Star White"))
+
+    def test_default_mode_is_phone_and_never_closes(self):
+        self.assertEqual(co.DEFAULT_CONFIG["handoff"], "phone")
+        self.assertFalse(co.DEFAULT_CONFIG["close_on_failure"])
+
+    def test_guard_still_present(self):
+        self.assertTrue(co.FORBIDDEN_CLICK.search("Place Your Order"))
