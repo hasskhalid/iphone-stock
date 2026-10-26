@@ -75,19 +75,9 @@ home-screen dashboard. Keep it free to run and dependency-light.
   ({updated_at, summary, items:[{title, summary, source, url, date}]}), refreshed daily at 7:47 AM ET
   by a scheduled Claude task (paraphrased summaries with links, never copied text) and links out to other trackers (Manzana, Apple Inventory Check, iPhone Stock
   Checker); their data is not scraped or imported.
-- `checkout_module.py` (optional, needs Playwright; the runner never imports it): guarded
-  guest checkout assist launched by the runner in a new console (`checkout_assist: true`) via
-  `launch_checkout_assist(alerts[0])` / `checkout_target()`. Persistent profile `.checkout_profile/`
-  (`--setup` only opens chrome://settings/payments so the user can save a card in Chrome's own
-  autofill), contact in `checkout.local.json` (only DEFAULT_CONFIG keys are read, never payment data),
-  lock `checkout.lock`, screenshots `checkout_debug/` (all gitignored). Flow: bag precheck → add →
-  bag → Continue as Guest → pickup → contact → payment, then `step_hand_over`: window to front
-  (Win32 SetForegroundWindow), pick "Credit or Debit Card", focus the first empty card field, beep
-  every 4s for `beep_seconds`. `--rehearse` runs the whole flow (use an in-stock accessory).
-  Signed-in mode was removed: Apple's sign-in stalls after 2FA in automated browsers; do not add
-  workarounds (no anti-bot evasion). `safe_click` refuses FORBIDDEN_CLICK (place order / pay now /
-  buy now…): the purchase click stays manual, per the convention below. Never removes bag items,
-  never auto-closes.
+- Checkout automation was tried and removed (Oct 2026): Apple's sign-in stalls after 2FA and
+  Add to Bag returns "page not found" in script-driven browsers. Don't re-add it or work around
+  Apple's bot checks; the buying path is alert → Apple Store app → Apple Pay.
 - `config.json`: models (`label`, `color`, `part`, `url`), `zip`, `radius_miles`, `max_stores`,
   optional `ntfy_topic`. Env vars `APPLE_ZIP` / `NTFY_TOPIC` (repo secrets) override.
 - Tracking: iPhone Duo unlocked, 256GB Night Sky `MK1F4LL/A` / Star White `MK1E4LL/A`, 512GB

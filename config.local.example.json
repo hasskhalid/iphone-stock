@@ -1,6 +1,8 @@
 {
   "zip": "YOUR_ZIP",
-  "extra_zips": ["SECOND_AREA_ZIP"],
+  "extra_zips": [
+    "SECOND_AREA_ZIP"
+  ],
   "ntfy_topic": "your-private-ntfy-topic",
   "telegram_bot_token": "",
   "telegram_chat_id": "",
@@ -11,6 +13,5 @@
   "nag_minutes": 2,
   "nag_max": 15,
   "pc_sound": true,
-  "pc_voice": true,
-  "checkout_assist": false
+  "pc_voice": true
 }
