@@ -495,7 +495,7 @@ def zone_schedule(n: int, weights: list | None = None) -> list[int]:
 
 
 def load_plan(path: str) -> dict:
-    """plan.json (repo root): {"zone_weights": [..], ...} written by tools/update_plan.py."""
+    """docs/plan.json: {"zone_weights": [..], ...} written by tools/update_plan.py (served with the app)."""
     plan = load_json(path, {}) or {}
     return plan if isinstance(plan, dict) else {}
 
@@ -619,7 +619,7 @@ def main(argv: list[str] | None = None) -> int:
     args = ap.parse_args(argv)
 
     settings = load_settings(load_json(args.config, {}))
-    settings["zone_weights"] = load_plan(os.path.join(os.path.dirname(os.path.abspath(args.config)), "plan.json")).get("zone_weights")
+    settings["zone_weights"] = load_plan(os.path.join(os.path.dirname(os.path.abspath(args.config)), "docs", "plan.json")).get("zone_weights")
 
     has_channel = settings["topic"] or settings["telegram_token"] or settings["pushover_token"]
     if args.test_alert:

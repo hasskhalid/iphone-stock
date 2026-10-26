@@ -61,5 +61,35 @@ class PlanTests(unittest.TestCase):
         self.assertNotRegex(str(p), r"\b0\d{4}\b")
 
 
+class ZipSuggestionTests(unittest.TestCase):
+    """Stores on a line, 1 mi apart, 12 visible per search. Home sees 0-11; a busy store 'X'
+    far east is only reachable by moving an extra zone."""
+    def setup(self):
+        def st(i, lng, state="NJ", z=None):
+            return {"id": i, "name": f"S{i}", "state": state, "zip": z or f"9{int(lng * 100):04d}", "lat": 40.0, "lng": lng}
+        home = [st(f"h{i}", -74.0 + i * 0.019) for i in range(12)]
+        east = [st(f"e{i}", -73.0 + i * 0.019, "NY") for i in range(12)] + [st("X", -72.7, "NY", "99999")]
+        zones = {"z0": home, "z1": home[6:] + east[:6], "z2": east[6:] + [east[-1]]}   # X only in the rare zone
+        status = {"zones": {k: {"models": [{"stores": v}]} for k, v in zones.items()}}
+        return status, [restock("X", h) for h in (1, 5, 30, 50)]
+
+    def test_suggests_zone_that_sees_the_busy_store(self):
+        status, ev = self.setup()
+        s = up.suggest_extra_zips(status, ev, history_days=7)
+        self.assertTrue(s["change"])
+        self.assertIn("S", s["why"])
+        # must still cover every NJ store (all home stores are NJ and home is never moved)
+        self.assertNotIn("home", s)
+
+    def test_waits_for_a_week_of_data(self):
+        status, ev = self.setup()
+        self.assertIsNone(up.suggest_extra_zips(status, ev, history_days=2))
+
+    def test_keeps_zips_when_busy_stores_already_covered(self):
+        status, _ = self.setup()
+        ev = [restock("h1", h) for h in (1, 5, 30)]
+        self.assertFalse(up.suggest_extra_zips(status, ev, history_days=7)["change"])
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -349,7 +349,7 @@ def main(argv: list[str] | None = None) -> int:
     config = merge_config(base, local)
     env = {**load_env(".env.local"), **{k: v for k, v in os.environ.items() if k in ("GITHUB_TOKEN", "GITHUB_REPO")}}
     settings = cs.load_settings(config)
-    plan = cs.load_plan(os.path.join(HERE, "plan.json"))
+    plan = cs.load_plan(os.path.join(HERE, "docs", "plan.json"))
     settings["zone_weights"] = plan.get("zone_weights")
     # Remember the pace and any active Apple block across restarts.
     state = cs.load_json("runner_state.json", {})
@@ -410,7 +410,7 @@ def main(argv: list[str] | None = None) -> int:
             if publisher and t0 - plan_checked > PLAN_REFRESH_SECONDS:
                 plan_checked = t0
                 try:
-                    fresh_plan = publisher.get_json("plan.json", ref="main")
+                    fresh_plan = publisher.get_json("docs/plan.json", ref="main")
                 except Exception:
                     fresh_plan = None
                 w = (fresh_plan or {}).get("zone_weights")

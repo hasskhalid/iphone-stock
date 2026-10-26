@@ -235,7 +235,8 @@
   .hour-labels { display: grid; grid-template-columns: repeat(24, 1fr); padding: 0 16px 12px; color: var(--faint); font-size: 10px; }
   .hour-labels span { text-align: center; }
   .insight { padding: 14px 16px; border-top: 1px solid var(--line); } .insight:first-child { border-top: 0; }
-  .insight b { display: block; margin-bottom: 2px; } .insight span { color: var(--muted); font-size: 13px; } .insight a { font-size: 12px; }
+  .insight b { display: block; margin-bottom: 2px; }
+  .insight code { font-size: 12px; background: rgba(255,255,255,.08); padding: 1px 5px; border-radius: 6px; } .insight span { color: var(--muted); font-size: 13px; } .insight a { font-size: 12px; }
 
   /* ---------- Settings ---------- */
   details.settings { margin-top: 22px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); padding: 0 16px; }
@@ -562,6 +563,11 @@
         </div>
       </article>`;
   }
+  // Restocks at this store in the last 7 days (from the tracker's history).
+  function weekCount(storeId) {
+    const since = Date.now() - 7 * 864e5;
+    return restocks().filter((e) => e.store_id === storeId && new Date(e.t) >= since).length;
+  }
   function lastRestock(storeId) {
     const ev = restocks().filter((e) => e.store_id === storeId);
     return ev.length ? ev[ev.length - 1] : null;
@@ -592,7 +598,7 @@
     return `
       <div class="wrow" ${delay}>
         <span class="rank">${s.rank}</span>
-        <a class="wmain" href="${esc(buy)}" target="_blank" rel="noopener"><b>${esc(s.name)}</b><small>${where}</small>${lr ? `<small><em>✨ restocked ${esc(shortAgo(lr.t))}</em></small>` : ""}</a>
+        <a class="wmain" href="${esc(buy)}" target="_blank" rel="noopener"><b>${esc(s.name)}</b><small>${where}</small>${lr ? `<small><em>${weekCount(s.id) ? `🔥 ${weekCount(s.id)}× this week · ` : "✨ restocked "}${esc(shortAgo(lr.t))}</em></small>` : ""}</a>
         <span class="dots" aria-hidden="true">${s.colors.map((c) => `<i class="${sw(c.color)}"></i>`).join("")}</span>
         ${s.zip ? `<button class="copyzip" data-zip="${esc(s.zip)}" aria-label="Copy ZIP ${esc(s.zip)}">📋<span>ZIP</span></button>` : ""}
         <button class="rbtn${spinningStore === s.id ? " spin" : ""}" data-store="${esc(s.id)}" aria-label="Re-check ${esc(s.name)}"><span>↻</span></button>
@@ -638,6 +644,23 @@
   }
 
   // News is refreshed by a scheduled task that writes docs/news.json (served with the app).
+  let PLAN = null;
+  async function loadPlan() {
+    try {
+      const r = await fetch("plan.json?t=" + Date.now(), { cache: "no-store" });
+      if (r.ok) { PLAN = await r.json(); renderPatterns(); }
+    } catch {}
+  }
+  function planHTML() {
+    if (!PLAN || !PLAN.summary) return "";
+    const z = PLAN.zip_suggestion;
+    const tip = z && z.change
+      ? `<div class="insight"><b>💡 Try new search ZIPs: ${esc((z.extra_zips || []).join(", "))}</b><span>${esc(z.why)} To switch: set <code>"extra_zips": [${(z.extra_zips || []).map((x) => `"${esc(x)}"`).join(", ")}]</code> in config.local.json, update the APPLE_EXTRA_ZIPS secret to <code>${esc((z.extra_zips || []).join(","))}</code>, restart the runner.</span></div>`
+      : z ? `<div class="insight"><b>✅ Search ZIPs look right</b><span>${esc(z.why)}</span></div>` : "";
+    return `
+      <h2 style="margin-top:0">This week's plan · updated ${esc(PLAN.updated_at ? shortAgo(PLAN.updated_at) : "")}</h2>
+      <div class="panel"><div class="insight"><b>🌙 What the tracker learned</b><span>${esc(PLAN.summary)}</span></div>${tip}</div>`;
+  }
   let NEWS = null;
   async function loadNews() {
     try {
@@ -667,7 +690,7 @@
   function renderPatterns() {
     const r = restocks();
     if (!r.length) {
-      $("patterns").innerHTML = `<div class="panel"><div class="empty">Your own patterns build up as your tracker sees restocks: which stores restock most and at what time of day.</div></div>${newsHTML()}${OTHER_TRACKERS}`;
+      $("patterns").innerHTML = `${planHTML()}<div class="panel"><div class="empty">Your own patterns build up as your tracker sees restocks: which stores restock most and at what time of day.</div></div>${newsHTML()}${OTHER_TRACKERS}`;
       return;
     }
     const hours = new Array(24).fill(0);
@@ -676,8 +699,8 @@
     const byStore = new Map();
     r.forEach((e) => { const x = byStore.get(e.store) || []; x.push(e); byStore.set(e.store, x); });
     const rows = [...byStore.entries()].sort((a, b) => b[1].length - a[1].length);
-    $("patterns").innerHTML = `
-      <h2 style="margin-top:0">Restocks by hour</h2>
+    $("patterns").innerHTML = `${planHTML()}
+      <h2${PLAN ? "" : ' style="margin-top:0"'}>Restocks by hour</h2>
       <div class="panel">
         <div class="hours">${hours.map((n) => `<div class="${n ? "" : "zero"}" style="height:${n ? Math.max(8, (n / max) * 100) : 2}%" title="${n} restocks"></div>`).join("")}</div>
         <div class="hour-labels">${hours.map((_, h) => `<span>${h % 6 === 0 ? hourLabel(h) : ""}</span>`).join("")}</div>
@@ -1017,8 +1040,8 @@
   })();
 
   load();
-  loadNews();
-  setInterval(() => { if (!document.hidden) loadNews(); }, 30 * 60 * 1000);
+  loadNews(); loadPlan();
+  setInterval(() => { if (!document.hidden) { loadNews(); loadPlan(); } }, 30 * 60 * 1000);
   if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
 </script>
 </body>

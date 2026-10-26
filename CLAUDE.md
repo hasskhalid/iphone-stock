@@ -97,12 +97,17 @@ home-screen dashboard. Keep it free to run and dependency-light.
   every 4th check. Rush: when any restock is detected, `status.rush_zones` sends the next checks to
   every other zone immediately (restocks land in waves), then the schedule resumes. Daily plan:
   `tools/update_plan.py` (run by the daily scheduled task) reads status zones + history, credits
-  each restock in the last 7 days to the zones that can see that store, and writes `plan.json`
-  (repo root) with `zone_weights` (1..6 per zone; home >= 2, near zone z1 >= 4 and home <= z1+2,
+  each restock in the last 7 days to the zones that can see that store, and writes `docs/plan.json`
+  (served with the app, shown on Patterns as "This week's plan") with `zone_weights` (1..6 per zone; home >= 2, near zone z1 >= 4 and home <= z1+2,
   because missed restocks never reach history and a quiet-looking zone would get starved), plus a
-  summary (top stores, peak hours, colours, yesterday). `zone_schedule(n, weights)` interleaves by
+  summary (top stores, peak hours, colours, yesterday, plain-English checking split) and
+  `zip_suggestion`: once history spans 6+ days, `suggest_extra_zips()` estimates (from store
+  coordinates, Apple's 12-nearest rule) whether other Apple Store ZIPs as extra search centers
+  would see more of last week's restocks while still covering all NJ; home ZIP is never moved
+  (its distances drive sorting). Owner applies it by hand (config.local.json + APPLE_EXTRA_ZIPS).
+  Dashboard rows show "🔥 N× this week" (7-day restocks). `zone_schedule(n, weights)` interleaves by
   smooth weighted round robin; wrong-length/invalid weights fall back to the default. The backup
-  reads plan.json from its checkout; the PC runner re-reads it from GitHub main every hour. Extra zones are not
+  reads docs/plan.json from its checkout; the PC runner re-reads it from GitHub main every hour. Extra zones are not
   cut by radius; `filter_area()` keeps stores within `radius_miles` of home plus every store in
   `keep_states` (config: ["NJ"], i.e. all 12 NJ Apple Stores; owner's extra zips cover North and
   South Jersey). Rows carry `state`.
