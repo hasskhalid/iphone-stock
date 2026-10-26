@@ -1,55 +1,55 @@
 {
-  "updated_at": "2026-10-25T11:49:30Z",
-  "summary": "US pickup slots for the iPhone Duo still show up rarely and vanish within minutes, and online delivery runs to late January. For a 256GB unlocked pickup in NJ, a fast alert and tapping it right away is the realistic path.",
+  "updated_at": "2026-10-26T11:50:32Z",
+  "summary": "Pickup restocks keep popping up a few times a day (often mid-morning ET, and again Sunday evening) but usually last about two minutes, while online delivery still runs to late January. For a 256GB unlocked pickup in NJ, a fast alert and an immediate tap remain the best bet.",
   "items": [
     {
+      "title": "Sunday-evening restock wave at scattered US stores",
+      "summary": "Late Oct 25 (about 10:15 PM ET), pickup stock briefly appeared in Los Angeles, Illinois and Iowa, mostly 512GB and 2TB. The tracker says listings typically last about two minutes.",
+      "source": "InStockRadar",
+      "url": "https://instockradar.com/us/iphone-duo",
+      "date": "2026-10-25"
+    },
+    {
+      "title": "Tracker: restocks cluster 9 AM to noon ET, Sundays busiest",
+      "summary": "Manzana logged another US back-in-stock moment at 11:40 AM ET on Oct 25; minutes later all 269 stores it watches were empty. Its pattern data covers 51 restocks since Oct 16.",
+      "source": "Manzana Tracker",
+      "url": "https://manzanatracker.com/stock/iphone-duo",
+      "date": "2026-10-25"
+    },
+    {
+      "title": "Report: Apple raises Duo component orders sharply",
+      "summary": "Citing Digitimes, TUAW says component orders rose about 44%, but hinge assembly yields reportedly lag, so finished-phone supply may stay tight for a while. Unconfirmed by Apple.",
+      "source": "TUAW",
+      "url": "https://www.tuaw.com/2026/10/25/apple-iphone-duo-production-surge-raises-questions-over-supply",
+      "date": "2026-10-25"
+    },
+    {
+      "title": "Pickup is back on in the US, but most stores show none",
+      "summary": "Apple turned in-store pickup back on across the US and Canada over the weekend; many stores still list zero slots and shipping quotes stretch into late January.",
+      "source": "The Mac Observer",
+      "url": "https://www.macobserver.com/news/apple-store-pickup-resumes-for-iphone-duo-in-north-america/",
+      "date": "2026-10-25"
+    },
+    {
       "title": "New online orders quote late-January delivery",
-      "summary": "About 30 minutes after preorders opened, Apple's US delivery estimate hit January 25, 2027; Verizon has also flagged an unexpected preorder shipping delay.",
+      "summary": "Apple's US delivery estimate for new Duo orders has reached around January 25, 2027, making store pickup the only near-term route.",
       "source": "Tech Insider",
       "url": "https://tech-insider.org/iphone-duo-preorder-wait-jan-25-walk-in-stock-2026/",
       "date": "2026-10-25"
     },
     {
-      "title": "Tracker logs another brief US restock late Saturday morning",
-      "summary": "Manzana Tracker listed its latest US back-in-stock moment at 11:16 AM ET on Oct 24; minutes later none of the 266 stores it checks had pickup stock. Its data is labeled beta.",
-      "source": "Manzana Tracker",
-      "url": "https://manzanatracker.com/stock/iphone-duo",
-      "date": "2026-10-24"
-    },
-    {
       "title": "Pickup reservations reopened for about five minutes",
-      "summary": "US and Canada pickup slots appeared around 8:10 AM ET on Oct 24 and were gone about five minutes later; most stores never showed any.",
+      "summary": "US and Canada pickup slots appeared around 8:10 AM ET on Oct 24 and disappeared roughly five minutes later; most stores never showed any.",
       "source": "MacRumors",
       "url": "https://www.macrumors.com/2026/10/24/apple-store-pickup-iphone-duo-us/",
       "date": "2026-10-24"
     },
     {
       "title": "Apple caps US online orders at two per customer",
-      "summary": "Apple's US store reportedly blocks checkout with more than two Duos in the bag, per a Reddit user screenshot (a user report). Insiders also say production has been increased.",
+      "summary": "Apple's US store reportedly blocks checkout with more than two Duos in the bag, based on a Reddit user's screenshot (a user report, not confirmed by Apple).",
       "source": "GIGA",
       "url": "https://www.giga.de/tech/apple-hat-sich-beim-iphone-duo-verkalkuliert-und-muss-jetzt-hart-durchgreifen--01M5C69RR3WFGDMB6ERWHGFARX",
       "date": "2026-10-24"
-    },
-    {
-      "title": "Restock timing has no clear schedule",
-      "summary": "Reporting suggests store restocks tend to arrive midday to early evening local time and sell out in minutes; Apple publishes no schedule.",
-      "source": "Geo News",
-      "url": "https://www.geo.tv/latest/688143-when-will-apple-restock-iphone-duo-again-heres-everything-to-know",
-      "date": "2026-10-24"
-    },
-    {
-      "title": "Launch-day walk-in stock sold out fast; carriers had units",
-      "summary": "Apple Stores ran out within minutes at some locations on Oct 23, while Best Buy and the big three carriers still listed both colors at the time.",
-      "source": "VICE",
-      "url": "https://www.vice.com/en/via/iphone-duo-sold-out-at-apple-stores/",
-      "date": "2026-10-23"
-    },
-    {
-      "title": "Apple confirmed limited walk-in supply for launch",
-      "summary": "Apple said US stores would get a small walk-in allotment on Oct 23 and pointed online shoppers to check pickup again on Oct 24.",
-      "source": "Resell Calendar",
-      "url": "https://resellcalendar.com/news/news/iphone-duo-walk-in-stock-apple-store-october-23/",
-      "date": "2026-10-22"
     }
   ]
 }
