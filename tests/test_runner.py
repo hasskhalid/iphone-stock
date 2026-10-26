@@ -158,12 +158,37 @@ class HandoffTests(unittest.TestCase):
         self.assertGreaterEqual(lr.MIN_POLL, 45)
         self.assertGreaterEqual(lr.merge_config(BASE, {})["poll_seconds"], lr.MIN_POLL)
 
-    def test_changed_poll_setting_is_not_overridden_by_saved_state(self):
-        self.assertEqual(lr.start_poll({"poll_seconds": 90}, 75), 75)               # old state file
-        self.assertEqual(lr.start_poll({"poll_seconds": 90, "base": 90}, 75), 75)   # setting lowered
-        self.assertEqual(lr.start_poll({"poll_seconds": 93, "base": 75}, 75), 93)   # real slowdown kept
-        self.assertEqual(lr.start_poll({"poll_seconds": 300, "base": 75}, 75), lr.MAX_ADAPTIVE_POLL)
-        self.assertEqual(lr.start_poll({}, 90), 90)
+    def test_pace_starts_safe_and_walks_down_to_45(self):
+        p = lr.Pace(45)
+        self.assertEqual(p.rungs, [45, 60, 75, 90, 120])
+        self.assertEqual(p.poll, 75)                     # never starts at a pace that got blocked
+        self.assertFalse(p.ok(1700))
+        self.assertTrue(p.ok(100))                       # 30 clean minutes -> faster
+        self.assertEqual(p.poll, 60)
+        for _ in range(1800 // 60):
+            p.ok(60)
+        self.assertEqual(p.poll, 45)
+        self.assertFalse(p.ok(10_000))                   # can't go below the setting
+
+    def test_pace_backs_off_and_waits_longer_each_block(self):
+        p = lr.Pace(45)
+        p.idx = 0
+        p.blocked()
+        self.assertEqual((p.poll, p.cooldown), (60, 3600))
+        self.assertFalse(p.ok(1800))                     # cooldown doubled
+        self.assertTrue(p.ok(1800))
+        self.assertEqual(p.poll, 45)
+        p.blocked(); p.blocked(); p.blocked(); p.blocked(); p.blocked(); p.blocked()
+        self.assertEqual(p.poll, 120)                    # top of the ladder
+        self.assertEqual(p.cooldown, lr.COOLDOWN_MAX)
+
+    def test_pace_resumes_or_resets_with_saved_state(self):
+        p = lr.Pace(45); p.blocked()
+        again = lr.Pace(45, {"pace": p.to_state()})
+        self.assertEqual((again.poll, again.cooldown), (p.poll, p.cooldown))
+        self.assertEqual(lr.Pace(60, {"pace": p.to_state()}).poll, 75)   # setting changed: start safe
+        self.assertEqual(lr.Pace(90, {"poll_seconds": 120}).poll, 90)    # old state file ignored
+        self.assertEqual(lr.Pace(10).rungs[0], lr.MIN_POLL)
 
     def test_github_runs_after_its_own_check(self):
         fresh = datetime.now(timezone.utc).isoformat(timespec="seconds")

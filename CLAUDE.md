@@ -29,10 +29,14 @@ home-screen dashboard. Keep it free to run and dependency-light.
   console prints a banner with the alert. `pc_sound` / `pc_voice` in config.local.json (default on).
   `--test-alert` plays it too.
 - `local_runner.py` (+ `start-runner.bat`): PC runner on the owner's always-on Windows PC.
-  Polls every `poll_seconds` (default 90, floor 45: faster got the home IP rate-limited by Apple with HTTP 541) via `check_stock.check_once`, exponential backoff on
-  errors (max 900s; while erroring it publishes only the transition, not heartbeats, so the
-  GitHub backup's good results stay visible), adaptive slowdown (each 541 episode raises
-  poll by 25%, max 120s; persisted with the active block in gitignored `runner_state.json`, so a restart waits out the block instead of firing immediately; after ~30 min of clean checks it steps 15% back toward the configured `poll_seconds`), nag mode (re-push every `nag_minutes` while in stock, max `nag_max`),
+  Polls on a pace ladder `Pace` (45/60/75/90/120s; `poll_seconds` = fastest allowed, floor 45:
+  60s and 15s fixed polling got the home IP rate-limited by Apple with HTTP 541). Starts at 75 (or
+  the setting if slower), steps one rung faster after a clean cooldown (30 min), one rung slower at
+  the start of each 541 episode, and each block doubles the cooldown (max 4 h) so it settles on the
+  fastest tolerated pace. Pace + active block persisted in gitignored `runner_state.json` (`pace`,
+  `blocked_until`); a changed setting resets the ladder. Exponential backoff on errors (max 900s;
+  while erroring it publishes only the transition, not heartbeats, so the GitHub backup's good
+  results stay visible), nag mode (re-push every `nag_minutes` while in stock, max `nag_max`),
   publishes status/history to the `status` branch through the GitHub Git Data API
   (tree → orphan commit → force ref; no git needed) on availability change or every
   `heartbeat_seconds` (60, i.e. every check, so the app shows each check). Private files: `config.local.json` (zip, ntfy_topic,

@@ -14,8 +14,12 @@ Private files (gitignored, never commit them), next to this script:
   config.local.json   {"zip": "...", "ntfy_topic": "...", optional overrides below}
   .env.local          GITHUB_TOKEN=...   GITHUB_REPO=hasskhalid/iphone-stock
 
-Optional settings in config.local.json (defaults shown; poll can't go below 45s):
-  "poll_seconds": 60, "heartbeat_seconds": 60, "nag_minutes": 2, "nag_max": 15
+Optional settings in config.local.json (defaults shown):
+  "poll_seconds": 90, "heartbeat_seconds": 60, "nag_minutes": 2, "nag_max": 15
+  poll_seconds is the FASTEST pace allowed (min 45). The runner moves along 45/60/75/90/120s:
+  it starts at 75 (or your setting if slower), steps one faster after a clean cooldown, and one
+  slower whenever Apple blocks it (HTTP 541). Each block doubles the cooldown (30 min → 4 h),
+  so it settles on the fastest pace Apple tolerates.
 
 Run:  python local_runner.py          (or double-click start-runner.bat on Windows)
       python local_runner.py --once   (single check, handy for testing)
@@ -41,7 +45,10 @@ DEFAULTS = {"poll_seconds": 90, "heartbeat_seconds": 60, "nag_minutes": 2, "nag_
 MIN_POLL = 45          # faster than this gets your connection rate-limited by Apple (HTTP 541)
 MAX_BACKOFF = 900      # when Apple pushes back, wait up to 15 min between tries
 MAX_ADAPTIVE_POLL = 120
-SPEEDUP_AFTER_SECONDS = 1800   # clean checking time before stepping the pace back up  # each rate-limit episode slows normal polling by 25%, up to this
+PACE_LADDER = (45, 60, 75, 90, 120)   # seconds between checks
+START_PACE = 75                       # start here (60 got this connection blocked before)
+COOLDOWN_START = 1800                 # clean time at a pace before trying the next faster one
+COOLDOWN_MAX = 4 * 3600               # each block doubles the cooldown, up to this
 API = "https://api.github.com"
 
 
@@ -211,11 +218,48 @@ def nag_message(rows: list[tuple[dict, dict]]) -> tuple[str, str, str]:
 # PC alarm: loud beeps + spoken announcement (Windows), so you hear it at the desk
 # --------------------------------------------------------------------------
 
-def start_poll(state: dict, base_poll: int) -> int:
-    """Pace to start at: a slowdown learned for this same setting is kept (max 120s);
-    if poll_seconds in config.local.json changed, start from the new value."""
-    learned = int(state.get("poll_seconds") or 0) if state.get("base") == base_poll else 0
-    return min(MAX_ADAPTIVE_POLL, learned) if learned > base_poll else base_poll
+class Pace:
+    """Pace ladder: one step slower on each Apple block, one step faster after a clean cooldown.
+
+    `fastest` is poll_seconds from config (never below MIN_POLL). Each block doubles the
+    cooldown, so after a few tries it stays on the fastest pace that doesn't get blocked.
+    """
+
+    def __init__(self, fastest: int, state: dict | None = None):
+        fastest = max(MIN_POLL, int(fastest))
+        self.rungs = [r for r in PACE_LADDER if r >= fastest] or [fastest]
+        if self.rungs[0] != fastest:
+            self.rungs.insert(0, fastest)
+        st = (state or {}).get("pace") or {}
+        if st.get("rungs") == self.rungs:            # same setting as last run: resume
+            self.idx = min(int(st.get("idx", 0)), len(self.rungs) - 1)
+            self.cooldown = int(st.get("cooldown", COOLDOWN_START))
+            self.clean = float(st.get("clean", 0))
+        else:                                         # new or changed setting: start safe
+            self.idx = max(i for i, r in enumerate(self.rungs) if r <= max(START_PACE, fastest))
+            self.cooldown, self.clean = COOLDOWN_START, 0.0
+
+    @property
+    def poll(self) -> int:
+        return self.rungs[self.idx]
+
+    def ok(self, seconds: float) -> bool:
+        """A clean check. Returns True if the pace just got faster."""
+        self.clean += seconds
+        if self.idx > 0 and self.clean >= self.cooldown:
+            self.idx -= 1
+            self.clean = 0.0
+            return True
+        return False
+
+    def blocked(self) -> None:
+        """Start of an Apple block (541): one step slower, and wait longer before speeding up again."""
+        self.idx = min(self.idx + 1, len(self.rungs) - 1)
+        self.cooldown = min(COOLDOWN_MAX, self.cooldown * 2)
+        self.clean = 0.0
+
+    def to_state(self) -> dict:
+        return {"rungs": self.rungs, "idx": self.idx, "cooldown": self.cooldown, "clean": round(self.clean)}
 
 
 def spoken_text(alerts_or_rows) -> str:
@@ -303,11 +347,10 @@ def main(argv: list[str] | None = None) -> int:
     config = merge_config(base, local)
     env = {**load_env(".env.local"), **{k: v for k, v in os.environ.items() if k in ("GITHUB_TOKEN", "GITHUB_REPO")}}
     settings = cs.load_settings(config)
-    poll = max(MIN_POLL, int(config["poll_seconds"]))
-    base_poll = poll
-    # Remember the slower pace and any active Apple block across restarts.
+    # Remember the pace and any active Apple block across restarts.
     state = cs.load_json("runner_state.json", {})
-    poll = start_poll(state, base_poll)
+    pace = Pace(int(config["poll_seconds"]), state)
+    poll = pace.poll
     blocked_until = float(state.get("blocked_until") or 0)
     heartbeat = max(30, int(config["heartbeat_seconds"]))
 
@@ -332,7 +375,7 @@ def main(argv: list[str] | None = None) -> int:
 
     print("Duo Watch PC runner")
     print(f"  Config:   config.json + {'config.local.json' if local else '(no config.local.json!)'}")
-    print(f"  ZIP:      {mask(settings['zip'], 2)}   Radius: {settings['radius']} mi   Poll: every {poll}s")
+    print(f"  ZIP:      {mask(settings['zip'], 2)}   Radius: {settings['radius']} mi   Poll: every {poll}s (range {pace.rungs[0]}–{pace.rungs[-1]}s)")
     extra = [n for n, k in (("Telegram", "telegram_token"), ("Pushover", "pushover_token")) if settings.get(k)]
     print(f"  Alerts:   ntfy topic {mask(settings['topic'])}{' + ' + ' + '.join(extra) if extra else ''}   Nag: every {config['nag_minutes']} min (max {config['nag_max']})")
     print(f"  Publish:  {repo + ' (status branch, heartbeat ' + str(heartbeat) + 's)' if publisher else 'off'}")
@@ -348,7 +391,7 @@ def main(argv: list[str] | None = None) -> int:
 
     nagger = Nagger(float(config["nag_minutes"]), int(config["nag_max"]))
     started = datetime.now(timezone.utc).isoformat(timespec="seconds")
-    checks, errors_in_row, last_publish, last_sig, clean_streak = 0, 0, 0.0, None, 0
+    checks, errors_in_row, last_publish, last_sig = 0, 0, 0.0, None
 
     wait0 = blocked_until - time.time()
     if wait0 > 0 and not args.once:
@@ -426,20 +469,18 @@ def main(argv: list[str] | None = None) -> int:
             if not status.get("error"):
                 prev = status
                 errors_in_row = 0
-                clean_streak += 1
-                # Speed back up: after ~30 min of clean checks, step 15% back toward your setting.
-                if poll > base_poll and clean_streak * poll >= SPEEDUP_AFTER_SECONDS:
-                    poll = max(base_poll, int(poll / 1.15))
-                    clean_streak = 0
-                    print(f"           30 min with no Apple blocks; speeding back up to every {poll}s")
+                if pace.ok(poll):
+                    poll = pace.poll
+                    print(f"           {pace.cooldown // 60} min with no Apple blocks; speeding up to every {poll}s")
             else:
                 errors_in_row += 1
-                clean_streak = 0
-                # Each new Apple rate-limit episode: check a bit less often from now on.
-                if errors_in_row == 1 and "541" in (status.get("error") or "") and poll < MAX_ADAPTIVE_POLL:
-                    poll = min(MAX_ADAPTIVE_POLL, int(poll * 1.25))
+                # Start of an Apple rate-limit episode: one step slower from now on.
+                if errors_in_row == 1 and "541" in (status.get("error") or ""):
+                    pace.blocked()
+                    poll = pace.poll
                     status["poll_seconds"] = poll
-                    print(f"           Apple rate limit hit; slowing to every {poll}s once it clears")
+                    print(f"           Apple rate limit hit; checking every {poll}s once it clears "
+                          f"(next speed-up try in {pace.cooldown // 60} min)")
             save_json("prev_status.json", prev if prev else status)
             save_json("history.local.json", history)
 
@@ -447,7 +488,7 @@ def main(argv: list[str] | None = None) -> int:
                 return 0
             wait = poll if not errors_in_row else min(MAX_BACKOFF, poll * 2 ** errors_in_row)
             try:
-                save_json("runner_state.json", {"poll_seconds": poll, "base": base_poll,
+                save_json("runner_state.json", {"pace": pace.to_state(),
                                                 "blocked_until": (time.time() + wait) if errors_in_row else 0})
             except OSError:
                 pass
