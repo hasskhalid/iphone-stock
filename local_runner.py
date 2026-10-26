@@ -47,6 +47,7 @@ MAX_BACKOFF = 900      # when Apple pushes back, wait up to 15 min between tries
 MAX_ADAPTIVE_POLL = 120
 PACE_LADDER = (45, 60, 75, 90, 120)   # seconds between checks
 START_PACE = 60                       # start here; owner prefers 60/45 (a block steps back to 75)
+PLAN_REFRESH_SECONDS = 3600          # re-read plan.json from GitHub this often
 PACE_VERSION = 2                      # bump to make every runner restart from START_PACE
 COOLDOWN_START = 1200                 # clean time at a pace before trying the next faster one
 COOLDOWN_MAX = 4 * 3600               # each block doubles the cooldown, up to this
@@ -119,9 +120,9 @@ class GitHubPublisher:
             except json.JSONDecodeError:
                 return e.code, {}
 
-    def get_json(self, path: str) -> dict | None:
-        """Read a file from the status branch via the contents API (not cached like raw)."""
-        code, data = self._request("GET", f"/repos/{self.repo}/contents/{path}?ref={self.branch}")
+    def get_json(self, path: str, ref: str | None = None) -> dict | None:
+        """Read a file (default: from the status branch) via the contents API (not cached like raw)."""
+        code, data = self._request("GET", f"/repos/{self.repo}/contents/{path}?ref={ref or self.branch}")
         if code != 200 or not isinstance(data, dict) or "content" not in data:
             return None
         try:
@@ -348,6 +349,8 @@ def main(argv: list[str] | None = None) -> int:
     config = merge_config(base, local)
     env = {**load_env(".env.local"), **{k: v for k, v in os.environ.items() if k in ("GITHUB_TOKEN", "GITHUB_REPO")}}
     settings = cs.load_settings(config)
+    plan = cs.load_plan(os.path.join(HERE, "plan.json"))
+    settings["zone_weights"] = plan.get("zone_weights")
     # Remember the pace and any active Apple block across restarts.
     state = cs.load_json("runner_state.json", {})
     pace = Pace(int(config["poll_seconds"]), state)
@@ -399,9 +402,21 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Apple was blocking this connection recently; waiting {int(wait0)}s before the first check")
         print("(the GitHub backup keeps checking meanwhile; restarting won't make this faster)")
         time.sleep(wait0)
+    plan_checked = time.time()
     try:
         while True:
             t0 = time.time()
+            # The daily task updates plan.json on GitHub (which areas to check most); pick it up hourly.
+            if publisher and t0 - plan_checked > PLAN_REFRESH_SECONDS:
+                plan_checked = t0
+                try:
+                    fresh_plan = publisher.get_json("plan.json", ref="main")
+                except Exception:
+                    fresh_plan = None
+                w = (fresh_plan or {}).get("zone_weights")
+                if fresh_plan is not None and w != settings.get("zone_weights"):
+                    settings["zone_weights"] = w
+                    print(f"           Daily plan updated: area weights {w} (from restock history)")
             status, history, alerts = cs.check_once(
                 settings, prev, history, source="pc",
                 log=lambda m: print(f"[{time.strftime('%H:%M:%S')}] !!! {m}") if m.startswith("WARN") else None)

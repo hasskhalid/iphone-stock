@@ -468,18 +468,36 @@ def _home_distance(row: dict, home, home_miles: dict) -> dict:
     return row
 
 
-def zone_schedule(n: int) -> list[int]:
-    """Order zones are checked in. Home (0) and the FIRST extra zone (1, the "near" zone) alternate;
-    further extra zones (far areas) get one slot per cycle:
-    2 zones -> [0,1]; 3 -> [0,1,0,1,0,1,0,2]; 4 -> [0,1,0,1,0,1,0,2,0,3].
-    Apple returns only 12 stores per search and restocks last ~1 min, so a store seen only
-    in a rarely-checked zone gets missed; keep the stores you care about in zones 0 and 1."""
+def zone_schedule(n: int, weights: list | None = None) -> list[int]:
+    """Order zones are checked in.
+
+    Default: home (0) and the FIRST extra zone (1, the "near" zone) alternate; further extra
+    zones get one slot per cycle: 2 -> [0,1]; 3 -> [0,1,0,1,0,1,0,2]; 4 -> [0,1,0,1,0,1,0,2,0,3].
+    With `weights` (one int 1..6 per zone, from plan.json, written daily from restock history)
+    zones are interleaved in proportion (smooth weighted round robin): [3,3,1] -> 0,1,0,1,0,1,2.
+    Apple returns only 12 stores per search and restocks last ~1 min, so a store seen only in a
+    rarely-checked zone gets missed."""
+    if weights and len(weights) == n and all(isinstance(w, int) and 1 <= w <= 6 for w in weights) and n > 1:
+        cur, out = [0] * n, []
+        for _ in range(sum(weights)):
+            for i in range(n):
+                cur[i] += weights[i]
+            best = max(range(n), key=lambda i: cur[i])
+            cur[best] -= sum(weights)
+            out.append(best)
+        return out
     if n <= 2:
         return list(range(n))
     out = [0, 1] * 3
     for i in range(2, n):
         out += [0, i]
     return out
+
+
+def load_plan(path: str) -> dict:
+    """plan.json (repo root): {"zone_weights": [..], ...} written by tools/update_plan.py."""
+    plan = load_json(path, {}) or {}
+    return plan if isinstance(plan, dict) else {}
 
 
 def filter_area(models: list[dict], radius: float | None, keep_states: list[str]) -> list[dict]:
@@ -522,7 +540,7 @@ def check_once(settings: dict, prev: dict, history: dict, *, source: str = "cli"
         if not fixture and not settings["zip"]:
             raise RuntimeError("No ZIP code. Set the APPLE_ZIP secret or 'zip' in config.json.")
         zips = [settings["zip"]] + list(settings.get("extra_zips") or [])
-        order = zone_schedule(len(zips))
+        order = zone_schedule(len(zips), settings.get("zone_weights"))
         pos = int(prev.get("next_zone", 0) or 0) % len(order)
         # After a restock anywhere, check the other zones right away (restocks land in waves).
         rush = [z for z in (prev.get("rush_zones") or []) if isinstance(z, int) and 0 <= z < len(zips)]
@@ -601,6 +619,7 @@ def main(argv: list[str] | None = None) -> int:
     args = ap.parse_args(argv)
 
     settings = load_settings(load_json(args.config, {}))
+    settings["zone_weights"] = load_plan(os.path.join(os.path.dirname(os.path.abspath(args.config)), "plan.json")).get("zone_weights")
 
     has_channel = settings["topic"] or settings["telegram_token"] or settings["pushover_token"]
     if args.test_alert:

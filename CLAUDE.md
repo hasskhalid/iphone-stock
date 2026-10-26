@@ -95,7 +95,14 @@ home-screen dashboard. Keep it free to run and dependency-light.
   slot per cycle (3 zones -> 0,1,0,1,0,1,0,2). Apple returns only 12 stores per search (no param
   raises it; checked Oct 2026), and a Garden State Plaza restock was missed when its zone ran only
   every 4th check. Rush: when any restock is detected, `status.rush_zones` sends the next checks to
-  every other zone immediately (restocks land in waves), then the schedule resumes. Extra zones are not
+  every other zone immediately (restocks land in waves), then the schedule resumes. Daily plan:
+  `tools/update_plan.py` (run by the daily scheduled task) reads status zones + history, credits
+  each restock in the last 7 days to the zones that can see that store, and writes `plan.json`
+  (repo root) with `zone_weights` (1..6 per zone; home >= 2, near zone z1 >= 4 and home <= z1+2,
+  because missed restocks never reach history and a quiet-looking zone would get starved), plus a
+  summary (top stores, peak hours, colours, yesterday). `zone_schedule(n, weights)` interleaves by
+  smooth weighted round robin; wrong-length/invalid weights fall back to the default. The backup
+  reads plan.json from its checkout; the PC runner re-reads it from GitHub main every hour. Extra zones are not
   cut by radius; `filter_area()` keeps stores within `radius_miles` of home plus every store in
   `keep_states` (config: ["NJ"], i.e. all 12 NJ Apple Stores; owner's extra zips cover North and
   South Jersey). Rows carry `state`.
