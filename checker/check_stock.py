@@ -244,6 +244,59 @@ def send_ntfy(topic: str, title: str, message: str, server: str, dry_run: bool,
         resp.read()
 
 
+def send_telegram(token: str, chat_id: str, title: str, message: str, url: str) -> None:
+    body = json.dumps({
+        "chat_id": chat_id, "text": f"{title}\n{message}", "disable_web_page_preview": True,
+        "reply_markup": {"inline_keyboard": [[{"text": "Open Apple Store", "url": url}]]},
+    }).encode()
+    req = urllib.request.Request(f"https://api.telegram.org/bot{token}/sendMessage", data=body, method="POST",
+                                 headers={"Content-Type": "application/json"})
+    with urllib.request.urlopen(req, timeout=10) as resp:
+        resp.read()
+
+
+def send_pushover(token: str, user: str, title: str, message: str, url: str, urgent: bool) -> None:
+    fields = {"token": token, "user": user, "title": title[:250], "message": message[:1000],
+              "url": url, "url_title": "Open Apple Store", "sound": "siren" if urgent else "pushover"}
+    if urgent:   # emergency priority: repeats every 30s until you acknowledge (max 10 min)
+        fields.update(priority="2", retry="30", expire="600")
+    else:
+        fields["priority"] = "1"
+    req = urllib.request.Request("https://api.pushover.net/1/messages.json",
+                                 data=urllib.parse.urlencode(fields).encode(), method="POST")
+    with urllib.request.urlopen(req, timeout=10) as resp:
+        resp.read()
+
+
+def dispatch_alert(settings: dict, title: str, message: str, click: str, *, dry_run: bool = False,
+                   urgent: bool = True, actions: str | None = None, priority: str = "urgent",
+                   tags: str = "iphone,rotating_light") -> list[str]:
+    """Send one alert to every configured channel at the same time. Returns error strings."""
+    import threading
+    jobs = []
+    if settings.get("topic") or dry_run:
+        jobs.append(("ntfy", lambda: send_ntfy(settings.get("topic", ""), title, message, settings.get("server", "https://ntfy.sh"),
+                                               dry_run, click=click, actions=actions, priority=priority, tags=tags)))
+    if not dry_run and settings.get("telegram_token") and settings.get("telegram_chat"):
+        jobs.append(("telegram", lambda: send_telegram(settings["telegram_token"], settings["telegram_chat"], title, message, click)))
+    if not dry_run and settings.get("pushover_token") and settings.get("pushover_user"):
+        jobs.append(("pushover", lambda: send_pushover(settings["pushover_token"], settings["pushover_user"], title, message, click, urgent)))
+    errors: list[str] = []
+
+    def run(name, fn):
+        try:
+            fn()
+        except Exception as e:
+            errors.append(f"{name}: {e}")
+
+    threads = [threading.Thread(target=run, args=job, daemon=True) for job in jobs]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join(timeout=12)
+    return errors
+
+
 def build_alerts(fresh: dict[str, list[dict]], models: list[dict]) -> list[tuple[str, str, str]]:
     by_part = {m["part"]: m for m in models}
     alerts = []
@@ -284,6 +337,11 @@ def load_settings(config: dict) -> dict:
         "topic": (os.environ.get("NTFY_TOPIC") or str(config.get("ntfy_topic", ""))).strip(),
         "server": os.environ.get("NTFY_SERVER", "https://ntfy.sh"),
         "alert_click": str(config.get("alert_click", "product")),   # "product" (opens app) or "bag" (Safari)
+        # Optional extra channels that deliver to iPhone faster than ntfy (all fire in parallel).
+        "telegram_token": (os.environ.get("TELEGRAM_BOT_TOKEN") or str(config.get("telegram_bot_token", ""))).strip(),
+        "telegram_chat": (os.environ.get("TELEGRAM_CHAT_ID") or str(config.get("telegram_chat_id", ""))).strip(),
+        "pushover_token": (os.environ.get("PUSHOVER_TOKEN") or str(config.get("pushover_token", ""))).strip(),
+        "pushover_user": (os.environ.get("PUSHOVER_USER") or str(config.get("pushover_user", ""))).strip(),
     }
 
 
@@ -342,13 +400,9 @@ def check_once(settings: dict, prev: dict, history: dict, *, source: str = "cli"
     fresh = new_availability(prev, status["models"])
     alerts = build_alerts(fresh, status["models"])
     for title, message, click in alerts:
-        if settings["topic"] or dry_run:
-            try:
-                tap = BAG_URL if settings.get("alert_click", "product") == "bag" else click
-                send_ntfy(settings["topic"], title, message, settings["server"], dry_run,
-                          click=tap, actions=alert_actions(click))
-            except Exception as e:
-                log(f"WARN: push failed: {e}")
+        tap = BAG_URL if settings.get("alert_click", "product") == "bag" else click
+        for err in dispatch_alert(settings, title, message, tap, dry_run=dry_run, actions=alert_actions(click)):
+            log(f"WARN: push failed: {err}")
         log(f"ALERT: {title}")
     return status, history, alerts
 
@@ -381,20 +435,21 @@ def main(argv: list[str] | None = None) -> int:
 
     settings = load_settings(load_json(args.config, {}))
 
+    has_channel = settings["topic"] or settings["telegram_token"] or settings["pushover_token"]
     if args.test_alert:
-        if not settings["topic"] and not args.dry_run:
-            print("ERROR: no ntfy topic set (NTFY_TOPIC secret)", file=sys.stderr)
+        if not has_channel and not args.dry_run:
+            print("ERROR: no alert channel set (NTFY_TOPIC / TELEGRAM_* / PUSHOVER_*)", file=sys.stderr)
             return 1
         url = settings["models"][0].get("url", BUY_URL) if settings["models"] else BUY_URL
-        send_ntfy(settings["topic"], "Test: iPhone stock alerts are working",
-                  "This is what a restock alert looks like. Tap to open the Apple Store.",
-                  settings["server"], args.dry_run, click=url, priority="high", tags="iphone,white_check_mark")
-        print("Test alert sent.")
+        errs = dispatch_alert(settings, "Test: iPhone stock alerts are working",
+                              "This is what a restock alert looks like. Tap to open the Apple Store.",
+                              url, dry_run=args.dry_run, urgent=False, priority="high", tags="iphone,white_check_mark")
+        print("Test alert sent." + (f" Errors: {errs}" if errs else ""))
         return 0
 
     if args.drill:
-        if not settings["topic"] and not args.dry_run:
-            print("ERROR: no ntfy topic set (NTFY_TOPIC secret)", file=sys.stderr)
+        if not has_channel and not args.dry_run:
+            print("ERROR: no alert channel set (NTFY_TOPIC / TELEGRAM_* / PUSHOVER_*)", file=sys.stderr)
             return 1
         if not settings["models"]:
             print("ERROR: no models configured", file=sys.stderr)
@@ -404,8 +459,10 @@ def main(argv: list[str] | None = None) -> int:
         model = settings["models"][0]
         for title, message, click in build_alerts({model["part"]: [fake_store]}, settings["models"]):
             tap = BAG_URL if settings["alert_click"] == "bag" else click
-            send_ntfy(settings["topic"], "DRILL - " + title, "DRILL, not a real restock.\n" + message,
-                      settings["server"], args.dry_run, click=tap, actions=alert_actions(click))
+            errs = dispatch_alert(settings, "DRILL - " + title, "DRILL, not a real restock.\n" + message,
+                                  tap, dry_run=args.dry_run, actions=alert_actions(click))
+            for e in errs:
+                print(f"WARN: {e}", file=sys.stderr)
         print("Drill alert sent.")
         return 0
 

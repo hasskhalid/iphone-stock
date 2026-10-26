@@ -1,6 +1,10 @@
 {
   "zip": "YOUR_ZIP",
   "ntfy_topic": "your-private-ntfy-topic",
+  "telegram_bot_token": "",
+  "telegram_chat_id": "",
+  "pushover_token": "",
+  "pushover_user": "",
   "poll_seconds": 90,
   "heartbeat_seconds": 60,
   "nag_minutes": 2,

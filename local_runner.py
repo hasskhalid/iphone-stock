@@ -252,11 +252,13 @@ def main(argv: list[str] | None = None) -> int:
     heartbeat = max(30, int(config["heartbeat_seconds"]))
 
     if args.test_alert:
-        if not settings["topic"]:
-            print("No ntfy_topic in config.local.json"); return 1
-        cs.send_ntfy(settings["topic"], "Test: Duo Watch PC runner", "Alerts from your PC are working.",
-                     settings["server"], False, click=settings["models"][0]["url"] if settings["models"] else cs.BUY_URL,
-                     priority="high", tags="computer,white_check_mark")
+        if not (settings["topic"] or settings["telegram_token"] or settings["pushover_token"]):
+            print("No alert channel in config.local.json"); return 1
+        errs = cs.dispatch_alert(settings, "Test: Duo Watch PC runner", "Alerts from your PC are working.",
+                                 settings["models"][0]["url"] if settings["models"] else cs.BUY_URL,
+                                 urgent=False, priority="high", tags="computer,white_check_mark")
+        for e in errs:
+            print("Channel error:", e)
         print("Test alert sent."); return 0
 
     publisher = None
@@ -267,7 +269,8 @@ def main(argv: list[str] | None = None) -> int:
     print("Duo Watch PC runner")
     print(f"  Config:   config.json + {'config.local.json' if local else '(no config.local.json!)'}")
     print(f"  ZIP:      {mask(settings['zip'], 2)}   Radius: {settings['radius']} mi   Poll: every {poll}s")
-    print(f"  Alerts:   ntfy topic {mask(settings['topic'])}   Nag: every {config['nag_minutes']} min (max {config['nag_max']})")
+    extra = [n for n, k in (("Telegram", "telegram_token"), ("Pushover", "pushover_token")) if settings.get(k)]
+    print(f"  Alerts:   ntfy topic {mask(settings['topic'])}{' + ' + ' + '.join(extra) if extra else ''}   Nag: every {config['nag_minutes']} min (max {config['nag_max']})")
     print(f"  Publish:  {repo + ' (status branch, heartbeat ' + str(heartbeat) + 's)' if publisher else 'off'}")
     print("-" * 64)
     if not settings["zip"]:
@@ -303,13 +306,14 @@ def main(argv: list[str] | None = None) -> int:
             for title, _, _ in alerts:
                 print(f"[{time.strftime('%H:%M:%S')}] >>> ALERT SENT: {title}")
             nag = nagger.update(t0, status, bool(alerts))
-            if nag and settings["topic"]:
+            if nag and (settings["topic"] or settings["telegram_token"]):
                 title, msg, click = nag_message(nag)
                 try:
                     tap = cs.BAG_URL if settings.get("alert_click", "product") == "bag" else click
-                    cs.send_ntfy(settings["topic"], title, msg, settings["server"], False,
-                                 click=tap, actions=cs.alert_actions(click))
-                    print(f"[{time.strftime('%H:%M:%S')}] >>> NAG SENT: {title}")
+                    # Nags go everywhere except Pushover emergency (it already repeats until acknowledged).
+                    errs = cs.dispatch_alert({**settings, "pushover_token": ""}, title, msg, tap,
+                                             actions=cs.alert_actions(click))
+                    print(f"[{time.strftime('%H:%M:%S')}] >>> NAG SENT: {title}" + (f" (errors: {errs})" if errs else ""))
                 except Exception as e:
                     print(f"[{time.strftime('%H:%M:%S')}] nag push failed: {e}")
 

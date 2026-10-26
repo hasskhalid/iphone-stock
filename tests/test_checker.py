@@ -122,6 +122,40 @@ class ActionTests(unittest.TestCase):
         self.assertEqual(cs.load_settings({"alert_click": "bag"})["alert_click"], "bag")
 
 
+class DispatchTests(unittest.TestCase):
+    def test_all_channels_fire(self):
+        calls = []
+        orig = (cs.send_ntfy, cs.send_telegram, cs.send_pushover)
+        cs.send_ntfy = lambda *a, **k: calls.append("ntfy")
+        cs.send_telegram = lambda *a, **k: calls.append("telegram")
+        cs.send_pushover = lambda *a, **k: calls.append("pushover")
+        try:
+            settings = {"topic": "t", "server": "s", "telegram_token": "x", "telegram_chat": "1",
+                        "pushover_token": "p", "pushover_user": "u"}
+            errs = cs.dispatch_alert(settings, "T", "M", "https://x")
+            self.assertEqual(errs, [])
+            self.assertEqual(sorted(calls), ["ntfy", "pushover", "telegram"])
+        finally:
+            cs.send_ntfy, cs.send_telegram, cs.send_pushover = orig
+
+    def test_one_channel_failing_doesnt_block_others(self):
+        calls = []
+        orig = (cs.send_ntfy, cs.send_telegram)
+        def boom(*a, **k): raise RuntimeError("down")
+        cs.send_ntfy = boom
+        cs.send_telegram = lambda *a, **k: calls.append("telegram")
+        try:
+            errs = cs.dispatch_alert({"topic": "t", "telegram_token": "x", "telegram_chat": "1"}, "T", "M", "u")
+            self.assertEqual(calls, ["telegram"])
+            self.assertTrue(errs and errs[0].startswith("ntfy"))
+        finally:
+            cs.send_ntfy, cs.send_telegram = orig
+
+    def test_unconfigured_channels_skipped(self):
+        s = cs.load_settings({})
+        self.assertEqual((s["telegram_token"], s["pushover_token"]), ("", ""))
+
+
 class HistoryTests(unittest.TestCase):
     def test_restock_then_sellout_events(self):
         sold = {"models": cs.parse_response(SOLD_OUT, MODELS, 8)}

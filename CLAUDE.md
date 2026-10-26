@@ -14,7 +14,12 @@ home-screen dashboard. Keep it free to run and dependency-light.
   claims as a universal link; `alert_click: "bag"` opens /shop/bag, which the app does NOT
   claim, so it opens Safari; buttons "Apple Store app" + "Bag in Safari") for stores that
   newly became available (compares against the previous status.json).
-  `--test-alert` sends a test push and exits.
+  `--test-alert` sends a test push and exits. `dispatch_alert()` sends every alert to all
+  configured channels in parallel threads: ntfy, plus optional Telegram (bot token + chat id) and
+  Pushover (app token + user key; restock alerts use emergency priority 2, retry 30s, expire 600s;
+  nags skip Pushover). Config keys `telegram_bot_token/telegram_chat_id/pushover_token/pushover_user`
+  or env/secrets `TELEGRAM_BOT_TOKEN/TELEGRAM_CHAT_ID/PUSHOVER_TOKEN/PUSHOVER_USER`. Measured: tracker
+  to ntfy server ~5s; the lag was ntfy-on-iOS delivery, hence the extra channels.
 - `local_runner.py` (+ `start-runner.bat`): PC runner on the owner's always-on Windows PC.
   Polls every `poll_seconds` (default 90, floor 45: faster got the home IP rate-limited by Apple with HTTP 541) via `check_stock.check_once`, exponential backoff on
   errors (max 900s; while erroring it publishes only the transition, not heartbeats, so the
