@@ -99,32 +99,29 @@ The app header shows **"Live · your PC checks every 60s"** with a green dot whi
    (Apple's app only opens product pages from links, not the bag; the alert's
    "Bag in Safari" button is a backup.)
 
-## Checkout assist (optional)
-**Phone handoff (default, `"handoff": "phone"` in checkout.local.json):** on a restock it checks
-this browser is signed in to your Apple Account, adds the exact phone to your bag (skips if a Duo
-is already there), confirms it's in the bag and pushes **"IN YOUR BAG: 512GB NIGHT SKY"**. You
-open the Apple Store app → Bag → Check Out → pickup → the ZIP in the push → Apple Pay. It never
-removes anything from your bag and never closes the window on its own. Test once with
-`--rehearse` that the item shows up in the Apple Store app's Bag on your iPhone.
+## Checkout assist (optional, PC only)
+When a restock alert fires, `checkout_module.py` opens a visible Chrome window and walks
+Apple's **guest checkout** up to the **payment step**: No AppleCare → Add to Bag → Check Out →
+Continue as Guest → "I'll pick it up" → store ZIP → store → time slot → pickup contact. Then it
+pulls the window to the front, picks "Credit or Debit Card", puts the cursor in the first empty
+card field and beeps (plus a push) until you take over. **You type the card details and click
+Place Your Order yourself**; it never enters payment details or clicks the purchase button
+(enforced in code). Only useful when you're at the PC; on your phone, use the alert as usual.
 
-**PC mode (`"handoff": "pc"`):**
-`checkout_module.py` opens a visible browser when a restock alert fires and walks Apple's
-checkout up to the **payment step**: No AppleCare → Add to Bag → Check Out → your saved
-sign-in → "I'll pick it up" → store ZIP → store → time slot → pickup contact. Then it stops,
-beeps/speaks and pushes "Checkout READY on your PC". **It never enters payment details and
-never clicks Place Your Order** (enforced in code). You finish in that window.
+Signed-in checkout isn't used: Apple's sign-in never finishes in a script-driven browser
+(it stalls after the 2-factor code), and this project doesn't work around that.
 
 1. `pip install playwright` then `python -m playwright install chromium`
-2. `python checkout_module.py --setup`: sign in to apple.com in the window that opens, close it.
-3. Copy `checkout.local.example.json` to `checkout.local.json` and fill in your pickup contact.
-4. Practice: `python checkout_module.py --rehearse --url <a buy-page URL from config.json> --store-zip 10017`
-   (adds the phone to your bag and stops at the store search; remove it from your bag after).
+2. Copy `checkout.local.example.json` to `checkout.local.json` and fill in your pickup contact.
+3. Optional: `python checkout_module.py --setup` opens this browser's card settings so you can
+   save your card in Chrome's own autofill (then the card number fills with one click).
+4. Practice with something that's actually in stock for pickup (a cable, say):
+   `python checkout_module.py --rehearse --url <apple.com accessory URL> --store-zip 07078 --store-name "Short Hills"`
+   It stops at payment. Nothing is bought; remove the item from the bag after.
 5. Turn it on: `"checkout_assist": true` in `config.local.json`, restart the runner.
 
-Keep your Apple bag empty while it's on (it adds the right phone itself and stops if the bag
-has more than one iPhone Duo). If a step fails it screenshots to `checkout_debug/`, alarms, and
-leaves the window open for you. Apple's pages change; selectors are text-based but may need
-updating. Only useful when you're at the PC; on your phone, use the alert as usual.
+If a step fails it screenshots to `checkout_debug/`, alarms, and leaves the window open for you.
+Apple's pages change; selectors are text-based but may need updating.
 
 ## Check now from the app
 Add a fine-grained GitHub token (this repo only, *Actions: Read and write*) in the box at

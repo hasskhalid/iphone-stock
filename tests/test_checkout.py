@@ -49,24 +49,48 @@ class RunnerHookTests(unittest.TestCase):
         self.assertNotIn("playwright", open(os.path.join(ROOT, "local_runner.py")).read())
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
-class PhoneHandoffTests(unittest.TestCase):
-    def test_signed_in_url(self):
-        self.assertTrue(co.signed_in_url("https://www.apple.com/shop/account/home"))
-        self.assertFalse(co.signed_in_url("https://www.apple.com/shop/signIn?ssi=1AAABxyz&r=x"))
-        self.assertFalse(co.signed_in_url("https://www.apple.com/shop/sorry/illegal_arguments"))
-        self.assertFalse(co.signed_in_url("https://secure.store.apple.com/shop/signIn/account"))
-
+class GuestHandoffTests(unittest.TestCase):
     def test_product_from_url(self):
         self.assertEqual(co.product_from_url("https://www.apple.com/shop/buy-iphone/iphone-duo/7.6-inch-display-256gb-star-white-unlocked"),
                          ("256GB", "Star White"))
+        self.assertEqual(co.product_from_url("https://www.apple.com/shop/product/ABC12AM/A/usb-c-cable"), ("", ""))
 
-    def test_default_mode_is_phone_and_never_closes(self):
-        self.assertEqual(co.DEFAULT_CONFIG["handoff"], "phone")
+    def test_cursor_goes_to_first_empty_card_field(self):
+        self.assertEqual(co.first_empty_field(["", "", ""]), 0)              # nothing filled: card number
+        self.assertEqual(co.first_empty_field(["4111 ****", "12/29", ""]), 2)  # autofilled: CVV
+        self.assertEqual(co.first_empty_field([None, None, ""]), 2)          # only CVV box found
+        self.assertIsNone(co.first_empty_field([None, None, None]))
+        self.assertIsNone(co.first_empty_field(["x", "y", "z"]))
+
+    def test_defaults_never_close_and_never_store_payment(self):
         self.assertFalse(co.DEFAULT_CONFIG["close_on_failure"])
+        for key in co.DEFAULT_CONFIG:
+            self.assertNotRegex(key, r"card|cvv|cvc|payment")
+
+    def test_payment_keys_in_local_file_are_ignored(self):
+        import json, tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "c.json")
+            with open(path, "w") as f:
+                json.dump({"cvv": "123", "contact": {"first_name": "H"}, "beep_seconds": 30}, f)
+            orig, co.CONFIG_FILE = co.CONFIG_FILE, path
+            try:
+                cfg = co.load_config()
+            finally:
+                co.CONFIG_FILE = orig
+        self.assertNotIn("cvv", cfg)
+        self.assertEqual(cfg["beep_seconds"], 30)
+        self.assertEqual(cfg["contact"]["first_name"], "H")
 
     def test_guard_still_present(self):
         self.assertTrue(co.FORBIDDEN_CLICK.search("Place Your Order"))
+        self.assertFalse(co.FORBIDDEN_CLICK.search("Credit or Debit Card"))
+
+    def test_no_signin_automation(self):
+        src = open(os.path.join(ROOT, "checkout_module.py")).read()
+        self.assertNotIn("ACCOUNT_URL", src)
+        self.assertNotIn("webdriver", src)
+
+
+if __name__ == "__main__":
+    unittest.main()

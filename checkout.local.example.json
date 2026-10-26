@@ -1,12 +1,11 @@
 {
-  "handoff": "phone",
-  "guest_checkout": false,
   "contact": {
     "first_name": "First",
     "last_name": "Last",
     "email": "you@example.com",
     "phone": "5555555555"
   },
-  "browser_channel": "",
+  "browser_channel": "chrome",
+  "beep_seconds": 120,
   "close_on_failure": false
 }

@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Load previous status and history
         run: |
@@ -35,7 +35,7 @@ jobs:
             git show origin/status:history.json > prev_history.json 2>/dev/null || echo '{"events": []}' > prev_history.json
           fi
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 

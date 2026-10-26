@@ -76,16 +76,18 @@ home-screen dashboard. Keep it free to run and dependency-light.
   by a scheduled Claude task (paraphrased summaries with links, never copied text) and links out to other trackers (Manzana, Apple Inventory Check, iPhone Stock
   Checker); their data is not scraped or imported.
 - `checkout_module.py` (optional, needs Playwright; the runner never imports it): guarded
-  checkout assist launched by the runner in a new console (`checkout_assist: true`) via
+  guest checkout assist launched by the runner in a new console (`checkout_assist: true`) via
   `launch_checkout_assist(alerts[0])` / `checkout_target()`. Persistent profile `.checkout_profile/`
-  (`--setup` to sign in), contact in `checkout.local.json`, lock `checkout.lock`, screenshots
-  `checkout_debug/` (all gitignored). Steps are text/role-locator based with fallbacks.
-  `handoff: "phone"` (default): require signed-in session (account page must not redirect to
-  signIn), skip if a Duo is already in the bag, add, verify the exact storage+color is in the bag,
-  push "IN YOUR BAG" (user buys in the Apple Store app; bag sync across devices is assumed, not
-  documented by Apple; user verifies with --rehearse). `handoff: "pc"`: continue to payment and stop.
-  Never removes bag items, never auto-closes on success; lock refreshed every 30s while open. `safe_click` refuses FORBIDDEN_CLICK (place order / pay now /
-  buy now…): the purchase click stays manual, per the convention below. No anti-bot evasion.
+  (`--setup` only opens chrome://settings/payments so the user can save a card in Chrome's own
+  autofill), contact in `checkout.local.json` (only DEFAULT_CONFIG keys are read, never payment data),
+  lock `checkout.lock`, screenshots `checkout_debug/` (all gitignored). Flow: bag precheck → add →
+  bag → Continue as Guest → pickup → contact → payment, then `step_hand_over`: window to front
+  (Win32 SetForegroundWindow), pick "Credit or Debit Card", focus the first empty card field, beep
+  every 4s for `beep_seconds`. `--rehearse` runs the whole flow (use an in-stock accessory).
+  Signed-in mode was removed: Apple's sign-in stalls after 2FA in automated browsers; do not add
+  workarounds (no anti-bot evasion). `safe_click` refuses FORBIDDEN_CLICK (place order / pay now /
+  buy now…): the purchase click stays manual, per the convention below. Never removes bag items,
+  never auto-closes.
 - `config.json`: models (`label`, `color`, `part`, `url`), `zip`, `radius_miles`, `max_stores`,
   optional `ntfy_topic`. Env vars `APPLE_ZIP` / `NTFY_TOPIC` (repo secrets) override.
 - Tracking: iPhone Duo unlocked, 256GB Night Sky `MK1F4LL/A` / Star White `MK1E4LL/A`, 512GB

@@ -1,32 +1,37 @@
 #!/usr/bin/env python3
 """
-Duo Watch checkout assist (guarded).
+Duo Watch checkout assist (guarded, guest checkout, PC only).
 
-Drives a VISIBLE browser through Apple's checkout as far as the payment step, then
-stops, sounds an alarm and hands control to you. It never enters payment details and
-never clicks "Place Your Order" (see FORBIDDEN_CLICK below: that is enforced in code).
+When a restock alert fires, this drives a VISIBLE browser through Apple's guest checkout
+as far as the payment step, then hands it to you:
+  - pulls the window to the front of your screen,
+  - picks "Credit or Debit Card" and puts the cursor in the first empty card field,
+  - beeps until you take over (or it leaves the payment page).
+You type the card details / CVV and click "Place Your Order" yourself. The script never
+enters payment details and never clicks the purchase button (FORBIDDEN_CLICK, enforced
+in code).
 
-Flow:  product page → No AppleCare → Add to Bag → Bag (sanity check) → Check Out →
-       sign-in (your saved session) → "I'll pick it up" → store ZIP → store → time slot →
-       pickup contact → STOP at payment → alarm → you finish in the open browser.
+Flow:  product page → No AppleCare → Add to Bag → Bag → Check Out → Continue as Guest →
+       "I'll pick it up" → store ZIP → store → time slot → pickup contact → payment → YOU.
+
+Why guest: Apple's sign-in never completes in a script-driven browser (it stalls after
+2-factor), so signed-in checkout isn't possible. This project doesn't work around that.
 
 Setup (once):
     pip install playwright
     python -m playwright install chromium
-    python checkout_module.py --setup          # sign in to apple.com in the window, then close it
-    python checkout_module.py --rehearse --url "<buy page url>" --store-zip 10017
-                                               # practice run: adds the phone to your bag and stops at the
-                                               # store search. Remove it from your bag afterwards.
-
-Use from code:
-    from checkout_module import trigger_checkout
-    trigger_checkout(url, store_zip="10017", store_name="Grand Central")
+    copy checkout.local.example.json checkout.local.json     # fill in your pickup contact
+    python checkout_module.py --setup      # optional: save your card in this browser's own
+                                           # Chrome autofill so the card number fills in one click
+Practice (needs something that's actually in stock for pickup, e.g. a cable):
+    python checkout_module.py --rehearse --url "<apple.com accessory URL>" --store-zip 07078 --store-name "Short Hills"
+    Goes all the way to payment, then stops. Nothing is bought. Remove the item from the bag after.
 
 local_runner.py launches this automatically in its own window when
 "checkout_assist": true is in config.local.json (one session at a time).
 
-Private files (gitignored): checkout.local.json (pickup contact), .checkout_profile/ (your
-browser session), checkout_debug/ (screenshots when a step fails).
+Private files (gitignored): checkout.local.json (pickup contact), .checkout_profile/ (this
+browser's profile), checkout_debug/ (screenshots when a step fails).
 """
 
 from __future__ import annotations
@@ -46,28 +51,21 @@ LOCK_FILE = os.path.join(HERE, "checkout.lock")
 CONFIG_FILE = os.path.join(HERE, "checkout.local.json")
 
 BAG_URL = "https://www.apple.com/shop/bag"
-ACCOUNT_URL = "https://www.apple.com/shop/account/home"   # requires sign-in; redirects if signed out
 STEP_TIMEOUT_MS = 20_000
-HUMAN_WAIT_S = 240          # how long to wait for you to finish a sign-in / 2FA prompt
 
 # Hard guard: the script refuses to click anything whose text matches this.
 FORBIDDEN_CLICK = re.compile(r"place (your )?order|pay now|buy now|complete purchase|submit order|confirm (order|purchase)", re.I)
 PAYMENT_PAGE = re.compile(r"billing|payment", re.I)
 QUEUE_PAGE = re.compile(r"you('|’)re in line|waiting room|high demand|please wait", re.I)
+# Card fields in the order you'd fill them; the cursor goes to the first empty one.
+CARD_FIELDS = (r"card number", r"expir|mm ?/ ?yy", r"security code|cvv|cvc")
 
 DEFAULT_CONFIG = {
-    # "phone": add to your signed-in Apple bag, push you, you check out in the Apple Store app.
-    # "pc":    continue on the PC through pickup + contact, stop at payment, you finish on the PC.
-    "handoff": "phone",
-    "guest_checkout": False,        # True: use guest checkout with the contact below
     "contact": {"first_name": "", "last_name": "", "email": "", "phone": ""},
-    "browser_channel": "",          # "" = Playwright's Chromium, or "chrome" / "msedge"
+    "browser_channel": "chrome",    # your installed Chrome; "" = Playwright's Chromium, or "msedge"
+    "beep_seconds": 120,            # keep beeping this long at the payment step
     "close_on_failure": False,      # False keeps the window open so you can take over
 }
-
-
-class _Done(Exception):
-    """Internal: success path that skips the PC-only steps."""
 
 
 class StepFailed(Exception):
@@ -85,7 +83,7 @@ def load_config() -> dict:
     try:
         with open(CONFIG_FILE, encoding="utf-8") as f:
             user = json.load(f)
-        cfg.update({k: v for k, v in user.items() if k != "contact"})
+        cfg.update({k: v for k, v in user.items() if k in DEFAULT_CONFIG and k != "contact"})
         cfg["contact"].update(user.get("contact") or {})
     except (OSError, json.JSONDecodeError):
         pass
@@ -113,8 +111,50 @@ def alarm(title: str, message: str, url: str = BAG_URL) -> None:
         log(f"(alarm partly failed: {e})")
 
 
+def beep() -> None:
+    try:
+        import winsound
+        winsound.Beep(1400, 180)
+        winsound.Beep(1000, 180)
+    except Exception:
+        print("\a", end="", flush=True)
+
+
+def raise_window(title_part: str) -> bool:
+    """Windows: bring the browser window whose title contains `title_part` to the front. Best-effort."""
+    if os.name != "nt" or not title_part:
+        return False
+    try:
+        import ctypes
+        from ctypes import wintypes
+        user32 = ctypes.windll.user32
+        found = []
+
+        @ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
+        def each(hwnd, _):
+            n = user32.GetWindowTextLengthW(hwnd)
+            if n and user32.IsWindowVisible(hwnd):
+                buf = ctypes.create_unicode_buffer(n + 1)
+                user32.GetWindowTextW(hwnd, buf, n + 1)
+                if title_part.lower() in buf.value.lower():
+                    found.append(hwnd)
+                    return False
+            return True
+
+        user32.EnumWindows(each, 0)
+        if not found:
+            return False
+        hwnd = found[0]
+        user32.ShowWindow(hwnd, 9)                  # SW_RESTORE (un-minimize)
+        user32.keybd_event(0x12, 0, 0, 0)           # tap Alt: Windows only lets the
+        user32.keybd_event(0x12, 0, 2, 0)           # foreground app hand over focus otherwise
+        return bool(user32.SetForegroundWindow(hwnd))
+    except Exception:
+        return False
+
+
 def acquire_lock(max_age_s: int = 120) -> bool:
-    """One session at a time. The lock is refreshed every 30s while a window is open."""
+    """One session at a time. The lock is refreshed while a window is open."""
     try:
         if os.path.exists(LOCK_FILE) and time.time() - os.path.getmtime(LOCK_FILE) < max_age_s:
             return False
@@ -203,37 +243,18 @@ def duo_lines(page) -> list[str]:
 # Steps
 # --------------------------------------------------------------------------
 
-def signed_in_url(url: str) -> bool:
-    """The account page redirects to sign-in (or an error page) when you're signed out."""
-    u = url.lower()
-    return "/shop/account" in u and "signin" not in u and "/sorry/" not in u
-
-
-def step_require_signin(page) -> None:
-    """The bag only follows you to the Apple Store app if this browser is signed in."""
-    log("Checking you're signed in to your Apple Account")
-    page.goto(ACCOUNT_URL, wait_until="domcontentloaded", timeout=STEP_TIMEOUT_MS)
-    page.wait_for_timeout(1500)
-    if not signed_in_url(page.url):
-        raise StepFailed("signed out", "this browser isn't signed in to your Apple Account; run --setup again")
-
-
-def step_bag_precheck(page) -> None:
-    """Don't stack phones: if a Duo is already in the bag, leave the bag alone."""
+def step_bag_precheck(page, storage: str, color: str) -> bool:
+    """Returns True if the right phone is already in the bag (skip adding). Never removes anything."""
     page.goto(BAG_URL, wait_until="domcontentloaded", timeout=STEP_TIMEOUT_MS)
     page.wait_for_timeout(800)
     lines = duo_lines(page)
-    if lines:
-        raise StepFailed("already in bag", f"your bag already has: {lines[0]}")
+    if not lines:
+        return False
+    if len(lines) == 1 and storage and color and storage.lower() in lines[0].lower() and color.lower() in lines[0].lower():
+        log(f"Already in bag: {lines[0]}")
+        return True
+    raise StepFailed("already in bag", f"your bag already has: {lines[0]}")
 
-
-def step_verify_in_bag(page, storage: str, color: str) -> str:
-    page.goto(BAG_URL, wait_until="domcontentloaded", timeout=STEP_TIMEOUT_MS)
-    page.wait_for_timeout(800)
-    for line in duo_lines(page):
-        if (not storage or storage.lower() in line.lower()) and (not color or color.lower() in line.lower()):
-            return line
-    raise StepFailed("verify bag", f"couldn't find {storage} {color} in the bag after adding")
 
 def step_product(page, url: str) -> None:
     log("Opening product page")
@@ -251,14 +272,14 @@ def step_product(page, url: str) -> None:
                     lab.first.click(timeout=5000)
         except Exception:
             pass
-    btn = page.locator('button[data-autom="add-to-cart"]:not([disabled]), button[name="add-to-cart"]:not([disabled])')
-    try:
-        btn.first.wait_for(state="visible", timeout=STEP_TIMEOUT_MS)
-    except Exception:
+    btn = first_visible(page, [
+        page.locator('button[data-autom="add-to-cart"]:not([disabled]), button[name="add-to-cart"]:not([disabled])'),
+        page.get_by_role("button", name=re.compile(r"^\s*add to bag\s*$", re.I)),
+    ])
+    if not btn:
         raise StepFailed("add to bag", "Add to Bag never became clickable")
-    safe_click(btn.first, "add to bag")
+    safe_click(btn, "add to bag")
     log("Added to bag")
-    # Wait for Apple's confirmation (Review Bag button or navigation away from the config page).
     first_visible(page, [page.get_by_role("button", name=re.compile(r"review bag", re.I)),
                          page.get_by_role("link", name=re.compile(r"review bag", re.I))], timeout_ms=8000)
 
@@ -268,9 +289,9 @@ def step_bag(page) -> None:
     page.goto(BAG_URL, wait_until="domcontentloaded", timeout=STEP_TIMEOUT_MS)
     check_queue(page)
     page.wait_for_timeout(800)
-    duo_lines = page.locator("h2, h3").filter(has_text=re.compile(r"iPhone Duo", re.I)).count()
-    if duo_lines > 1:
-        raise StepFailed("bag", f"bag has {duo_lines} iPhone Duo items; remove the extras, then check out")
+    n = len(duo_lines(page))
+    if n > 1:
+        raise StepFailed("bag", f"bag has {n} iPhone Duo items; remove the extras, then check out")
     btn = first_visible(page, [page.locator('button[data-autom="checkout"]'),
                                page.get_by_role("button", name=re.compile(r"^\s*check ?out\s*$", re.I))])
     if not btn:
@@ -278,31 +299,19 @@ def step_bag(page) -> None:
     safe_click(btn, "check out")
 
 
-def step_signin(page, cfg: dict) -> None:
+def step_guest(page) -> None:
     page.wait_for_timeout(1200)
     if "signin" not in page.url.lower():
         return
-    log("Sign-in step")
-    if cfg.get("guest_checkout"):
-        guest = first_visible(page, [page.get_by_role("button", name=re.compile(r"continue as guest", re.I))], 6000)
-        if guest:
-            safe_click(guest, "guest checkout")
-            return
-    cont = first_visible(page, [page.get_by_role("button", name=re.compile(r"^continue$", re.I))], 4000)
-    if cont:
-        safe_click(cont, "continue signed in")
-        page.wait_for_timeout(1500)
-    if "signin" in page.url.lower():
-        alarm("Duo checkout: sign in needed", "Finish signing in on the PC window, the script will continue.")
-        log(f"Waiting up to {HUMAN_WAIT_S}s for you to sign in")
-        deadline = time.time() + HUMAN_WAIT_S
-        while "signin" in page.url.lower() and time.time() < deadline:
-            page.wait_for_timeout(1000)
-        if "signin" in page.url.lower():
-            raise StepFailed("sign in", "still on the sign-in page")
+    log("Continuing as guest")
+    guest = first_visible(page, [page.get_by_role("button", name=re.compile(r"continue as guest", re.I)),
+                                 page.get_by_text(re.compile(r"continue as guest", re.I))], 10_000)
+    if not guest:
+        raise StepFailed("guest checkout", "Apple didn't offer 'Continue as Guest'")
+    safe_click(guest, "guest checkout")
 
 
-def step_pickup(page, store_zip: str | None, store_name: str | None, rehearse: bool) -> None:
+def step_pickup(page, store_zip: str | None, store_name: str | None) -> None:
     log("Choosing in-store pickup")
     pick = first_visible(page, [page.locator('[data-autom="fulfillment-pickup-button"]'),
                                 page.get_by_role("button", name=re.compile(r"pick (it )?up", re.I)),
@@ -318,8 +327,6 @@ def step_pickup(page, store_zip: str | None, store_name: str | None, rehearse: b
             box.fill(store_zip)
             box.press("Enter")
             page.wait_for_timeout(1500)
-    if rehearse:
-        raise StepFailed("rehearsal stop", "reached store search; stopping as requested")
     if store_name:
         store = first_visible(page, [page.get_by_text(re.compile(rf"\b{re.escape(store_name)}\b", re.I))], 12_000)
         if not store:
@@ -330,7 +337,7 @@ def step_pickup(page, store_zip: str | None, store_name: str | None, rehearse: b
     try:
         sel = page.locator("select").filter(has=page.locator("option")).first
         if sel.count() and sel.is_visible():
-            values = [v for v in sel.locator("option").evaluate_all("els => els.filter(e => !e.disabled && e.value).map(e => e.value)")]
+            values = sel.locator("option").evaluate_all("els => els.filter(e => !e.disabled && e.value).map(e => e.value)")
             if values:
                 sel.select_option(values[0])
     except Exception:
@@ -366,15 +373,71 @@ def step_contact(page, cfg: dict) -> None:
 def wait_for_payment(page) -> bool:
     deadline = time.time() + STEP_TIMEOUT_MS / 1000
     while time.time() < deadline:
-        if PAYMENT_PAGE.search(page.url):
+        if on_payment_page(page):
             return True
-        try:
-            if page.get_by_role("heading", name=re.compile(r"how do you want to pay|payment", re.I)).first.is_visible():
-                return True
-        except Exception:
-            pass
         page.wait_for_timeout(300)
     return False
+
+
+def on_payment_page(page) -> bool:
+    try:
+        if PAYMENT_PAGE.search(page.url):
+            return True
+        return page.get_by_role("heading", name=re.compile(r"how do you want to pay|payment", re.I)).first.is_visible()
+    except Exception:
+        return False
+
+
+def first_empty_field(fields) -> int | None:
+    """Index of the first field whose value is empty. `fields` = list of current values (None = not found)."""
+    for i, v in enumerate(fields):
+        if v is not None and not v.strip():
+            return i
+    return None
+
+
+def step_hand_over(page) -> str:
+    """Front window, pick card payment, cursor in the first empty card field. Returns what got focus."""
+    try:
+        page.bring_to_front()
+        raise_window(page.title())
+    except Exception:
+        pass
+    card = first_visible(page, [page.get_by_label(re.compile(r"credit or debit card", re.I)),
+                                page.get_by_text(re.compile(r"^\s*credit or debit card\s*$", re.I))], 5000)
+    if card:
+        try:
+            safe_click(card, "card payment option")
+            page.wait_for_timeout(800)
+        except StepFailed:
+            raise
+        except Exception:
+            pass
+    # Card fields can sit inside iframes; look in every frame.
+    boxes, values = [], []
+    for label_re in CARD_FIELDS:
+        found = None
+        for frame in page.frames:
+            try:
+                loc = frame.get_by_label(re.compile(label_re, re.I)).first
+                if loc.is_visible():
+                    found = loc
+                    break
+            except Exception:
+                pass
+        boxes.append(found)
+        try:
+            values.append(found.input_value() if found else None)
+        except Exception:
+            values.append(None)
+    i = first_empty_field(values)
+    if i is None:
+        return "nothing (card fields not found; click into them yourself)"
+    try:
+        boxes[i].focus()
+        return ("card number", "expiration", "security code")[i]
+    except Exception:
+        return "nothing (couldn't focus the card field)"
 
 
 # --------------------------------------------------------------------------
@@ -383,9 +446,9 @@ def wait_for_payment(page) -> bool:
 
 def trigger_checkout(product_url: str, store_zip: str | None = None, store_name: str | None = None,
                      rehearse: bool = False, cfg: dict | None = None) -> str:
-    """Run the guarded checkout. Returns 'in_bag' (phone mode), 'ready' (pc mode), 'busy' or 'failed:<step>'.
+    """Run the guarded guest checkout. Returns 'ready', 'busy' or 'failed:<step>'.
 
-    Blocks until you close the browser window (so the session stays open for you).
+    Blocks until you close the browser window (it stays open for you).
     """
     from playwright.sync_api import sync_playwright  # imported here so the runner never needs it
 
@@ -394,6 +457,7 @@ def trigger_checkout(product_url: str, store_zip: str | None = None, store_name:
         log("Another checkout assist is already running; skipping.")
         return "busy"
     result = "failed:start"
+    tag = "PRACTICE " if rehearse else ""
     try:
         with sync_playwright() as p:
             ctx = p.chromium.launch_persistent_context(
@@ -402,65 +466,52 @@ def trigger_checkout(product_url: str, store_zip: str | None = None, store_name:
             page = ctx.pages[0] if ctx.pages else ctx.new_page()
             started = time.time()
             storage, color = product_from_url(product_url)
-            mode = (cfg.get("handoff") or "phone").lower()
             try:
-                if mode == "phone":
-                    step_require_signin(page)
-                    step_bag_precheck(page)
+                if not step_bag_precheck(page, storage, color):
                     step_product(page, product_url)
-                    line = step_verify_in_bag(page, storage, color)
-                    result = "in_bag"
-                    where = f"{store_name} · ZIP {store_zip}" if store_zip else (store_name or "the store in the alert")
-                    log(f"IN YOUR BAG after {time.time() - started:.0f}s: {line}. Finish in the Apple Store app.")
-                    alarm(("PRACTICE " if rehearse else "") + f"IN YOUR BAG: {storage} {color.upper()}".strip(),
-                          f"Apple Store app → Bag → Check Out → pickup → {where} → Apple Pay", product_url)
-                    raise _Done()
-                step_require_signin(page) if not cfg.get("guest_checkout") else None
-                step_product(page, product_url)
                 step_bag(page)
-                step_signin(page, cfg)
-                step_pickup(page, store_zip, store_name, rehearse)
+                step_guest(page)
+                step_pickup(page, store_zip, store_name)
                 step_contact(page, cfg)
                 if not wait_for_payment(page):
                     raise StepFailed("payment", "did not reach the payment step")
                 result = "ready"
-                took = time.time() - started
-                log(f"READY at payment after {took:.0f}s. Enter payment and place the order yourself.")
-                alarm("Duo checkout READY on your PC",
-                      f"{store_name or 'Store'} pickup is at the payment step. Finish it now on the PC.", product_url)
-            except _Done:
-                pass
+                focused = step_hand_over(page)
+                log(f"READY at payment after {time.time() - started:.0f}s. Cursor in: {focused}.")
+                log("Type your card details, then click Place Your Order yourself.")
+                alarm(f"{tag}Duo checkout READY on your PC",
+                      f"{store_name or 'Store'} pickup is at payment. Type your card and place the order.", product_url)
             except StepFailed as e:
                 result = f"failed:{e.step}"
                 shot = screenshot(page, e.step)
                 log(f"Stopped at '{e.step}': {e}. Screenshot: {shot}")
-                if e.step == "already in bag":
-                    alarm("Duo restock: bag already has a Duo",
-                          f"Didn't add another. Tap this to open the {storage} {color} page, or check out what's in your bag.", product_url)
-                elif e.step == "signed out":
-                    alarm("Duo checkout assist is signed out",
-                          "Couldn't add to your bag. Use the restock alert on your phone; run checkout_module.py --setup later.", product_url)
-                elif e.step != "rehearsal stop":
-                    alarm("Duo checkout needs you", f"Stuck at {e.step}. Take over in the PC browser or use your phone.", product_url)
-                if cfg.get("close_on_failure") and e.step != "rehearsal stop":
+                alarm(f"{tag}Duo checkout needs you", f"Stuck at {e.step}. Take over in the PC browser or use your phone.", product_url)
+                if cfg.get("close_on_failure"):
                     ctx.close()
                     return result
             except Exception as e:  # timeouts, crashes, closed window
                 result = "failed:unexpected"
                 shot = screenshot(page, "unexpected")
                 log(f"Unexpected error: {e}. Screenshot: {shot}")
-                alarm("Duo checkout needs you", "Something went wrong. Take over in the PC browser or use your phone.", product_url)
+                alarm(f"{tag}Duo checkout needs you", "Something went wrong. Take over in the PC browser or use your phone.", product_url)
                 if cfg.get("close_on_failure"):
                     ctx.close()
                     return result
+
             # Never auto-close and never touch the bag again: you finish the purchase yourself.
-            log("Leaving the browser open. Close the window when you're done (your bag is unaffected).")
+            log("Leaving the browser open. Close the window when you're done.")
+            beep_until = time.time() + float(cfg.get("beep_seconds") or 0) if result == "ready" else 0
             while True:
                 try:
                     if page.is_closed():
                         break
                     touch_lock()
-                    page.wait_for_timeout(30_000)
+                    if time.time() < beep_until and on_payment_page(page):
+                        beep()
+                        page.wait_for_timeout(4000)
+                    else:
+                        beep_until = 0
+                        page.wait_for_timeout(30_000)
                 except Exception:
                     break
             try:
@@ -473,65 +524,34 @@ def trigger_checkout(product_url: str, store_zip: str | None = None, store_name:
 
 
 def setup_profile(cfg: dict) -> None:
-    """Open the persistent browser so you can sign in to apple.com once, then confirm it stuck."""
+    """Optional: open this browser's card settings so Chrome's own autofill can fill the card number."""
     from playwright.sync_api import sync_playwright
-    channel = cfg.get("browser_channel") or None
-    print(f"Browser: {channel or 'Playwright Chromium'}  (set \"browser_channel\": \"chrome\" in checkout.local.json to use your installed Chrome)")
-    reached = {"ok": False}
     with sync_playwright() as p:
-        ctx = p.chromium.launch_persistent_context(PROFILE_DIR, headless=False, channel=channel, viewport=None)
+        ctx = p.chromium.launch_persistent_context(PROFILE_DIR, headless=False,
+                                                   channel=cfg.get("browser_channel") or None, viewport=None)
         page = ctx.pages[0] if ctx.pages else ctx.new_page()
-
-        def on_nav(frame):
-            if frame == page.main_frame and signed_in_url(frame.url):
-                if not reached["ok"]:
-                    print("Reached your Account page: you're signed in. You can close the window now.")
-                reached["ok"] = True
-        page.on("framenavigated", on_nav)
-        # The account page sends you to Apple's real sign-in form (with the arguments it needs).
-        # Opening /shop/signIn directly gives "Illegal Arguments".
         try:
-            page.goto(ACCOUNT_URL, wait_until="commit", timeout=60000)
-        except Exception as e:  # a slow redirect shouldn't kill the window you're signing in with
-            print(f"(Page was slow to load: {e.__class__.__name__}. Keep going in the window.)")
-        print("Sign in to your Apple Account in this window (tick 'Remember me' / trust this browser).")
-        print("If it spins after the 2-factor code, type apple.com/shop/account/home in the address bar.")
-        print("When you see your Account page, close the window.")
+            page.goto("chrome://settings/payments")
+        except Exception:
+            pass
+        print("Optional: under 'Payment methods' click Add and save your card in THIS browser,")
+        print("so at checkout you click the card number box and pick it. Chrome stores it, not this script.")
+        print("Close the window when done.")
         try:
             page.wait_for_event("close", timeout=0)
         except Exception:
             pass
         ctx.close()
 
-        print("Checking the sign-in was saved (a window opens for a few seconds)...")
-        ok = False
-        ctx = p.chromium.launch_persistent_context(PROFILE_DIR, headless=False, channel=channel)
-        page = ctx.pages[0] if ctx.pages else ctx.new_page()
-        try:
-            page.goto(ACCOUNT_URL, wait_until="domcontentloaded", timeout=STEP_TIMEOUT_MS)
-            page.wait_for_timeout(2500)
-            ok = signed_in_url(page.url)
-        except Exception:
-            pass
-        ctx.close()
-        if ok:
-            print("SIGNED IN and saved: setup done.")
-        elif reached["ok"]:
-            print("You signed in, but Apple didn't keep the session after the window closed.")
-            print("Checkout assist can't add to your bag without it; your normal alerts still work.")
-        else:
-            print("NOT signed in: the sign-in never reached your Account page.")
-
 
 def main(argv: list[str] | None = None) -> int:
-    ap = argparse.ArgumentParser(description="Guarded checkout assist (stops before payment)")
-    ap.add_argument("--setup", action="store_true", help="Sign in once and save the browser session")
-    ap.add_argument("--url", help="Product buy-page URL (use the *-unlocked links from config.json)")
+    ap = argparse.ArgumentParser(description="Guarded guest checkout assist (stops at payment)")
+    ap.add_argument("--setup", action="store_true", help="Optional: save a card in this browser's Chrome autofill")
+    ap.add_argument("--url", help="Product page URL")
     ap.add_argument("--store-zip", default=None)
     ap.add_argument("--store-name", default=None)
     ap.add_argument("--rehearse", action="store_true",
-                    help="Practice run. Phone mode: adds to your bag so you can check it shows in the Apple Store app "
-                         "(then remove it). PC mode: stops at the store search.")
+                    help="Practice run with an in-stock item: goes to payment and stops. Nothing is bought.")
     args = ap.parse_args(argv)
     cfg = load_config()
     if args.setup:
