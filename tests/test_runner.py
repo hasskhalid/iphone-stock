@@ -161,12 +161,10 @@ class HandoffTests(unittest.TestCase):
     def test_pace_starts_safe_and_walks_down_to_45(self):
         p = lr.Pace(45)
         self.assertEqual(p.rungs, [45, 60, 75, 90, 120])
-        self.assertEqual(p.poll, 75)                     # never starts at a pace that got blocked
-        self.assertFalse(p.ok(1700))
-        self.assertTrue(p.ok(100))                       # 30 clean minutes -> faster
+        self.assertEqual(p.poll, lr.START_PACE)
         self.assertEqual(p.poll, 60)
-        for _ in range(1800 // 60):
-            p.ok(60)
+        self.assertFalse(p.ok(lr.COOLDOWN_START - 100))
+        self.assertTrue(p.ok(100))                       # a clean cooldown -> faster
         self.assertEqual(p.poll, 45)
         self.assertFalse(p.ok(10_000))                   # can't go below the setting
 
@@ -174,9 +172,9 @@ class HandoffTests(unittest.TestCase):
         p = lr.Pace(45)
         p.idx = 0
         p.blocked()
-        self.assertEqual((p.poll, p.cooldown), (60, 3600))
-        self.assertFalse(p.ok(1800))                     # cooldown doubled
-        self.assertTrue(p.ok(1800))
+        self.assertEqual((p.poll, p.cooldown), (60, 2 * lr.COOLDOWN_START))
+        self.assertFalse(p.ok(lr.COOLDOWN_START))        # cooldown doubled
+        self.assertTrue(p.ok(lr.COOLDOWN_START))
         self.assertEqual(p.poll, 45)
         p.blocked(); p.blocked(); p.blocked(); p.blocked(); p.blocked(); p.blocked()
         self.assertEqual(p.poll, 120)                    # top of the ladder
@@ -186,7 +184,7 @@ class HandoffTests(unittest.TestCase):
         p = lr.Pace(45); p.blocked()
         again = lr.Pace(45, {"pace": p.to_state()})
         self.assertEqual((again.poll, again.cooldown), (p.poll, p.cooldown))
-        self.assertEqual(lr.Pace(60, {"pace": p.to_state()}).poll, 75)   # setting changed: start safe
+        self.assertEqual(lr.Pace(75, {"pace": p.to_state()}).poll, 75)   # setting changed: start fresh
         self.assertEqual(lr.Pace(90, {"poll_seconds": 120}).poll, 90)    # old state file ignored
         self.assertEqual(lr.Pace(10).rungs[0], lr.MIN_POLL)
 

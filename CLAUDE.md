@@ -30,8 +30,8 @@ home-screen dashboard. Keep it free to run and dependency-light.
   `--test-alert` plays it too.
 - `local_runner.py` (+ `start-runner.bat`): PC runner on the owner's always-on Windows PC.
   Polls on a pace ladder `Pace` (45/60/75/90/120s; `poll_seconds` = fastest allowed, floor 45:
-  60s and 15s fixed polling got the home IP rate-limited by Apple with HTTP 541). Starts at 75 (or
-  the setting if slower), steps one rung faster after a clean cooldown (30 min), one rung slower at
+  60s and 15s fixed polling got the home IP rate-limited by Apple with HTTP 541). Starts at 60 (owner's
+  preference; or the setting if slower), steps one rung faster after a clean cooldown (20 min), one rung slower at
   the start of each 541 episode, and each block doubles the cooldown (max 4 h) so it settles on the
   fastest tolerated pace. Pace + active block persisted in gitignored `runner_state.json` (`pace`,
   `blocked_until`); a changed setting resets the ladder. Exponential backoff on errors (max 900s;

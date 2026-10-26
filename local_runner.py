@@ -17,7 +17,7 @@ Private files (gitignored, never commit them), next to this script:
 Optional settings in config.local.json (defaults shown):
   "poll_seconds": 90, "heartbeat_seconds": 60, "nag_minutes": 2, "nag_max": 15
   poll_seconds is the FASTEST pace allowed (min 45). The runner moves along 45/60/75/90/120s:
-  it starts at 75 (or your setting if slower), steps one faster after a clean cooldown, and one
+  it starts at 60 (or your setting if slower), steps one faster after a clean cooldown, and one
   slower whenever Apple blocks it (HTTP 541). Each block doubles the cooldown (30 min → 4 h),
   so it settles on the fastest pace Apple tolerates.
 
@@ -46,8 +46,9 @@ MIN_POLL = 45          # faster than this gets your connection rate-limited by A
 MAX_BACKOFF = 900      # when Apple pushes back, wait up to 15 min between tries
 MAX_ADAPTIVE_POLL = 120
 PACE_LADDER = (45, 60, 75, 90, 120)   # seconds between checks
-START_PACE = 75                       # start here (60 got this connection blocked before)
-COOLDOWN_START = 1800                 # clean time at a pace before trying the next faster one
+START_PACE = 60                       # start here; owner prefers 60/45 (a block steps back to 75)
+PACE_VERSION = 2                      # bump to make every runner restart from START_PACE
+COOLDOWN_START = 1200                 # clean time at a pace before trying the next faster one
 COOLDOWN_MAX = 4 * 3600               # each block doubles the cooldown, up to this
 API = "https://api.github.com"
 
@@ -231,7 +232,7 @@ class Pace:
         if self.rungs[0] != fastest:
             self.rungs.insert(0, fastest)
         st = (state or {}).get("pace") or {}
-        if st.get("rungs") == self.rungs:            # same setting as last run: resume
+        if st.get("rungs") == self.rungs and st.get("v") == PACE_VERSION:   # same setting: resume
             self.idx = min(int(st.get("idx", 0)), len(self.rungs) - 1)
             self.cooldown = int(st.get("cooldown", COOLDOWN_START))
             self.clean = float(st.get("clean", 0))
@@ -259,7 +260,7 @@ class Pace:
         self.clean = 0.0
 
     def to_state(self) -> dict:
-        return {"rungs": self.rungs, "idx": self.idx, "cooldown": self.cooldown, "clean": round(self.clean)}
+        return {"v": PACE_VERSION, "rungs": self.rungs, "idx": self.idx, "cooldown": self.cooldown, "clean": round(self.clean)}
 
 
 def spoken_text(alerts_or_rows) -> str:

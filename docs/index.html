@@ -699,7 +699,8 @@
     $("scanLeft").textContent = checkingSince ? "🔍 Checking Apple now…"
       : left > 0 ? `${live ? "🖥️ PC" : "☁️ Backup"} checks again in ~${left}s` : "🔍 Checking any second…";
     const n = STATUS.runner && STATUS.runner.checks;
-    $("scanRight").textContent = n ? `${n} checks this session` : "";
+    $("scanRight").textContent = REPO && !store.get("ghToken") ? "⚡ save a GitHub token in Settings for instant updates"
+      : n ? `${n} check${n === 1 ? "" : "s"} this session` : "";
   }
   // The Duo chibis talk: mood lines first, then a rotating quip every ~14s while watching.
   function idleQuips(stores) {
