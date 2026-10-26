@@ -1,0 +1,11 @@
+{
+  "guest_checkout": false,
+  "contact": {
+    "first_name": "First",
+    "last_name": "Last",
+    "email": "you@example.com",
+    "phone": "5555555555"
+  },
+  "browser_channel": "",
+  "close_on_failure": false
+}

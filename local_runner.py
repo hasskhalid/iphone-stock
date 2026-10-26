@@ -211,6 +211,31 @@ def nag_message(rows: list[tuple[dict, dict]]) -> tuple[str, str, str]:
 # PC alarm: loud beeps + spoken announcement (Windows), so you hear it at the desk
 # --------------------------------------------------------------------------
 
+def checkout_target(alert: tuple[str, str, str]) -> tuple[str, str | None, str | None]:
+    """(url, store_zip, store_name) from an alert built by check_stock.build_alerts."""
+    title, message, url = alert
+    first = message.split("\n")[0]                       # 'Grand Central · ZIP 10017'
+    name, _, z = first.partition(" · ZIP ")
+    store = title.split(" @ ", 1)[1].split(" +")[0] if " @ " in title else name
+    return url, (z.strip() or None), (store.strip() or None)
+
+
+def launch_checkout_assist(alert: tuple[str, str, str]) -> None:
+    """Start checkout_module.py in its own window; never blocks the runner."""
+    import subprocess
+    url, store_zip, store_name = checkout_target(alert)
+    cmd = [sys.executable, os.path.join(HERE, "checkout_module.py"), "--url", url]
+    if store_zip:
+        cmd += ["--store-zip", store_zip]
+    if store_name:
+        cmd += ["--store-name", store_name]
+    try:
+        subprocess.Popen(cmd, cwd=HERE, creationflags=getattr(subprocess, "CREATE_NEW_CONSOLE", 0))
+        print(f"           checkout assist launched for {store_name or url} (stops at payment)")
+    except Exception as e:
+        print(f"           checkout assist failed to launch: {e}")
+
+
 def spoken_text(alerts_or_rows) -> str:
     """'Night Sky at Grand Central, zip 1 0 0 1 7.' ZIP digits spaced so they're read one by one."""
     parts = []
@@ -330,6 +355,8 @@ def main(argv: list[str] | None = None) -> int:
     print(f"  ZIP:      {mask(settings['zip'], 2)}   Radius: {settings['radius']} mi   Poll: every {poll}s")
     extra = [n for n, k in (("Telegram", "telegram_token"), ("Pushover", "pushover_token")) if settings.get(k)]
     print(f"  Alerts:   ntfy topic {mask(settings['topic'])}{' + ' + ' + '.join(extra) if extra else ''}   Nag: every {config['nag_minutes']} min (max {config['nag_max']})")
+    if config.get("checkout_assist"):
+        print("  Checkout: assist ON (fills checkout up to payment; you place the order)")
     print(f"  Publish:  {repo + ' (status branch, heartbeat ' + str(heartbeat) + 's)' if publisher else 'off'}")
     print("-" * 64)
     if not settings["zip"]:
@@ -370,6 +397,8 @@ def main(argv: list[str] | None = None) -> int:
                 print("!" * 64 + "\n")
             if alerts:
                 pc_alarm(spoken_text(alerts), bool(config.get("pc_sound", True)), bool(config.get("pc_voice", True)))
+                if config.get("checkout_assist"):
+                    launch_checkout_assist(alerts[0])
             nag = nagger.update(t0, status, bool(alerts))
             if nag and (settings["topic"] or settings["telegram_token"]):
                 title, msg, click = nag_message(nag)

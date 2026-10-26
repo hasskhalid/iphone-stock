@@ -13,3 +13,8 @@ history.local.json
 *.tmp
 local_runner_grok.py
 runner_state.json
+# Checkout assist private files
+checkout.local.json
+.checkout_profile/
+checkout_debug/
+checkout.lock

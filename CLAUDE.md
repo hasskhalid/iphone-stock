@@ -75,6 +75,13 @@ home-screen dashboard. Keep it free to run and dependency-light.
   ({updated_at, summary, items:[{title, summary, source, url, date}]}), refreshed daily at 7:47 AM ET
   by a scheduled Claude task (paraphrased summaries with links, never copied text) and links out to other trackers (Manzana, Apple Inventory Check, iPhone Stock
   Checker); their data is not scraped or imported.
+- `checkout_module.py` (optional, needs Playwright; the runner never imports it): guarded
+  checkout assist launched by the runner in a new console (`checkout_assist: true`) via
+  `launch_checkout_assist(alerts[0])` / `checkout_target()`. Persistent profile `.checkout_profile/`
+  (`--setup` to sign in), contact in `checkout.local.json`, lock `checkout.lock`, screenshots
+  `checkout_debug/` (all gitignored). Steps are text/role-locator based with fallbacks; stops
+  at the payment page and alarms. `safe_click` refuses FORBIDDEN_CLICK (place order / pay now /
+  buy now…): the purchase click stays manual, per the convention below. No anti-bot evasion.
 - `config.json`: models (`label`, `color`, `part`, `url`), `zip`, `radius_miles`, `max_stores`,
   optional `ntfy_topic`. Env vars `APPLE_ZIP` / `NTFY_TOPIC` (repo secrets) override.
 - Tracking: iPhone Duo unlocked, 256GB Night Sky `MK1F4LL/A` / Star White `MK1E4LL/A`, 512GB

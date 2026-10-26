@@ -99,6 +99,25 @@ The app header shows **"Live · your PC checks every 60s"** with a green dot whi
    (Apple's app only opens product pages from links, not the bag; the alert's
    "Bag in Safari" button is a backup.)
 
+## Checkout assist (optional, PC only)
+`checkout_module.py` opens a visible browser when a restock alert fires and walks Apple's
+checkout up to the **payment step**: No AppleCare → Add to Bag → Check Out → your saved
+sign-in → "I'll pick it up" → store ZIP → store → time slot → pickup contact. Then it stops,
+beeps/speaks and pushes "Checkout READY on your PC". **It never enters payment details and
+never clicks Place Your Order** (enforced in code). You finish in that window.
+
+1. `pip install playwright` then `python -m playwright install chromium`
+2. `python checkout_module.py --setup`: sign in to apple.com in the window that opens, close it.
+3. Copy `checkout.local.example.json` to `checkout.local.json` and fill in your pickup contact.
+4. Practice: `python checkout_module.py --rehearse --url <a buy-page URL from config.json> --store-zip 10017`
+   (adds the phone to your bag and stops at the store search; remove it from your bag after).
+5. Turn it on: `"checkout_assist": true` in `config.local.json`, restart the runner.
+
+Keep your Apple bag empty while it's on (it adds the right phone itself and stops if the bag
+has more than one iPhone Duo). If a step fails it screenshots to `checkout_debug/`, alarms, and
+leaves the window open for you. Apple's pages change; selectors are text-based but may need
+updating. Only useful when you're at the PC; on your phone, use the alert as usual.
+
 ## Check now from the app
 Add a fine-grained GitHub token (this repo only, *Actions: Read and write*) in the box at
 the bottom of the app. When your PC's data is old, the Refresh button turns into
