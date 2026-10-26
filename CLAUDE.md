@@ -91,7 +91,11 @@ home-screen dashboard. Keep it free to run and dependency-light.
   `APPLE_EXTRA_ZIPS` (secret, comma-separated) add search centers. Each check queries ONE zone
   (`next_zone` rotates), results cached per zone in `status.zones` keyed `z0, z1…` (never the
   ZIP), merged by `merge_zones()` (freshest wins, nearest first); zones unseen > 30 min dropped.
-  `zone_schedule()` checks home every other check (3 zones -> z0,z1,z0,z2); extra zones are not
+  `zone_schedule()`: home and the FIRST extra zip (the "near" zone) alternate, further zips get one
+  slot per cycle (3 zones -> 0,1,0,1,0,1,0,2). Apple returns only 12 stores per search (no param
+  raises it; checked Oct 2026), and a Garden State Plaza restock was missed when its zone ran only
+  every 4th check. Rush: when any restock is detected, `status.rush_zones` sends the next checks to
+  every other zone immediately (restocks land in waves), then the schedule resumes. Extra zones are not
   cut by radius; `filter_area()` keeps stores within `radius_miles` of home plus every store in
   `keep_states` (config: ["NJ"], i.e. all 12 NJ Apple Stores; owner's extra zips cover North and
   South Jersey). Rows carry `state`.

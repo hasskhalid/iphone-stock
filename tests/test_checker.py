@@ -176,7 +176,7 @@ class AreaTests(unittest.TestCase):
     def test_schedule_checks_home_every_other_time(self):
         self.assertEqual(cs.zone_schedule(1), [0])
         self.assertEqual(cs.zone_schedule(2), [0, 1])
-        self.assertEqual(cs.zone_schedule(3), [0, 1, 0, 2])
+        self.assertEqual(cs.zone_schedule(3), [0, 1, 0, 1, 0, 1, 0, 2])   # near zone as often as home
 
     def test_keeps_all_nj_and_nearby_others(self):
         rows = [{"id": "a", "state": "NJ", "miles": 60, "available": False},
@@ -193,11 +193,38 @@ class AreaTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             fn = os.path.join(tmp, "n.json"); json.dump(SOLD_OUT, open(fn, "w"))
             st, seen = {}, []
-            for _ in range(4):
+            for _ in range(8):
                 st, _, _ = cs.check_once(settings, st, {"events": []}, fixture=fn, log=lambda m: None)
                 seen.append(sorted(st["zones"]))
             self.assertEqual(seen[-1], ["z0", "z1", "z2"])
             self.assertNotIn("33333", json.dumps(st))
+
+
+class RushTests(unittest.TestCase):
+    """A restock in one zone (American Dream) sends the next check to the other zones
+    (where Garden State Plaza also restocked) instead of waiting for their usual turn."""
+    def test_restock_triggers_immediate_check_of_other_zones(self):
+        settings = {"models": MODELS, "zip": "11111", "extra_zips": ["22222", "33333"], "max_stores": 12,
+                    "radius": 25, "keep_states": [], "topic": "", "server": "s"}
+        quiet = response(store("R001", "Home Mall", "Edison", "3.0 mi", False, False))
+        hot_home = response(store("R001", "Home Mall", "Edison", "3.0 mi", True, False))
+        north_hot = response(store("R117", "Garden State Plaza", "Paramus", "2.0 mi", True, False))
+        calls = []
+        orig = cs.fetch_apple
+        cs.fetch_apple = lambda parts, z: (calls.append(z), {"11111": hot_home, "22222": north_hot, "33333": quiet}[z])[1]
+        try:
+            st = {}
+            st, _, _ = cs.check_once(settings, st, {"events": []}, log=lambda m: None)   # home: restock found
+            self.assertEqual(st["rush_zones"], [1, 2])
+            st, _, a2 = cs.check_once(settings, st, {"events": []}, log=lambda m: None)  # straight to zone 1
+            st, _, _ = cs.check_once(settings, st, {"events": []}, log=lambda m: None)   # then zone 2
+            st, _, _ = cs.check_once(settings, st, {"events": []}, log=lambda m: None)   # back to the schedule (home)
+        finally:
+            cs.fetch_apple = orig
+        self.assertEqual(calls, ["11111", "22222", "33333", "11111"])   # rush, then home again
+        self.assertTrue(any("Garden State Plaza" in t for t, _, _ in a2))
+        self.assertNotIn("rush_zones", st)
+        self.assertNotIn("22222", json.dumps(st))
 
 
 class DispatchTests(unittest.TestCase):

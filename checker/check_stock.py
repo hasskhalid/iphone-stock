@@ -469,11 +469,15 @@ def _home_distance(row: dict, home, home_miles: dict) -> dict:
 
 
 def zone_schedule(n: int) -> list[int]:
-    """Home (zone 0) every other check, extra zones take turns: 2 zones -> [0,1]; 3 -> [0,1,0,2]."""
+    """Order zones are checked in. Home (0) and the FIRST extra zone (1, the "near" zone) alternate;
+    further extra zones (far areas) get one slot per cycle:
+    2 zones -> [0,1]; 3 -> [0,1,0,1,0,1,0,2]; 4 -> [0,1,0,1,0,1,0,2,0,3].
+    Apple returns only 12 stores per search and restocks last ~1 min, so a store seen only
+    in a rarely-checked zone gets missed; keep the stores you care about in zones 0 and 1."""
     if n <= 2:
         return list(range(n))
-    out = []
-    for i in range(1, n):
+    out = [0, 1] * 3
+    for i in range(2, n):
         out += [0, i]
     return out
 
@@ -520,7 +524,9 @@ def check_once(settings: dict, prev: dict, history: dict, *, source: str = "cli"
         zips = [settings["zip"]] + list(settings.get("extra_zips") or [])
         order = zone_schedule(len(zips))
         pos = int(prev.get("next_zone", 0) or 0) % len(order)
-        idx = order[pos]
+        # After a restock anywhere, check the other zones right away (restocks land in waves).
+        rush = [z for z in (prev.get("rush_zones") or []) if isinstance(z, int) and 0 <= z < len(zips)]
+        idx = rush.pop(0) if rush else order[pos]
         data = load_json(fixture, None) if fixture else fetch_apple([m["part"] for m in models], zips[idx])
         if data is None:
             raise RuntimeError(f"Could not read fixture {fixture}")
@@ -535,12 +541,14 @@ def check_once(settings: dict, prev: dict, history: dict, *, source: str = "cli"
                      and (seconds_since(v.get("checked_at")) or 0) < ZONE_MAX_AGE}
             zones[f"z{idx}"] = {"checked_at": status["checked_at"], "models": parsed}
             status["zones"] = zones
-            status["next_zone"] = (pos + 1) % len(order)
+            status["next_zone"] = pos if idx != order[pos] else (pos + 1) % len(order)
+            if rush:
+                status["rush_zones"] = rush
             status["models"] = filter_area(merge_zones(zones, models), settings["radius"], settings.get("keep_states") or [])
     except Exception as e:  # keep the last good data visible on the dashboard
         status["error"] = str(e)
         status["models"] = prev.get("models", [])
-        for k in ("zones", "next_zone"):
+        for k in ("zones", "next_zone", "rush_zones"):
             if k in prev:
                 status[k] = prev[k]
         status["last_success_at"] = prev.get("last_success_at") or prev.get("checked_at")
@@ -555,6 +563,9 @@ def check_once(settings: dict, prev: dict, history: dict, *, source: str = "cli"
 
     fresh = new_availability(prev, status["models"])
     alerts = build_alerts(fresh, status["models"])
+    if fresh and len(zips) > 1 and not status.get("rush_zones"):
+        # Something just restocked: spend the next checks on every other zone, nearest first.
+        status["rush_zones"] = [z for z in range(len(zips)) if z != idx]
     for title, message, click in alerts:
         tap = BAG_URL if settings.get("alert_click", "product") == "bag" else click
         for err in dispatch_alert(settings, title, message, tap, dry_run=dry_run, actions=alert_actions(click)):
