@@ -481,7 +481,10 @@ def setup_profile(cfg: dict) -> None:
         page = ctx.pages[0] if ctx.pages else ctx.new_page()
         # The account page sends you to Apple's real sign-in form (with the arguments it needs).
         # Opening /shop/signIn directly gives "Illegal Arguments".
-        page.goto(ACCOUNT_URL)
+        try:
+            page.goto(ACCOUNT_URL, wait_until="commit", timeout=60000)
+        except Exception as e:  # a slow redirect shouldn't kill the window you're signing in with
+            print(f"(Page was slow to load: {e.__class__.__name__}. Keep going in the window.)")
         print("Sign in to your Apple Account in this window (tick 'Remember me' / trust this browser).")
         print("When you see your Account page, close the window. Your session is saved in .checkout_profile/.")
         try:
