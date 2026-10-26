@@ -308,34 +308,71 @@ def select_option(page, name: str, value: str | None, label_re: str | None) -> b
     return False
 
 
+def page_missing(page) -> bool:
+    try:
+        return bool(re.search(r"can.t be found|page not found", page.title() + " " +
+                              page.locator("h1").first.inner_text(timeout=1500), re.I))
+    except Exception:
+        return False
+
+
+def added_to_bag(page) -> bool:
+    """Apple goes to the accessories step (?step=attach, with 'Review Bag') after a real add."""
+    deadline = time.time() + 10
+    while time.time() < deadline:
+        u = page.url.lower()
+        if "step=attach" in u or "/shop/bag" in u:
+            return True
+        if page_missing(page):
+            return False
+        try:
+            if page.get_by_role("link", name=re.compile(r"review bag", re.I)).first.is_visible() or \
+               page.get_by_role("button", name=re.compile(r"review bag", re.I)).first.is_visible():
+                return True
+        except Exception:
+            pass
+        page.wait_for_timeout(300)
+    return False
+
+
 def step_product(page, url: str) -> None:
-    log("Opening product page")
-    page.goto(url, wait_until="domcontentloaded", timeout=STEP_TIMEOUT_MS)
-    check_queue(page)
     storage, color = product_from_url(url)
-    btn_sel = page.locator('button[data-autom="add-to-cart"]:not([disabled]), button[name="add-to-cart"]:not([disabled])')
-    if storage or color:   # iPhone page: pick each option (the page reveals them one by one)
-        missing = []
-        deadline = time.time() + STEP_TIMEOUT_MS / 1000
-        while time.time() < deadline:
-            missing = [n for n, v, l in wanted_options(storage, color) if not select_option(page, n, v, l)]
-            if not missing:
-                break
-            page.wait_for_timeout(600)
-        if missing:
-            log(f"Couldn't select: {', '.join(missing)}")
-        else:
-            log("Options selected (unlocked, no trade-in, Buy, No AppleCare)")
-    btn = first_visible(page, [
-        btn_sel,
-        page.get_by_role("button", name=re.compile(r"^\s*add to bag\s*$", re.I)),
-    ])
-    if not btn or not btn.is_enabled():
-        raise StepFailed("add to bag", "Add to Bag never became clickable")
-    safe_click(btn, "add to bag")
-    log("Added to bag")
-    first_visible(page, [page.get_by_role("button", name=re.compile(r"review bag", re.I)),
-                         page.get_by_role("link", name=re.compile(r"review bag", re.I))], timeout_ms=8000)
+    for attempt in range(3):
+        log("Opening product page" + (f" (retry {attempt})" if attempt else ""))
+        page.goto(url, wait_until="domcontentloaded", timeout=STEP_TIMEOUT_MS)
+        check_queue(page)
+        # Let Apple's scripts finish loading: clicking Add to Bag before they're ready submits
+        # the bare form and Apple answers "page can't be found".
+        try:
+            page.wait_for_load_state("load", timeout=STEP_TIMEOUT_MS)
+            page.wait_for_load_state("networkidle", timeout=4000 + 3000 * attempt)
+        except Exception:
+            pass
+        if storage or color:   # iPhone page: pick each option (the page reveals them one by one)
+            missing = []
+            deadline = time.time() + STEP_TIMEOUT_MS / 1000
+            while time.time() < deadline:
+                missing = [n for n, v, l in wanted_options(storage, color) if not select_option(page, n, v, l)]
+                if not missing:
+                    break
+                page.wait_for_timeout(600)
+            if missing:
+                log(f"Couldn't select: {', '.join(missing)}")
+            else:
+                log("Options selected (unlocked, no trade-in, Buy, No AppleCare)")
+        page.wait_for_timeout(500 + 1500 * attempt)
+        btn = first_visible(page, [
+            page.locator('button[data-autom="add-to-cart"]:not([disabled]), button[name="add-to-cart"]:not([disabled])'),
+            page.get_by_role("button", name=re.compile(r"^\s*add to bag\s*$", re.I)),
+        ])
+        if not btn or not btn.is_enabled():
+            raise StepFailed("add to bag", "Add to Bag never became clickable")
+        safe_click(btn, "add to bag")
+        if added_to_bag(page):
+            log("Added to bag")
+            return
+        log("Apple didn't take the add (page not found); trying again")
+    raise StepFailed("add to bag", "Apple rejected Add to Bag 3 times")
 
 
 def step_bag(page) -> None:
@@ -516,7 +553,7 @@ def trigger_checkout(product_url: str, store_zip: str | None = None, store_name:
         with sync_playwright() as p:
             ctx = p.chromium.launch_persistent_context(
                 PROFILE_DIR, headless=False, channel=cfg.get("browser_channel") or None,
-                viewport=None, args=["--start-maximized"])
+                viewport=None, args=["--start-maximized"], chromium_sandbox=True)
             page = ctx.pages[0] if ctx.pages else ctx.new_page()
             started = time.time()
             storage, color = product_from_url(product_url)
@@ -582,7 +619,7 @@ def setup_profile(cfg: dict) -> None:
     from playwright.sync_api import sync_playwright
     with sync_playwright() as p:
         ctx = p.chromium.launch_persistent_context(PROFILE_DIR, headless=False,
-                                                   channel=cfg.get("browser_channel") or None, viewport=None)
+                                                   channel=cfg.get("browser_channel") or None, viewport=None, chromium_sandbox=True)
         page = ctx.pages[0] if ctx.pages else ctx.new_page()
         try:
             page.goto("chrome://settings/payments")
