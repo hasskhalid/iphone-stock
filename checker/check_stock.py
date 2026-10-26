@@ -148,6 +148,7 @@ def parse_response(data: dict, models: list[dict], max_stores: int,
                 "id": str(store.get("storeNumber", "")),
                 "name": store.get("storeName", "Apple Store"),
                 "city": ", ".join(x for x in (store.get("city"), store.get("state")) if x),
+                "state": store.get("state") or "",
                 "distance": store.get("storeDistanceWithUnit", ""),
                 "miles": store_miles(store),
                 "available": display == "available",
@@ -353,6 +354,7 @@ def load_settings(config: dict) -> dict:
         "extra_zips": [z.strip() for z in (os.environ.get("APPLE_EXTRA_ZIPS") or ",".join(config.get("extra_zips", []))).split(",") if z.strip()],
         "max_stores": int(config.get("max_stores", 12)),
         "radius": float(radius) if radius else None,
+        "keep_states": [x.strip() for x in (config.get("keep_states") or []) if str(x).strip()],
         "topic": (os.environ.get("NTFY_TOPIC") or str(config.get("ntfy_topic", ""))).strip(),
         "server": os.environ.get("NTFY_SERVER", "https://ntfy.sh"),
         "alert_click": str(config.get("alert_click", "product")),   # "product" (opens app) or "bag" (Safari)
@@ -466,6 +468,32 @@ def _home_distance(row: dict, home, home_miles: dict) -> dict:
     return row
 
 
+def zone_schedule(n: int) -> list[int]:
+    """Home (zone 0) every other check, extra zones take turns: 2 zones -> [0,1]; 3 -> [0,1,0,2]."""
+    if n <= 2:
+        return list(range(n))
+    out = []
+    for i in range(1, n):
+        out += [0, i]
+    return out
+
+
+def filter_area(models: list[dict], radius: float | None, keep_states: list[str]) -> list[dict]:
+    """Keep stores within `radius` of home, plus every store in `keep_states` (e.g. all of NJ)."""
+    states = {x.upper() for x in keep_states}
+
+    def keep(st: dict) -> bool:
+        if (st.get("state") or "").upper() in states:
+            return True
+        m = st.get("miles")
+        return radius is None or m is None or m <= radius   # unknown distance: keep (never hide a restock)
+    out = []
+    for m in models:
+        rows = [st for st in m.get("stores", []) if keep(st)]
+        out.append({**m, "stores": rows, "any_available": any(r["available"] for r in rows)})
+    return out
+
+
 def check_once(settings: dict, prev: dict, history: dict, *, source: str = "cli",
                fixture: str | None = None, dry_run: bool = False, log=print) -> tuple[dict, dict, list]:
     """One full check: fetch, parse, log history events, send alerts.
@@ -490,11 +518,14 @@ def check_once(settings: dict, prev: dict, history: dict, *, source: str = "cli"
         if not fixture and not settings["zip"]:
             raise RuntimeError("No ZIP code. Set the APPLE_ZIP secret or 'zip' in config.json.")
         zips = [settings["zip"]] + list(settings.get("extra_zips") or [])
-        idx = int(prev.get("next_zone", 0) or 0) % len(zips)
+        order = zone_schedule(len(zips))
+        pos = int(prev.get("next_zone", 0) or 0) % len(order)
+        idx = order[pos]
         data = load_json(fixture, None) if fixture else fetch_apple([m["part"] for m in models], zips[idx])
         if data is None:
             raise RuntimeError(f"Could not read fixture {fixture}")
-        parsed = parse_response(data, models, settings["max_stores"], settings["radius"])
+        # Extra zones aren't cut by radius here: the final area rule below uses distance from HOME.
+        parsed = parse_response(data, models, settings["max_stores"], settings["radius"] if idx == 0 else None)
         if len(zips) == 1:
             status["models"] = parsed
         else:
@@ -504,8 +535,8 @@ def check_once(settings: dict, prev: dict, history: dict, *, source: str = "cli"
                      and (seconds_since(v.get("checked_at")) or 0) < ZONE_MAX_AGE}
             zones[f"z{idx}"] = {"checked_at": status["checked_at"], "models": parsed}
             status["zones"] = zones
-            status["next_zone"] = (idx + 1) % len(zips)
-            status["models"] = merge_zones(zones, models)
+            status["next_zone"] = (pos + 1) % len(order)
+            status["models"] = filter_area(merge_zones(zones, models), settings["radius"], settings.get("keep_states") or [])
     except Exception as e:  # keep the last good data visible on the dashboard
         status["error"] = str(e)
         status["models"] = prev.get("models", [])

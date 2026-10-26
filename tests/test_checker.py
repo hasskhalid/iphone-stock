@@ -172,6 +172,34 @@ class ZoneTests(unittest.TestCase):
             self.assertIn("Far Mall", alerts[0][0])
 
 
+class AreaTests(unittest.TestCase):
+    def test_schedule_checks_home_every_other_time(self):
+        self.assertEqual(cs.zone_schedule(1), [0])
+        self.assertEqual(cs.zone_schedule(2), [0, 1])
+        self.assertEqual(cs.zone_schedule(3), [0, 1, 0, 2])
+
+    def test_keeps_all_nj_and_nearby_others(self):
+        rows = [{"id": "a", "state": "NJ", "miles": 60, "available": False},
+                {"id": "b", "state": "NY", "miles": 18, "available": True},
+                {"id": "c", "state": "NY", "miles": 34, "available": True},
+                {"id": "d", "state": "CT", "miles": None, "available": False}]
+        out = cs.filter_area([{"part": "P", "stores": rows}], 25, ["NJ"])[0]
+        self.assertEqual([r["id"] for r in out["stores"]], ["a", "b", "d"])
+        self.assertTrue(out["any_available"])
+
+    def test_extra_zone_not_cut_by_radius_and_third_zone_waits_its_turn(self):
+        settings = {"models": MODELS, "zip": "11111", "extra_zips": ["22222", "33333"], "max_stores": 12,
+                    "radius": 25, "keep_states": ["NJ"], "topic": "", "server": "s"}
+        with tempfile.TemporaryDirectory() as tmp:
+            fn = os.path.join(tmp, "n.json"); json.dump(SOLD_OUT, open(fn, "w"))
+            st, seen = {}, []
+            for _ in range(4):
+                st, _, _ = cs.check_once(settings, st, {"events": []}, fixture=fn, log=lambda m: None)
+                seen.append(sorted(st["zones"]))
+            self.assertEqual(seen[-1], ["z0", "z1", "z2"])
+            self.assertNotIn("33333", json.dumps(st))
+
+
 class DispatchTests(unittest.TestCase):
     def test_all_channels_fire(self):
         calls = []

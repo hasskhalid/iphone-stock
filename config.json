@@ -1,6 +1,9 @@
 {
   "zip": "",
   "radius_miles": 25,
+  "keep_states": [
+    "NJ"
+  ],
   "max_stores": 12,
   "models": [
     {

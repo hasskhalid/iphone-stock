@@ -249,6 +249,40 @@
            background: var(--star); color: var(--star-ink); padding: 9px 16px; border-radius: 999px; font-size: 13px; font-weight: 700; opacity: 0; transition: .2s; pointer-events: none; z-index: 5; box-shadow: 0 8px 30px rgba(0,0,0,.4); }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
+
+  /* ---------- Liquid glass ---------- */
+  :root { --glass: linear-gradient(140deg, rgba(255,255,255,.11), rgba(255,255,255,.035) 45%, rgba(160,180,255,.05));
+          --glass-edge: rgba(255,255,255,.16);
+          --glass-shadow: inset 0 1px 0 rgba(255,255,255,.22), inset 0 -1px 0 rgba(255,255,255,.05), 0 10px 30px rgba(0,0,0,.35);
+          --blur: blur(22px) saturate(170%); }
+  /* Soft Night Sky + Star White glows drifting behind the glass (one fixed layer, transform only). */
+  body::after { content: ""; position: fixed; inset: -20%; z-index: -1; pointer-events: none;
+    background: radial-gradient(38% 30% at 22% 28%, rgba(111,140,255,.42), transparent 70%),
+                radial-gradient(30% 26% at 80% 62%, rgba(244,241,234,.13), transparent 70%),
+                radial-gradient(26% 22% at 40% 85%, rgba(130,110,255,.16), transparent 70%);
+    animation: drift-glow 26s ease-in-out infinite alternate; will-change: transform; }
+  @keyframes drift-glow { to { transform: translate3d(4%, -3%, 0) scale(1.06); } }
+  body.instock::after { background: radial-gradient(40% 32% at 50% 20%, rgba(110,242,177,.28), transparent 70%),
+                radial-gradient(30% 26% at 80% 62%, rgba(244,241,234,.12), transparent 70%); }
+  .status, .tabs, .stat, .banner.calm, .watch, .panel, details.settings, .bubble, .store {
+    background: var(--glass); border: 1px solid var(--glass-edge); box-shadow: var(--glass-shadow);
+    -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur); }
+  .store { border-color: rgba(110,242,177,.75); box-shadow: var(--glass-shadow), 0 0 0 1px rgba(110,242,177,.5) inset, 0 10px 34px rgba(110,242,177,.16);
+           background: linear-gradient(140deg, rgba(110,242,177,.14), rgba(255,255,255,.04) 50%, rgba(110,242,177,.06)); }
+  .stat.hot, .banner.hot { -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur); box-shadow: inset 0 1px 0 rgba(255,255,255,.22); }
+  body.instock .bubble { background: rgba(110,242,177,.14); border-color: rgba(110,242,177,.6); }
+  .wrow, .row, .insight { border-top-color: rgba(255,255,255,.07); }
+  .watch .wrow:nth-child(odd) { border-right-color: rgba(255,255,255,.07); }
+  .rbtn, .pin, .rank, .icon-btn { background: rgba(255,255,255,.07); border-color: rgba(255,255,255,.14); box-shadow: inset 0 1px 0 rgba(255,255,255,.15); }
+  .bigzip { background: rgba(0,0,0,.25); border-color: rgba(255,255,255,.12); }
+  .tab-ink { background: linear-gradient(180deg, #ffffff, #e9e5dc); box-shadow: inset 0 1px 0 #fff, 0 2px 12px rgba(199,208,255,.35); }
+  .toast { background: rgba(244,241,234,.88); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
+  /* Tabs float at the top like an iOS bar while you scroll. */
+  .tabs { position: sticky; top: max(8px, env(safe-area-inset-top)); z-index: 4; }
+  /* No backdrop-filter support: fall back to solid panels so text stays readable. */
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .status, .tabs, .stat, .banner.calm, .watch, .panel, details.settings, .bubble, .store { background: var(--panel); } }
+  .paused body::after { animation-play-state: paused; }
   /* Phones */
   @media (max-width: 420px) { h1 { font-size: 23px; } .mascot { width: 100px; height: 66px; } .mrow { grid-template-columns: 112px 1fr; } .dots { display: none; } }
   /* Desktop: a bit more room */

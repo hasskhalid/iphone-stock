@@ -91,6 +91,10 @@ home-screen dashboard. Keep it free to run and dependency-light.
   `APPLE_EXTRA_ZIPS` (secret, comma-separated) add search centers. Each check queries ONE zone
   (`next_zone` rotates), results cached per zone in `status.zones` keyed `z0, z1…` (never the
   ZIP), merged by `merge_zones()` (freshest wins, nearest first); zones unseen > 30 min dropped.
+  `zone_schedule()` checks home every other check (3 zones -> z0,z1,z0,z2); extra zones are not
+  cut by radius; `filter_area()` keeps stores within `radius_miles` of home plus every store in
+  `keep_states` (config: ["NJ"], i.e. all 12 NJ Apple Stores; owner's extra zips cover North and
+  South Jersey). Rows carry `state`.
   Apple's `storedistance` is from the SEARCHED zip, so merge_zones keeps z0 (home) distances and
   recomputes other stores' miles from home: `estimate_home()` trilaterates the home point from z0
   stores' `lat`/`lng` (storelatitude/storelongitude) + miles, then `haversine_miles()`.
@@ -107,7 +111,7 @@ On failure the checker keeps the previous `models` and sets `error`.
 - Run `python -m unittest discover tests` before committing; add a test for any
   parsing or alert-logic change. Tests are offline (fixtures built in the test file).
 - Dashboard: single HTML file, no build step, no frameworks, always dark (Night Sky + Star
-  White palette, two chibi mascots: Night Sky left, Star White right), works at iPhone PWA and
+  White palette, liquid-glass panels via backdrop-filter on containers only, sticky glass tabs, two chibi mascots: Night Sky left, Star White right), works at iPhone PWA and
   desktop widths. Store list is closest first (numbered); in-stock stores jump to the top as
   cards and drop back when they sell out. Animations are transform/opacity only and pause when hidden. Bump `CACHE` in `docs/sw.js` when changing shell files.
 - Alerts must stay transition-based (no repeat pushes while still in stock).
