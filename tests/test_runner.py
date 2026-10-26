@@ -158,6 +158,13 @@ class HandoffTests(unittest.TestCase):
         self.assertGreaterEqual(lr.MIN_POLL, 45)
         self.assertGreaterEqual(lr.merge_config(BASE, {})["poll_seconds"], lr.MIN_POLL)
 
+    def test_changed_poll_setting_is_not_overridden_by_saved_state(self):
+        self.assertEqual(lr.start_poll({"poll_seconds": 90}, 75), 75)               # old state file
+        self.assertEqual(lr.start_poll({"poll_seconds": 90, "base": 90}, 75), 75)   # setting lowered
+        self.assertEqual(lr.start_poll({"poll_seconds": 93, "base": 75}, 75), 93)   # real slowdown kept
+        self.assertEqual(lr.start_poll({"poll_seconds": 300, "base": 75}, 75), lr.MAX_ADAPTIVE_POLL)
+        self.assertEqual(lr.start_poll({}, 90), 90)
+
     def test_github_runs_after_its_own_check(self):
         fresh = datetime.now(timezone.utc).isoformat(timespec="seconds")
         self.assertTrue(self.run_checker({"source": "github", "checked_at": fresh}))

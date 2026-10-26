@@ -211,6 +211,13 @@ def nag_message(rows: list[tuple[dict, dict]]) -> tuple[str, str, str]:
 # PC alarm: loud beeps + spoken announcement (Windows), so you hear it at the desk
 # --------------------------------------------------------------------------
 
+def start_poll(state: dict, base_poll: int) -> int:
+    """Pace to start at: a slowdown learned for this same setting is kept (max 120s);
+    if poll_seconds in config.local.json changed, start from the new value."""
+    learned = int(state.get("poll_seconds") or 0) if state.get("base") == base_poll else 0
+    return min(MAX_ADAPTIVE_POLL, learned) if learned > base_poll else base_poll
+
+
 def checkout_target(alert: tuple[str, str, str]) -> tuple[str, str | None, str | None]:
     """(url, store_zip, store_name) from an alert built by check_stock.build_alerts."""
     title, message, url = alert
@@ -325,9 +332,7 @@ def main(argv: list[str] | None = None) -> int:
     base_poll = poll
     # Remember the slower pace and any active Apple block across restarts.
     state = cs.load_json("runner_state.json", {})
-    learned = int(state.get("poll_seconds") or 0)
-    if learned > poll:
-        poll = min(MAX_ADAPTIVE_POLL, learned)
+    poll = start_poll(state, base_poll)
     blocked_until = float(state.get("blocked_until") or 0)
     heartbeat = max(30, int(config["heartbeat_seconds"]))
 
@@ -471,7 +476,7 @@ def main(argv: list[str] | None = None) -> int:
                 return 0
             wait = poll if not errors_in_row else min(MAX_BACKOFF, poll * 2 ** errors_in_row)
             try:
-                save_json("runner_state.json", {"poll_seconds": poll,
+                save_json("runner_state.json", {"poll_seconds": poll, "base": base_poll,
                                                 "blocked_until": (time.time() + wait) if errors_in_row else 0})
             except OSError:
                 pass
