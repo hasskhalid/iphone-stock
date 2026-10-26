@@ -461,6 +461,8 @@ def _home_distance(row: dict, home, home_miles: dict) -> dict:
     if home and row.get("lat") is not None and row.get("lng") is not None:
         m = round(haversine_miles(home[0], home[1], row["lat"], row["lng"]), 1)
         return {**row, "miles": m, "distance": f"{m} mi"}
+    if home_miles:   # another zone's distance would be misleading; sort it last until it has coordinates
+        return {**row, "miles": None, "distance": ""}
     return row
 
 
