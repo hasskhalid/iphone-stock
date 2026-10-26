@@ -54,6 +54,12 @@ if __name__ == "__main__":
 
 
 class PhoneHandoffTests(unittest.TestCase):
+    def test_signed_in_url(self):
+        self.assertTrue(co.signed_in_url("https://www.apple.com/shop/account/home"))
+        self.assertFalse(co.signed_in_url("https://www.apple.com/shop/signIn?ssi=1AAABxyz&r=x"))
+        self.assertFalse(co.signed_in_url("https://www.apple.com/shop/sorry/illegal_arguments"))
+        self.assertFalse(co.signed_in_url("https://secure.store.apple.com/shop/signIn/account"))
+
     def test_product_from_url(self):
         self.assertEqual(co.product_from_url("https://www.apple.com/shop/buy-iphone/iphone-duo/7.6-inch-display-256gb-star-white-unlocked"),
                          ("256GB", "Star White"))
