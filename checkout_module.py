@@ -287,13 +287,22 @@ def select_option(page, name: str, value: str | None, label_re: str | None) -> b
                 continue
             if inp.is_checked():
                 return True
+            # Try a normal click on the label, then a direct click (works even if a sticky
+            # header or overlay covers it), then checking the input itself.
+            attempts = []
             if label and label.count():
-                label.first.scroll_into_view_if_needed(timeout=3000)
-                label.first.click(timeout=5000)
-            else:
-                inp.check(timeout=5000, force=True)
-            page.wait_for_timeout(400)
-            return inp.is_checked()
+                attempts += [lambda: (label.first.scroll_into_view_if_needed(timeout=3000), label.first.click(timeout=3000)),
+                             lambda: label.first.evaluate("el => el.click()")]
+            attempts += [lambda: inp.evaluate("el => el.click()"), lambda: inp.check(timeout=3000, force=True)]
+            for attempt in attempts:
+                try:
+                    attempt()
+                except Exception:
+                    pass
+                page.wait_for_timeout(400)
+                if inp.is_checked():
+                    return True
+            return False
         except Exception:
             continue
     return False
@@ -315,6 +324,8 @@ def step_product(page, url: str) -> None:
             page.wait_for_timeout(600)
         if missing:
             log(f"Couldn't select: {', '.join(missing)}")
+        else:
+            log("Options selected (unlocked, no trade-in, Buy, No AppleCare)")
     btn = first_visible(page, [
         btn_sel,
         page.get_by_role("button", name=re.compile(r"^\s*add to bag\s*$", re.I)),
