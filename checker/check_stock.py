@@ -27,6 +27,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import os
 import sys
 import time
@@ -151,6 +152,8 @@ def parse_response(data: dict, models: list[dict], max_stores: int,
                 "miles": store_miles(store),
                 "available": display == "available",
                 "quote": avail.get("pickupSearchQuote") or "",
+                "lat": _coord(store.get("storelatitude")),
+                "lng": _coord(store.get("storelongitude")),
             }
             row.update(store_details(store))
             store_rows.append(row)
@@ -376,9 +379,62 @@ def seconds_since(iso: str | None) -> float | None:
 ZONE_MAX_AGE = 1800   # drop a zone's cached stores if it hasn't been checked for 30 min
 
 
+def _coord(v) -> float | None:
+    try:
+        return round(float(v), 4)
+    except (TypeError, ValueError):
+        return None
+
+
+def haversine_miles(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
+    r = 3958.8
+    p1, p2 = math.radians(lat1), math.radians(lat2)
+    dp, dl = p2 - p1, math.radians(lng2 - lng1)
+    a = math.sin(dp / 2) ** 2 + math.cos(p1) * math.cos(p2) * math.sin(dl / 2) ** 2
+    return 2 * r * math.asin(math.sqrt(a))
+
+
+def estimate_home(points: list[tuple[float, float, float]]) -> tuple[float, float] | None:
+    """Where the home search was centered, from (lat, lng, miles-from-home) of its stores.
+
+    Apple only reports each store's distance from the ZIP that was searched, so stores found
+    through an extra zone carry distances from THAT zone. Their real distance from home is
+    computed from coordinates instead. Least squares in a local flat projection (fine at
+    these distances); needs 3+ stores.
+    """
+    pts = [p for p in points if None not in p]
+    if len(pts) < 3:
+        return None
+    lat0 = sum(p[0] for p in pts) / len(pts)
+    lng0 = sum(p[1] for p in pts) / len(pts)
+    kx, ky = 69.172 * math.cos(math.radians(lat0)), 69.0   # miles per degree
+    xy = [((p[1] - lng0) * kx, (p[0] - lat0) * ky, p[2]) for p in pts]
+    x, y = 0.0, 0.0
+    for _ in range(200):                      # Gauss-Newton on sum (|P - S_i| - d_i)^2
+        a11 = a12 = a22 = b1 = b2 = 0.0
+        for sx, sy, d in xy:
+            dx, dy = x - sx, y - sy
+            r = math.hypot(dx, dy) or 1e-6
+            jx, jy, res = dx / r, dy / r, r - d
+            a11 += jx * jx; a12 += jx * jy; a22 += jy * jy
+            b1 += jx * res; b2 += jy * res
+        det = a11 * a22 - a12 * a12
+        if abs(det) < 1e-12:
+            break
+        sx_, sy_ = (a22 * b1 - a12 * b2) / det, (a11 * b2 - a12 * b1) / det
+        x, y = x - sx_, y - sy_
+        if abs(sx_) + abs(sy_) < 1e-6:
+            break
+    return lat0 + y / ky, lng0 + x / kx
+
+
 def merge_zones(zones: dict, models: list[dict]) -> list[dict]:
     """Union of stores across zones per model, freshest zone wins on overlap, nearest first."""
     order = sorted(zones.items(), key=lambda kv: kv[1].get("checked_at", ""), reverse=True)
+    # Distances must be from HOME (zone z0), not from whichever zone found the store.
+    home_rows = [st for zm in (zones.get("z0") or {}).get("models", []) for st in zm.get("stores", [])]
+    home_miles = {st["id"]: (st.get("miles"), st.get("distance")) for st in home_rows if st.get("miles") is not None}
+    home = estimate_home([(st.get("lat"), st.get("lng"), st.get("miles")) for st in home_rows]) if len(zones) > 1 else None
     merged = []
     for m in models:
         seen, rows = set(), []
@@ -389,12 +445,23 @@ def merge_zones(zones: dict, models: list[dict]) -> list[dict]:
                 for st in zm.get("stores", []):
                     if st["id"] not in seen:
                         seen.add(st["id"]); rows.append(st)
+        rows = [_home_distance(r, home, home_miles) for r in rows]
         rows.sort(key=lambda r: (r.get("miles") is None, r.get("miles") or 0))
         template = next((zm for _, z in order for zm in z.get("models", []) if zm.get("part") == m["part"]), {})
         merged.append({**{k: v for k, v in template.items() if k != "stores"}, "part": m["part"],
                        "label": m.get("label", m["part"]), "color": m.get("color", ""),
                        "url": m.get("url") or BUY_URL, "any_available": any(r["available"] for r in rows), "stores": rows})
     return merged
+
+
+def _home_distance(row: dict, home, home_miles: dict) -> dict:
+    if row["id"] in home_miles:
+        m, d = home_miles[row["id"]]
+        return {**row, "miles": m, "distance": d or f"{m} mi"}
+    if home and row.get("lat") is not None and row.get("lng") is not None:
+        m = round(haversine_miles(home[0], home[1], row["lat"], row["lng"]), 1)
+        return {**row, "miles": m, "distance": f"{m} mi"}
+    return row
 
 
 def check_once(settings: dict, prev: dict, history: dict, *, source: str = "cli",

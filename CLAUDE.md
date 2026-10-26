@@ -84,13 +84,16 @@ home-screen dashboard. Keep it free to run and dependency-light.
   Apple's bot checks; the buying path is alert → Apple Store app → Apple Pay.
 - `config.json`: models (`label`, `color`, `part`, `url`), `zip`, `radius_miles`, `max_stores`,
   optional `ntfy_topic`. Env vars `APPLE_ZIP` / `NTFY_TOPIC` (repo secrets) override.
-- Tracking: iPhone Duo unlocked, 256GB Night Sky `MK1F4LL/A` / Star White `MK1E4LL/A`, 512GB
-  Night Sky `MK1H4LL/A` / Star White `MK1G4LL/A` (512 is $2,199 vs $1,999). Models carry `storage`;
-  alert titles use `color_of()` = label minus "iPhone Duo" → "512GB NIGHT SKY @ Store".
+- Tracking: iPhone Duo unlocked 256GB only (owner dropped 512GB): Night Sky `MK1F4LL/A` /
+  Star White `MK1E4LL/A`. Models carry `storage`; alert titles use `color_of()` = label minus
+  "iPhone Duo" → "256GB NIGHT SKY @ Store".
 - Zones: Apple returns only the ~12 nearest stores per ZIP, so `extra_zips` (config) /
   `APPLE_EXTRA_ZIPS` (secret, comma-separated) add search centers. Each check queries ONE zone
   (`next_zone` rotates), results cached per zone in `status.zones` keyed `z0, z1…` (never the
   ZIP), merged by `merge_zones()` (freshest wins, nearest first); zones unseen > 30 min dropped.
+  Apple's `storedistance` is from the SEARCHED zip, so merge_zones keeps z0 (home) distances and
+  recomputes other stores' miles from home: `estimate_home()` trilaterates the home point from z0
+  stores' `lat`/`lng` (storelatitude/storelongitude) + miles, then `haversine_miles()`.
   Same request rate to Apple; each zone refreshes every N checks.
   `tests/fixtures/live_sample_nyc.json` is a trimmed real response for reference.
 

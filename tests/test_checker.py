@@ -286,5 +286,31 @@ class EndToEndTests(unittest.TestCase):
             self.assertEqual(second["last_success_at"], first["checked_at"])
 
 
+
+class HomeDistanceTests(unittest.TestCase):
+    """Stores found via an extra zone must be ranked by distance from HOME, not from that zone."""
+    HOME = (40.7527, -73.9772)   # made-up home point for the test
+
+    def row(self, sid, lat, lng, miles):
+        return {"id": sid, "name": sid, "lat": lat, "lng": lng, "miles": miles, "distance": f"{miles} mi", "available": False}
+
+    def test_extra_zone_store_gets_real_distance_from_home(self):
+        pts = {"A": (40.7412, -74.0054), "B": (40.7637, -73.9730), "C": (40.6856, -73.9782), "D": (40.7251, -73.9990), "E": (40.5491, -74.3358)}
+        z0 = [self.row(k, la, ln, round(cs.haversine_miles(*self.HOME, la, ln), 2)) for k, (la, ln) in pts.items()]
+        far = self.row("FAR", 40.9176, -74.0751, 0.5)          # 0.5 mi from ITS zone, ~12 mi from home
+        zones = {"z0": {"checked_at": "T1", "models": [{"part": "P", "stores": z0}]},
+                 "z1": {"checked_at": "T2", "models": [{"part": "P", "stores": [far, dict(z0[0], miles=9.9)]}]}}
+        rows = cs.merge_zones(zones, [{"part": "P", "label": "x"}])[0]["stores"]
+        got = {r["id"]: r["miles"] for r in rows}
+        self.assertAlmostEqual(got["FAR"], cs.haversine_miles(*self.HOME, 40.9176, -74.0751), delta=0.3)
+        self.assertEqual(got["A"], z0[0]["miles"])            # home-zone distance wins over z1's
+        self.assertEqual([r["id"] for r in rows], sorted(got, key=got.get))
+        self.assertNotEqual(rows[0]["id"], "FAR")
+
+    def test_single_zone_unchanged(self):
+        z0 = [self.row("A", 1, 1, 3.0), self.row("B", 2, 2, 1.0)]
+        rows = cs.merge_zones({"z0": {"checked_at": "T", "models": [{"part": "P", "stores": z0}]}}, [{"part": "P"}])[0]["stores"]
+        self.assertEqual([r["id"] for r in rows], ["B", "A"])
+
 if __name__ == "__main__":
     unittest.main()
