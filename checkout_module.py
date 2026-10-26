@@ -475,10 +475,19 @@ def trigger_checkout(product_url: str, store_zip: str | None = None, store_name:
 def setup_profile(cfg: dict) -> None:
     """Open the persistent browser so you can sign in to apple.com once, then confirm it stuck."""
     from playwright.sync_api import sync_playwright
+    channel = cfg.get("browser_channel") or None
+    print(f"Browser: {channel or 'Playwright Chromium'}  (set \"browser_channel\": \"chrome\" in checkout.local.json to use your installed Chrome)")
+    reached = {"ok": False}
     with sync_playwright() as p:
-        ctx = p.chromium.launch_persistent_context(PROFILE_DIR, headless=False,
-                                                   channel=cfg.get("browser_channel") or None, viewport=None)
+        ctx = p.chromium.launch_persistent_context(PROFILE_DIR, headless=False, channel=channel, viewport=None)
         page = ctx.pages[0] if ctx.pages else ctx.new_page()
+
+        def on_nav(frame):
+            if frame == page.main_frame and signed_in_url(frame.url):
+                if not reached["ok"]:
+                    print("Reached your Account page: you're signed in. You can close the window now.")
+                reached["ok"] = True
+        page.on("framenavigated", on_nav)
         # The account page sends you to Apple's real sign-in form (with the arguments it needs).
         # Opening /shop/signIn directly gives "Illegal Arguments".
         try:
@@ -486,26 +495,32 @@ def setup_profile(cfg: dict) -> None:
         except Exception as e:  # a slow redirect shouldn't kill the window you're signing in with
             print(f"(Page was slow to load: {e.__class__.__name__}. Keep going in the window.)")
         print("Sign in to your Apple Account in this window (tick 'Remember me' / trust this browser).")
-        print("When you see your Account page, close the window. Your session is saved in .checkout_profile/.")
+        print("If it spins after the 2-factor code, type apple.com/shop/account/home in the address bar.")
+        print("When you see your Account page, close the window.")
         try:
             page.wait_for_event("close", timeout=0)
         except Exception:
             pass
         ctx.close()
 
-        print("Checking the sign-in was saved...")
-        ctx = p.chromium.launch_persistent_context(PROFILE_DIR, headless=True,
-                                                   channel=cfg.get("browser_channel") or None)
-        page = ctx.new_page()
+        print("Checking the sign-in was saved (a window opens for a few seconds)...")
+        ok = False
+        ctx = p.chromium.launch_persistent_context(PROFILE_DIR, headless=False, channel=channel)
+        page = ctx.pages[0] if ctx.pages else ctx.new_page()
         try:
             page.goto(ACCOUNT_URL, wait_until="domcontentloaded", timeout=STEP_TIMEOUT_MS)
-            page.wait_for_timeout(1500)
+            page.wait_for_timeout(2500)
             ok = signed_in_url(page.url)
         except Exception:
-            ok = False
+            pass
         ctx.close()
-        print("SIGNED IN: setup done." if ok else
-              "NOT signed in yet: run --setup again and finish signing in before closing the window.")
+        if ok:
+            print("SIGNED IN and saved: setup done.")
+        elif reached["ok"]:
+            print("You signed in, but Apple didn't keep the session after the window closed.")
+            print("Checkout assist can't add to your bag without it; your normal alerts still work.")
+        else:
+            print("NOT signed in: the sign-in never reached your Account page.")
 
 
 def main(argv: list[str] | None = None) -> int:
