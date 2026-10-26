@@ -16,10 +16,10 @@ home-screen dashboard. Keep it free to run and dependency-light.
   newly became available (compares against the previous status.json).
   `--test-alert` sends a test push and exits.
 - `local_runner.py` (+ `start-runner.bat`): PC runner on the owner's always-on Windows PC.
-  Polls every `poll_seconds` (60, floor 45: faster got the home IP rate-limited by Apple with HTTP 541) via `check_stock.check_once`, exponential backoff on
+  Polls every `poll_seconds` (default 90, floor 45: faster got the home IP rate-limited by Apple with HTTP 541) via `check_stock.check_once`, exponential backoff on
   errors (max 900s; while erroring it publishes only the transition, not heartbeats, so the
   GitHub backup's good results stay visible), adaptive slowdown (each 541 episode raises
-  poll by 25%, max 120s; reset on restart), nag mode (re-push every `nag_minutes` while in stock, max `nag_max`),
+  poll by 25%, max 120s; persisted with the active block in gitignored `runner_state.json`, so a restart waits out the block instead of firing immediately), nag mode (re-push every `nag_minutes` while in stock, max `nag_max`),
   publishes status/history to the `status` branch through the GitHub Git Data API
   (tree → orphan commit → force ref; no git needed) on availability change or every
   `heartbeat_seconds` (60, i.e. every check, so the app shows each check). Private files: `config.local.json` (zip, ntfy_topic,

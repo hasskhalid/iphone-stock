@@ -37,7 +37,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "checker"))
 import check_stock as cs  # noqa: E402
 
-DEFAULTS = {"poll_seconds": 60, "heartbeat_seconds": 60, "nag_minutes": 2, "nag_max": 15}
+DEFAULTS = {"poll_seconds": 90, "heartbeat_seconds": 60, "nag_minutes": 2, "nag_max": 15}
 MIN_POLL = 45          # faster than this gets your connection rate-limited by Apple (HTTP 541)
 MAX_BACKOFF = 900      # when Apple pushes back, wait up to 15 min between tries
 MAX_ADAPTIVE_POLL = 120  # each rate-limit episode slows normal polling by 25%, up to this
@@ -243,6 +243,12 @@ def main(argv: list[str] | None = None) -> int:
     env = {**load_env(".env.local"), **{k: v for k, v in os.environ.items() if k in ("GITHUB_TOKEN", "GITHUB_REPO")}}
     settings = cs.load_settings(config)
     poll = max(MIN_POLL, int(config["poll_seconds"]))
+    # Remember the slower pace and any active Apple block across restarts.
+    state = cs.load_json("runner_state.json", {})
+    learned = int(state.get("poll_seconds") or 0)
+    if learned > poll:
+        poll = min(MAX_ADAPTIVE_POLL, learned)
+    blocked_until = float(state.get("blocked_until") or 0)
     heartbeat = max(30, int(config["heartbeat_seconds"]))
 
     if args.test_alert:
@@ -277,6 +283,11 @@ def main(argv: list[str] | None = None) -> int:
     started = datetime.now(timezone.utc).isoformat(timespec="seconds")
     checks, errors_in_row, last_publish, last_sig = 0, 0, 0.0, None
 
+    wait0 = blocked_until - time.time()
+    if wait0 > 0 and not args.once:
+        print(f"Apple was blocking this connection recently; waiting {int(wait0)}s before the first check")
+        print("(the GitHub backup keeps checking meanwhile; restarting won't make this faster)")
+        time.sleep(wait0)
     try:
         while True:
             t0 = time.time()
@@ -352,6 +363,11 @@ def main(argv: list[str] | None = None) -> int:
             if args.once:
                 return 0
             wait = poll if not errors_in_row else min(MAX_BACKOFF, poll * 2 ** errors_in_row)
+            try:
+                save_json("runner_state.json", {"poll_seconds": poll,
+                                                "blocked_until": (time.time() + wait) if errors_in_row else 0})
+            except OSError:
+                pass
             if errors_in_row:
                 hint = " (Apple is rate-limiting this connection; it clears on its own)" if "541" in (status.get("error") or "") else ""
                 print(f"           backing off {wait}s after {errors_in_row} error(s){hint}")

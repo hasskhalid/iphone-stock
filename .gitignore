@@ -12,3 +12,4 @@ prev_status.json
 history.local.json
 *.tmp
 local_runner_grok.py
+runner_state.json
