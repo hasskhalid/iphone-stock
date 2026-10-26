@@ -286,6 +286,13 @@
   @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
     .status, .tabs, .stat, .banner.calm, .watch, .panel, details.settings, .bubble, .store { background: var(--panel); } }
   .paused body::after { animation-play-state: paused; }
+
+  /* ---------- Desktop (mouse) only: keep the glass look but stop re-blurring every frame ---------- */
+  @media (hover: hover) and (pointer: fine) {
+    :root { --blur: blur(14px) saturate(150%); }
+    body::after { animation: none; }          /* glows stay put, so the blur is drawn once */
+    body::before { animation: none; opacity: .6; }   /* static stars behind the glass */
+  }
   /* Phones */
   @media (max-width: 420px) { h1 { font-size: 23px; } .mascot { width: 100px; height: 66px; } .mrow { grid-template-columns: 112px 1fr; } .dots { display: none; } }
   /* Desktop: a bit more room */
@@ -910,8 +917,11 @@
     setTimeout(() => { lastMood = ""; renderHeader(); }, 3200);
   });
   // Pause all animation while the app is in the background (saves battery on iPhone).
-  const syncPaused = () => document.documentElement.classList.toggle("paused", document.hidden);
-  document.addEventListener("visibilitychange", syncPaused); syncPaused();
+  // On desktop also pause while the window isn't the one you're using (iPhone unchanged).
+  const DESKTOP = matchMedia("(hover: hover) and (pointer: fine)").matches;
+  const syncPaused = () => document.documentElement.classList.toggle("paused", document.hidden || (DESKTOP && !document.hasFocus()));
+  document.addEventListener("visibilitychange", syncPaused);
+  addEventListener("blur", syncPaused); addEventListener("focus", syncPaused); syncPaused();
 
   // ---------- tabs ----------
   function moveInk() {

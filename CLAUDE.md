@@ -117,6 +117,6 @@ On failure the checker keeps the previous `models` and sets `error`.
 - Dashboard: single HTML file, no build step, no frameworks, always dark (Night Sky + Star
   White palette, liquid-glass panels via backdrop-filter on containers only, sticky glass tabs, two chibi mascots: Night Sky left, Star White right), works at iPhone PWA and
   desktop widths. Store list is closest first (numbered); in-stock stores jump to the top as
-  cards and drop back when they sell out. Animations are transform/opacity only and pause when hidden. Bump `CACHE` in `docs/sw.js` when changing shell files.
+  cards and drop back when they sell out. Animations are transform/opacity only and pause when hidden. Desktop (hover+fine pointer) only: no drifting glow / star twinkle behind the glass (Chrome re-blurred every frame and lagged other tabs), lighter blur, and animations pause when the window loses focus; iPhone unchanged. Bump `CACHE` in `docs/sw.js` when changing shell files.
 - Alerts must stay transition-based (no repeat pushes while still in stock).
 - No auto-checkout: purchases stay manual (owner taps the alert, buys with Apple Pay).
