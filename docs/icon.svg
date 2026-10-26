@@ -1,25 +1,66 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <defs><radialGradient id="bgg" cx="30%" cy="15%" r="95%"><stop offset="0" stop-color="#3a2f6b"/><stop offset="1" stop-color="#12101f"/></radialGradient></defs>
-  <rect width="512" height="512" rx="112" fill="url(#bgg)"/>
-  <g transform="translate(96 70) scale(2.67)">
-        <defs><linearGradient id="scr" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3b3270"/><stop offset="1" stop-color="#5a3f7e"/></linearGradient></defs>
-        <ellipse cx="60" cy="124" rx="28" ry="5" fill="rgba(0,0,0,.35)"/>
-        
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="0%" r="110%"><stop offset="0" stop-color="#22306b"/><stop offset=".55" stop-color="#0c1226"/><stop offset="1" stop-color="#070a16"/></radialGradient>
+    <radialGradient id="glowN" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#6f8cff" stop-opacity=".55"/><stop offset="1" stop-color="#6f8cff" stop-opacity="0"/></radialGradient>
+    <radialGradient id="glowW" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#f4f1ea" stop-opacity=".28"/><stop offset="1" stop-color="#f4f1ea" stop-opacity="0"/></radialGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".16"/><stop offset="1" stop-color="#fff" stop-opacity=".03"/></linearGradient>
+  </defs>
+  <rect width="512" height="512" fill="url(#bg)"/>
+  <circle cx="170" cy="250" r="190" fill="url(#glowN)"/><circle cx="350" cy="270" r="170" fill="url(#glowW)"/>
+  <g fill="#fff"><circle cx="70" cy="80" r="3"/><circle cx="440" cy="60" r="2.4"/><circle cx="400" cy="130" r="1.8"/><circle cx="110" cy="150" r="1.6"/><circle cx="460" cy="400" r="2"/><circle cx="50" cy="420" r="2.2"/><circle cx="250" cy="40" r="1.8"/></g>
+  <g fill="#ffd98a"><path d="M70 420l5 12 12 5-12 5-5 12-5-12-12-5 12-5z"/><path d="M430 300l4 9 9 4-9 4-4 9-4-9-9-4 9-4z"/></g>
+  <g transform="translate(46 116) scale(2.33)">
+      <defs>
+        <linearGradient id="scrN" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22306b"/><stop offset="1" stop-color="#3b4fa8"/></linearGradient>
+        <linearGradient id="scrW" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#e4e0d6"/></linearGradient>
+      </defs>
+      
+      
+      <g class="chibi a">
         <g class="bod">
-          <path d="M23 74 q-11 3 -10 15" stroke="#c9b8ff" stroke-width="6" stroke-linecap="round" fill="none"/>
-          <path d="M97 74 q11 3 10 15" stroke="#c9b8ff" stroke-width="6" stroke-linecap="round" fill="none"/>
-          <rect x="40" y="108" width="12" height="10" rx="5" fill="#c9b8ff"/><rect x="68" y="108" width="12" height="10" rx="5" fill="#c9b8ff"/>
-          <rect x="22" y="12" width="76" height="100" rx="20" fill="#26214a" stroke="#c9b8ff" stroke-width="3"/>
-          <rect x="29" y="19" width="62" height="86" rx="14" fill="url(#scr)"/>
-          <line x1="60" y1="20" x2="60" y2="104" stroke="rgba(255,255,255,.22)" stroke-width="2" stroke-dasharray="3 5"/>
-          <circle cx="40" cy="27" r="2.6" fill="#120f22"/><circle cx="80" cy="27" r="2.6" fill="#120f22"/>
-          <g class="eyes-open"><ellipse cx="46" cy="58" rx="6" ry="7.5" fill="#fff"/><ellipse cx="74" cy="58" rx="6" ry="7.5" fill="#fff"/>
-            <g class="pupils"><circle cx="47" cy="59.5" r="3.6" fill="#1b1733"/><circle cx="75" cy="59.5" r="3.6" fill="#1b1733"/><circle cx="48.4" cy="57.6" r="1.2" fill="#fff"/><circle cx="76.4" cy="57.6" r="1.2" fill="#fff"/></g></g>
-          
-          <ellipse cx="37" cy="71" rx="5.5" ry="3.2" fill="#ff8fc0" opacity=".75"/><ellipse cx="83" cy="71" rx="5.5" ry="3.2" fill="#ff8fc0" opacity=".75"/>
-          <path class="mouth-smile" d="M53 72 q7 6 14 0" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/>
-          
+          <path d="M22 64 q-9 3 -8 13" stroke="#6f8cff" stroke-width="5" stroke-linecap="round" fill="none"/>
+          <path d="M80 64 q8 2 9 9" stroke="#6f8cff" stroke-width="5" stroke-linecap="round" fill="none"/>
+          <rect x="34" y="96" width="10" height="9" rx="4.5" fill="#6f8cff"/><rect x="58" y="96" width="10" height="9" rx="4.5" fill="#6f8cff"/>
+          <rect x="21" y="12" width="60" height="88" rx="17" fill="#121a3d" stroke="#6f8cff" stroke-width="2.6"/>
+          <rect x="27" y="18" width="48" height="76" rx="12" fill="url(#scrN)"/>
+          <line x1="51" y1="19" x2="51" y2="93" stroke="rgba(255,255,255,.2)" stroke-width="1.6" stroke-dasharray="3 5"/>
+          <circle cx="36" cy="25" r="2.2" fill="#070a16"/><circle cx="66" cy="25" r="2.2" fill="#070a16"/>
+          <g transform="translate(51 52)" stroke="#fff">
+            <g class="eyes"><ellipse cx="-11" cy="0" rx="5" ry="6.3" fill="#fff" stroke="none"/><ellipse class="eye-r" cx="11" cy="0" rx="5" ry="6.3" fill="#fff" stroke="none"/>
+              <g class="pupils" stroke="none"><circle cx="-10" cy="1.3" r="3.1" fill="#141933"/><circle class="eye-r" cx="12" cy="1.3" r="3.1" fill="#141933"/>
+                <circle cx="-8.6" cy="-.6" r="1.1" fill="#fff"/><circle class="eye-r" cx="13.4" cy="-.6" r="1.1" fill="#fff"/></g></g>
+            
+            
+            <ellipse cx="-19" cy="10" rx="4.6" ry="2.7" fill="#ff9ec8" opacity=".75" stroke="none"/><ellipse cx="19" cy="10" rx="4.6" ry="2.7" fill="#ff9ec8" opacity=".75" stroke="none"/>
+            <path class="smile" d="M-5 11 q5 5 10 0" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+            
+          </g>
         </g>
-        
       </g>
+      <g class="chibi b">
+        <g class="bod">
+          <path d="M100 64 q-8 2 -9 9" stroke="#d9d3c5" stroke-width="5" stroke-linecap="round" fill="none"/>
+          <path d="M158 64 q9 3 8 13" stroke="#d9d3c5" stroke-width="5" stroke-linecap="round" fill="none"/>
+          <rect x="112" y="96" width="10" height="9" rx="4.5" fill="#d9d3c5"/><rect x="136" y="96" width="10" height="9" rx="4.5" fill="#d9d3c5"/>
+          <rect x="99" y="12" width="60" height="88" rx="17" fill="#f4f1ea" stroke="#d9d3c5" stroke-width="2.6"/>
+          <rect x="105" y="18" width="48" height="76" rx="12" fill="url(#scrW)"/>
+          <line x1="129" y1="19" x2="129" y2="93" stroke="rgba(20,25,51,.12)" stroke-width="1.6" stroke-dasharray="3 5"/>
+          <circle cx="114" cy="25" r="2.2" fill="#c9c2b1"/><circle cx="144" cy="25" r="2.2" fill="#c9c2b1"/>
+          <g transform="translate(129 52)" stroke="#141933">
+            <g class="eyes"><ellipse cx="-11" cy="0" rx="5" ry="6.3" fill="#1b2142" stroke="none"/><ellipse class="eye-r" cx="11" cy="0" rx="5" ry="6.3" fill="#1b2142" stroke="none"/>
+              <g class="pupils" stroke="none"><circle cx="-10" cy="1.3" r="3.1" fill="#1b2142"/><circle class="eye-r" cx="12" cy="1.3" r="3.1" fill="#1b2142"/>
+                <circle cx="-8.6" cy="-.6" r="1.1" fill="#fff"/><circle class="eye-r" cx="13.4" cy="-.6" r="1.1" fill="#fff"/></g></g>
+            
+            
+            <ellipse cx="-19" cy="10" rx="4.6" ry="2.7" fill="#ff9ec8" opacity=".75" stroke="none"/><ellipse cx="19" cy="10" rx="4.6" ry="2.7" fill="#ff9ec8" opacity=".75" stroke="none"/>
+            <path class="smile" d="M-5 11 q5 5 10 0" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+            
+          </g>
+        </g>
+      </g>
+      
+      
+      
+      
+    </g>
 </svg>
