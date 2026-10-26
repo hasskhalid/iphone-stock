@@ -179,7 +179,10 @@
   .dots { display: flex; gap: 3px; flex: none; }
   .dots i { width: 8px; height: 8px; border-radius: 50%; opacity: .35; }
   .dots i.n { background: var(--night); } .dots i.w { background: var(--star); }
-  .pin { flex: none; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: var(--card-2); border: 1px solid var(--line); font-size: 13px; }
+  .copyzip { flex: none; display: inline-flex; align-items: center; gap: 4px; height: 30px; padding: 0 10px; border-radius: 999px; background: var(--card-2); border: 1px solid var(--line); color: var(--text); font-size: 12px; font-weight: 800; }
+  .copyzip.copied { border-color: var(--ok); color: var(--ok); }
+  .ctas { display: flex; gap: 8px; flex-wrap: wrap; }
+  .cta.ghost { background: rgba(255,255,255,.08); color: var(--text); border: 1px solid rgba(255,255,255,.2); }
   .rbtn { flex: none; width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--line); background: var(--card-2); color: var(--muted); font-size: 15px; line-height: 1; display: inline-flex; align-items: center; justify-content: center; padding: 0; }
   .rbtn span { display: inline-block; }
   body.scanning .rbtn span, .rbtn.spin span { animation: rot .9s linear infinite; }
@@ -191,9 +194,10 @@
   .store .rbtn { position: absolute; top: 12px; right: 12px; }
   .store .kicker { color: var(--ok); font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
   .store h3 { margin: 2px 40px 6px 0; font-size: 19px; letter-spacing: -.01em; }
-  .bigzip { display: inline-flex; align-items: baseline; gap: 8px; background: var(--bg-2); border: 1px solid var(--line); border-radius: 12px; padding: 6px 12px; margin-bottom: 8px; }
+  .bigzip { display: inline-flex; align-items: baseline; gap: 8px; height: auto; color: var(--text); cursor: pointer; background: var(--bg-2); border: 1px solid var(--line); border-radius: 12px; padding: 6px 12px; margin-bottom: 8px; }
   .bigzip small { color: var(--muted); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
   .bigzip b { font-size: 22px; letter-spacing: .08em; font-variant-numeric: tabular-nums; }
+  .bigzip i { font-style: normal; font-size: 15px; }
   .addr { display: block; font-size: 13px; } .phone { font-size: 12.5px; color: var(--muted); }
   .models { margin-top: 12px; display: grid; gap: 7px; }
   .mrow { display: grid; grid-template-columns: 128px 1fr; gap: 8px; align-items: center; }
@@ -212,8 +216,8 @@
   @keyframes shimmer { from { background-position: 150% 0; } to { background-position: -100% 0; } }
   .intro .wrow, .intro .store, .intro .stat { animation: rise .35s cubic-bezier(.2,.9,.3,1.2) both; }
   @keyframes rise { from { opacity: 0; transform: translateY(10px); } }
-  button:active, .cta:active, .pin:active { transform: scale(.94); }
-  button, .cta, .pin { transition: transform .12s ease; }
+  button:active, .cta:active { transform: scale(.94); }
+  button, .cta { transition: transform .12s ease; }
 
   /* ---------- Changes / patterns ---------- */
   .panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; }
@@ -272,7 +276,7 @@
   body.instock .bubble { background: rgba(110,242,177,.14); border-color: rgba(110,242,177,.6); }
   .wrow, .row, .insight { border-top-color: rgba(255,255,255,.07); }
   .watch .wrow:nth-child(odd) { border-right-color: rgba(255,255,255,.07); }
-  .rbtn, .pin, .rank, .icon-btn { background: rgba(255,255,255,.07); border-color: rgba(255,255,255,.14); box-shadow: inset 0 1px 0 rgba(255,255,255,.15); }
+  .rbtn, .copyzip, .rank, .icon-btn { background: rgba(255,255,255,.07); border-color: rgba(255,255,255,.14); box-shadow: inset 0 1px 0 rgba(255,255,255,.15); }
   .bigzip { background: rgba(0,0,0,.25); border-color: rgba(255,255,255,.12); }
   .tab-ink { background: linear-gradient(180deg, #ffffff, #e9e5dc); box-shadow: inset 0 1px 0 #fff, 0 2px 12px rgba(199,208,255,.35); }
   .toast { background: rgba(244,241,234,.88); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
@@ -516,7 +520,7 @@
       const s = hot[0], c = s.colors.find((x) => x.available);
       html += `<div class="banner hot"><div><b>🎉 ${esc((c.storage ? c.storage + " " : "") + c.color)} at ${esc(s.name)}${hot.length > 1 ? ` + ${hot.length - 1} more` : ""}</b>
         <small>${s.zip ? `Pickup ZIP <b style="display:inline;color:var(--text)">${esc(s.zip)}</b> · ` : ""}${esc(c.quote || "Available for pickup")} · go go go!</small></div>
-        <a class="cta ok" href="${esc(c.url)}" target="_blank" rel="noopener">Buy now →</a></div>`;
+        <div class="ctas">${s.zip ? `<button class="cta ghost copyzip" data-zip="${esc(s.zip)}">📋 ${esc(s.zip)}</button>` : ""}<a class="cta ok" href="${esc(c.url)}" target="_blank" rel="noopener">Buy now →</a></div></div>`;
     } else {
       const r = restocks(), last = r[r.length - 1];
       const usual = typicalHour(last ? r.filter((e) => e.store_id === last.store_id) : []);
@@ -537,8 +541,8 @@
         <button class="rbtn${spinningStore === s.id ? " spin" : ""}" data-store="${esc(s.id)}" aria-label="Re-check ${esc(s.name)}"><span>↻</span></button>
         <div class="kicker">✨ Pickup today${s.miles != null ? ` · ${esc(Math.round(s.miles))} mi away` : ""}</div>
         <h3><a href="${esc(firstUrl)}" target="_blank" rel="noopener" style="color:inherit">${esc(s.name)}</a></h3>
-        ${s.zip ? `<div class="bigzip"><small>Type at pickup</small><b>${esc(s.zip)}</b></div>` : ""}
-        ${s.address ? `<a class="addr" href="${esc(s.maps_url)}" target="_blank" rel="noopener">📍 ${esc(s.address)}</a>` : `<span class="addr">${esc(s.city || "")}</span>`}
+        ${s.zip ? `<button class="bigzip copyzip" data-zip="${esc(s.zip)}"><small>Pickup ZIP · tap to copy</small><b>${esc(s.zip)}</b><i>📋</i></button>` : ""}
+        ${s.address ? `<a class="addr" href="${esc(s.maps_url)}" target="_blank" rel="noopener">${esc(s.address)}</a>` : `<span class="addr">${esc(s.city || "")}</span>`}
         ${s.phone ? `<a class="phone" href="tel:${esc(s.phone.replace(/[^0-9+]/g, ""))}">📞 ${esc(s.phone)}</a>` : ""}
         <div class="models">
           ${s.colors.slice().sort((a, b) => (b.available - a.available)).map((c) => `
@@ -583,7 +587,7 @@
         <span class="rank">${s.rank}</span>
         <a class="wmain" href="${esc(buy)}" target="_blank" rel="noopener"><b>${esc(s.name)}</b><small>${where}</small>${lr ? `<small><em>✨ restocked ${esc(shortAgo(lr.t))}</em></small>` : ""}</a>
         <span class="dots" aria-hidden="true">${s.colors.map((c) => `<i class="${sw(c.color)}"></i>`).join("")}</span>
-        ${s.maps_url ? `<a class="pin" href="${esc(s.maps_url)}" target="_blank" rel="noopener" aria-label="Directions">📍</a>` : ""}
+        ${s.zip ? `<button class="copyzip" data-zip="${esc(s.zip)}" aria-label="Copy ZIP ${esc(s.zip)}">📋<span>ZIP</span></button>` : ""}
         <button class="rbtn${spinningStore === s.id ? " spin" : ""}" data-store="${esc(s.id)}" aria-label="Re-check ${esc(s.name)}"><span>↻</span></button>
       </div>`;
   }
@@ -713,7 +717,7 @@
       "Bag ready? Apple Pay ready? 💳✨",
       "Psst… keep your phone loud 🔔",
       "We take turns blinking so one of us is always watching 👀",
-      "Closest stores are on top 📍",
+      "Tap 📋 to copy a store's ZIP for checkout",
       "Stretching our screens 🙆 still watching",
       "Two phones, one mission 🫡",
     ];
@@ -858,6 +862,20 @@
   }
 
   // ---------- per-store re-check (all stores are checked together; this kicks a fresh check) ----------
+  async function copyText(t) {
+    try { await navigator.clipboard.writeText(t); return true; } catch {}
+    try { const a = document.createElement("textarea"); a.value = t; a.setAttribute("readonly", ""); a.style.position = "fixed"; a.style.opacity = "0";
+          document.body.appendChild(a); a.select(); const ok = document.execCommand("copy"); a.remove(); return ok; } catch { return false; }
+  }
+  document.addEventListener("click", async (e) => {
+    const c = e.target.closest(".copyzip");
+    if (!c) return;
+    e.preventDefault();
+    const ok = await copyText(c.dataset.zip);
+    toast(ok ? `ZIP ${c.dataset.zip} copied ✓ paste it at pickup` : `ZIP ${c.dataset.zip}`);
+    c.classList.add("copied"); setTimeout(() => c.classList.remove("copied"), 1500);
+    try { navigator.vibrate && navigator.vibrate(10); } catch {}
+  });
   $("grid").addEventListener("click", (e) => {
     const b = e.target.closest(".rbtn");
     if (!b) return;
