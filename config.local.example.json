@@ -8,5 +8,7 @@
   "poll_seconds": 90,
   "heartbeat_seconds": 60,
   "nag_minutes": 2,
-  "nag_max": 15
+  "nag_max": 15,
+  "pc_sound": true,
+  "pc_voice": true
 }

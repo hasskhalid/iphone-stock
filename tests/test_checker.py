@@ -100,8 +100,8 @@ class AlertTests(unittest.TestCase):
         prev = {"models": cs.parse_response(SOLD_OUT, MODELS, 8)}
         now = cs.parse_response(RESTOCK, MODELS, 8)
         alerts = cs.build_alerts(cs.new_availability(prev, now), now)
-        self.assertEqual(alerts[0][0], "IN STOCK: Test Phone Black")
-        self.assertIn("Market Street (4.2 mi): Available Today", alerts[0][1])
+        self.assertEqual(alerts[0][0], "TEST PHONE BLACK @ Market Street")
+        self.assertIn("Market Street", alerts[0][1])
 
     def test_alert_clicks_through_to_model_url(self):
         models = [dict(MODELS[0], url="https://example.com/black"), MODELS[1]]
@@ -120,6 +120,22 @@ class ActionTests(unittest.TestCase):
     def test_default_click_opens_app(self):
         self.assertEqual(cs.load_settings({})["alert_click"], "product")
         self.assertEqual(cs.load_settings({"alert_click": "bag"})["alert_click"], "bag")
+
+
+class AlertFormatTests(unittest.TestCase):
+    def test_title_is_color_at_store_and_body_leads_with_zip(self):
+        models = [{"label": "iPhone Duo 256GB Night Sky", "color": "Night Sky", "part": "P1", "url": "u"}]
+        st = {"id": "R1", "name": "Grand Central", "zip": "10017", "city": "New York, NY", "available": True}
+        title, body, url = cs.build_alerts({"P1": [st]}, models)[0]
+        self.assertEqual(title, "NIGHT SKY @ Grand Central")
+        self.assertTrue(body.startswith("Grand Central · ZIP 10017"))
+        self.assertIn("type ZIP 10017", body)
+        self.assertNotIn(" mi", body)
+
+    def test_zip_parsed_from_apple_address(self):
+        st = store("R001", "Market Street", "Springfield", "4.2 mi", True, False)
+        st["address"] = {"address2": "1 Main St", "postalCode": "07078-1234"}
+        self.assertEqual(cs.parse_response(response(st), MODELS, 8)[0]["stores"][0]["zip"], "07078")
 
 
 class DispatchTests(unittest.TestCase):

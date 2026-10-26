@@ -82,9 +82,13 @@ class NagTests(unittest.TestCase):
         n.update(0, hot, True)
         self.assertIsNone(n.update(999, hot, False))
 
+    def test_spoken_text_reads_zip_digits(self):
+        t = lr.spoken_text([("NIGHT SKY @ Grand Central", "Grand Central · ZIP 10017\nBag → …", "u")])
+        self.assertEqual(t, "iPhone Duo in stock. Night Sky at Grand Central, zip 1 0 0 1 7.")
+
     def test_nag_message_links_to_color(self):
         title, msg, click = lr.nag_message(lr.in_stock_rows(status_with({"B2/A"})))
-        self.assertIn("Star White", title)
+        self.assertIn("STAR WHITE", title)
         self.assertEqual(click, "https://x/white")
         self.assertIn("Menlo Park", msg)
 

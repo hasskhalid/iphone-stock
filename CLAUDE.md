@@ -20,6 +20,14 @@ home-screen dashboard. Keep it free to run and dependency-light.
   nags skip Pushover). Config keys `telegram_bot_token/telegram_chat_id/pushover_token/pushover_user`
   or env/secrets `TELEGRAM_BOT_TOKEN/TELEGRAM_CHAT_ID/PUSHOVER_TOKEN/PUSHOVER_USER`. Measured: tracker
   to ntfy server ~5s; the lag was ntfy-on-iOS delivery, hence the extra channels.
+  Alert format: title `COLOR @ Store` (+N), body lines `Store · ZIP 12345` (zip from Apple's
+  address.postalCode, stored per store as `zip`) and `Bag → Check Out → pickup → type ZIP … → Apple Pay`.
+  The Apple Store app's pickup search is centered on the user's saved location, so the store ZIP
+  is what they type to find it. No distances in alerts.
+- PC alarm (`pc_alarm`, Windows): 3x two-tone winsound beeps, then System.Speech reads
+  "iPhone Duo in stock. Night Sky at Grand Central, zip 1 0 0 1 7" twice, in a background thread;
+  console prints a banner with the alert. `pc_sound` / `pc_voice` in config.local.json (default on).
+  `--test-alert` plays it too.
 - `local_runner.py` (+ `start-runner.bat`): PC runner on the owner's always-on Windows PC.
   Polls every `poll_seconds` (default 90, floor 45: faster got the home IP rate-limited by Apple with HTTP 541) via `check_stock.check_once`, exponential backoff on
   errors (max 900s; while erroring it publishes only the transition, not heartbeats, so the

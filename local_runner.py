@@ -188,10 +188,52 @@ class Nagger:
 
 
 def nag_message(rows: list[tuple[dict, dict]]) -> tuple[str, str, str]:
-    m0, _ = rows[0]
-    lines = [f"{s['name']} ({s.get('distance', '')}): {m.get('color') or m['label']}" for m, s in rows[:6]]
-    lines.append("Still available. Tap → app → Bag → this store → Apple Pay.")
-    return f"STILL IN STOCK: {m0.get('color') or m0['label']}", "\n".join(lines), m0.get("url") or cs.BUY_URL
+    m0, s0 = rows[0]
+    lines = [f"{cs.color_of(m).upper()} · {cs.store_line(s)}" for m, s in rows[:6]]
+    hint = f"ZIP {s0['zip']}" if s0.get("zip") else s0["name"]
+    lines.append(f"STILL THERE. Bag → Check Out → pickup → type {hint} → Apple Pay")
+    return f"STILL: {cs.color_of(m0).upper()} @ {s0['name']}", "\n".join(lines), m0.get("url") or cs.BUY_URL
+
+
+# --------------------------------------------------------------------------
+# PC alarm: loud beeps + spoken announcement (Windows), so you hear it at the desk
+# --------------------------------------------------------------------------
+
+def spoken_text(alerts_or_rows) -> str:
+    """'Night Sky at Grand Central, zip 1 0 0 1 7.' ZIP digits spaced so they're read one by one."""
+    parts = []
+    for title, message, _ in alerts_or_rows:
+        first = message.split("\n")[0]                  # 'Grand Central · ZIP 10017'
+        color = title.split(" @ ")[0].replace("STILL: ", "").title()
+        store, _, z = first.partition(" · ZIP ")
+        parts.append(f"{color} at {store}" + (f", zip {' '.join(z.strip())}" if z.strip() else ""))
+    return "iPhone Duo in stock. " + ". ".join(parts) + "."
+
+
+def pc_alarm(text: str, enabled_sound: bool = True, enabled_voice: bool = True) -> None:
+    """Fire-and-forget: beeps, then reads the alert aloud. Never blocks or crashes the runner."""
+    import threading
+
+    def run():
+        try:
+            if enabled_sound:
+                try:
+                    import winsound
+                    for _ in range(3):
+                        winsound.Beep(1400, 220); winsound.Beep(1000, 220)
+                except Exception:
+                    print("\a" * 3, end="", flush=True)        # terminal bell elsewhere
+            if enabled_voice and sys.platform == "win32":
+                import subprocess
+                safe = text.replace("'", "").replace('"', "")
+                ps = ("Add-Type -AssemblyName System.Speech; $s = New-Object System.Speech.Synthesis.SpeechSynthesizer; "
+                      f"$s.Rate = 0; $s.Volume = 100; $s.Speak('{safe}'); $s.Speak('{safe}')")
+                subprocess.run(["powershell", "-NoProfile", "-WindowStyle", "Hidden", "-Command", ps],
+                               timeout=40, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+        except Exception:
+            pass
+
+    threading.Thread(target=run, daemon=True).start()
 
 
 # --------------------------------------------------------------------------
@@ -259,6 +301,10 @@ def main(argv: list[str] | None = None) -> int:
                                  urgent=False, priority="high", tags="computer,white_check_mark")
         for e in errs:
             print("Channel error:", e)
+        print("Playing the PC alarm (beeps + voice)…")
+        pc_alarm(spoken_text([("NIGHT SKY @ Grand Central", "Grand Central · ZIP 10017", "")]).replace("in stock", "test alert"),
+                 bool(config.get("pc_sound", True)), bool(config.get("pc_voice", True)))
+        time.sleep(12)
         print("Test alert sent."); return 0
 
     publisher = None
@@ -303,8 +349,14 @@ def main(argv: list[str] | None = None) -> int:
             pc_hb = {"checked_at": status["checked_at"], "error": status.get("error"), "poll_seconds": poll, "warned": False}
             status["pc"] = pc_hb
 
-            for title, _, _ in alerts:
-                print(f"[{time.strftime('%H:%M:%S')}] >>> ALERT SENT: {title}")
+            for title, message, _ in alerts:
+                print("\n" + "!" * 64)
+                print(f"[{time.strftime('%H:%M:%S')}]  IN STOCK  >>>  {title}")
+                for line in message.split("\n"):
+                    print(f"            {line}")
+                print("!" * 64 + "\n")
+            if alerts:
+                pc_alarm(spoken_text(alerts), bool(config.get("pc_sound", True)), bool(config.get("pc_voice", True)))
             nag = nagger.update(t0, status, bool(alerts))
             if nag and (settings["topic"] or settings["telegram_token"]):
                 title, msg, click = nag_message(nag)
@@ -314,6 +366,8 @@ def main(argv: list[str] | None = None) -> int:
                     errs = cs.dispatch_alert({**settings, "pushover_token": ""}, title, msg, tap,
                                              actions=cs.alert_actions(click))
                     print(f"[{time.strftime('%H:%M:%S')}] >>> NAG SENT: {title}" + (f" (errors: {errs})" if errs else ""))
+                    pc_alarm(spoken_text([(title, msg, click)]).replace("in stock", "still in stock"),
+                             bool(config.get("pc_sound", True)), bool(config.get("pc_voice", True)))
                 except Exception as e:
                     print(f"[{time.strftime('%H:%M:%S')}] nag push failed: {e}")
 

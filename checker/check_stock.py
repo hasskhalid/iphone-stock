@@ -110,6 +110,7 @@ def store_details(store: dict) -> dict:
     query = urllib.parse.quote_plus(f"Apple {store.get('storeName', '')} {line}")
     return {
         "address": line,
+        "zip": postal.split("-")[0],
         "phone": store.get("phoneNumber") or "",
         "store_url": _https(store.get("reservationUrl") or store.get("directionsUrl")),
         "maps_url": f"https://www.google.com/maps/search/?api=1&query={query}",
@@ -297,17 +298,27 @@ def dispatch_alert(settings: dict, title: str, message: str, click: str, *, dry_
     return errors
 
 
+def color_of(m: dict) -> str:
+    return m.get("color") or m.get("label", "").replace("iPhone Duo 256GB", "").strip() or m.get("part", "")
+
+
+def store_line(s: dict) -> str:
+    """'Grand Central · ZIP 10017' (falls back to city when Apple gave no ZIP)."""
+    return f"{s['name']} · ZIP {s['zip']}" if s.get("zip") else f"{s['name']} · {s.get('city', '')}".rstrip(" ·")
+
+
 def build_alerts(fresh: dict[str, list[dict]], models: list[dict]) -> list[tuple[str, str, str]]:
+    """Short, glanceable alerts: COLOR @ STORE in the title, ZIP first in the body."""
     by_part = {m["part"]: m for m in models}
     alerts = []
     for part, stores in fresh.items():
         m = by_part.get(part, {})
-        title = f"IN STOCK: {m.get('label', part)}"
-        lines = []
-        for s in stores:
-            where = f"{s['name']}" + (f" ({s['distance']})" if s["distance"] else "")
-            lines.append(f"{where}: {s['quote'] or 'Available for pickup'}")
-        lines.append("Tap → Apple Store app → Bag → this store → Apple Pay.")
+        color, first = color_of(m).upper(), stores[0]
+        more = f" +{len(stores) - 1}" if len(stores) > 1 else ""
+        title = f"{color} @ {first['name']}{more}"
+        lines = [store_line(s) for s in stores]
+        zip_hint = f"ZIP {first['zip']}" if first.get("zip") else first["name"]
+        lines.append(f"Bag → Check Out → pickup → type {zip_hint} → Apple Pay")
         alerts.append((title, "\n".join(lines), m.get("url") or BUY_URL))
     return alerts
 
@@ -454,7 +465,7 @@ def main(argv: list[str] | None = None) -> int:
         if not settings["models"]:
             print("ERROR: no models configured", file=sys.stderr)
             return 1
-        fake_store = {"id": "DRILL", "name": "Drill Store (not real)", "distance": "0 mi",
+        fake_store = {"id": "DRILL", "name": "Drill Store (not real)", "distance": "0 mi", "zip": "00000",
                       "available": True, "quote": "Available Today"}
         model = settings["models"][0]
         for title, message, click in build_alerts({model["part"]: [fake_store]}, settings["models"]):
