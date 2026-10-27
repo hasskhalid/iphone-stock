@@ -1,9 +1,52 @@
 {
-  "note": "National iPhone Duo restock patterns used as a starting point for the forecast. Aggregate counts read off iPhone Stock Checker's public Patterns page (7 days to Oct 26 2026, US, Eastern time) as shared by the owner; not scraped. Local facts are things the owner saw on that site for watched stores.",
-  "source": "iphonestockchecker.com Patterns (US), shared Oct 26 2026",
-  "hour_counts_et": [27, 12, 3, 1, 2, 0, 1, 1, 82, 22, 71, 83, 61, 69, 26, 18, 10, 7, 7, 5, 9, 5, 10, 0],
-  "colour_counts_256gb": {"Night Sky": 131, "Star White": 109},
-  "external_local_restocks": [
-    {"t": "2026-10-27T00:59:00+00:00", "store": "Fifth Avenue", "color": "Night Sky", "via": "iPhone Stock Checker (missed by tracker)"}
-  ]
+ "note": "National iPhone Duo restock patterns used as a starting point for the forecast. Aggregate counts read off iPhone Stock Checker's public Patterns page (7 days to Oct 26 2026, US, Eastern time) as shared by the owner; not scraped. Local facts are things the owner saw on that site for watched stores.",
+ "hour_counts_et": [
+  21,
+  9,
+  2,
+  1,
+  2,
+  0,
+  1,
+  1,
+  65,
+  92,
+  269,
+  65,
+  48,
+  54,
+  21,
+  14,
+  8,
+  6,
+  6,
+  4,
+  7,
+  4,
+  8,
+  0
+ ],
+ "colour_counts_256gb": {
+  "Night Sky": 131,
+  "Star White": 109
+ },
+ "external_local_restocks": [
+  {
+   "t": "2026-10-27T00:59:00+00:00",
+   "store": "Fifth Avenue",
+   "color": "Night Sky",
+   "via": "iPhone Stock Checker (missed by tracker)"
+  }
+ ],
+ "hour_note": "Store-local hour profile: InStock Radar reports 51% of 707 US iPhone Duo restocks (Oct 24-26 2026) between 9:40 and 11:00 AM local time and 38% in 10-11 AM; the remaining 49% is spread like iPhone Stock Checker's 532-restock hour chart. NJ/NYC stores are on Eastern time, so local = ET for them.",
+ "sources": [
+  "iphonestockchecker.com Patterns (US), shared Oct 26 2026",
+  "InStock Radar US restock times, https://instockradar.com/us/restocks (free to quote with link)"
+ ],
+ "typical_minutes_in_stock": 2,
+ "daily_us_restocks": {
+  "2026-10-24": 28,
+  "2026-10-25": 305,
+  "2026-10-26": 374
+ }
 }
