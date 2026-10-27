@@ -1,17 +1,19 @@
 {
-  "updated_at": "2026-10-26T23:59:13+00:00",
+  "updated_at": "2026-10-27T11:50:53+00:00",
   "zone_weights": [
     6,
-    4,
+    5,
+    3,
     1
   ],
   "window_days": 7,
   "restocks": 8,
   "unseen_restocks": 0,
   "zones": {
-    "z0": 6.0,
-    "z1": 2.0,
-    "z2": 0.0
+    "z0": 3.5,
+    "z1": 3.0,
+    "z2": 1.5,
+    "z3": 0.0
   },
   "top_stores": [
     [
@@ -47,20 +49,30 @@
   "zip_suggestion": null,
   "yesterday": [
     {
-      "t": "2026-10-25T14:17:20+00:00",
-      "store": "Downtown Brooklyn",
+      "t": "2026-10-26T04:43:01+00:00",
+      "store": "Williamsburg",
+      "color": "Star White"
+    },
+    {
+      "t": "2026-10-26T06:37:33+00:00",
+      "store": "Grand Central",
+      "color": "Star White"
+    },
+    {
+      "t": "2026-10-26T14:45:51+00:00",
+      "store": "American Dream",
+      "color": "Star White"
+    },
+    {
+      "t": "2026-10-26T18:02:16+00:00",
+      "store": "American Dream",
       "color": "Night Sky"
     },
     {
-      "t": "2026-10-25T14:45:15+00:00",
-      "store": "Short Hills",
-      "color": "Night Sky"
-    },
-    {
-      "t": "2026-10-25T20:09:57+00:00",
-      "store": "Downtown Brooklyn",
+      "t": "2026-10-26T18:11:39+00:00",
+      "store": "American Dream",
       "color": "Night Sky"
     }
   ],
-  "summary": "8 restocks in the last 7 days; busiest: American Dream (3), Downtown Brooklyn (2), Short Hills (1); peak hours 10am, 2pm, 4pm. Yesterday: 3 restock(s). Checking split: home area 55%, North Jersey area 36%, South Jersey area 9%"
+  "summary": "8 restocks in the last 7 days; busiest: American Dream (3), Downtown Brooklyn (2), Short Hills (1); peak hours 10am, 2pm, 4pm. Yesterday: 5 restock(s). Checking split: home area 40%, American Dream area 33%, Rockaway area 20%, Cherry Hill area 7%"
 }
