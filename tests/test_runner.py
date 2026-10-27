@@ -4,6 +4,7 @@ import json
 import os
 import sys
 import tempfile
+import time
 import unittest
 from datetime import datetime, timedelta, timezone
 
@@ -187,6 +188,17 @@ class HandoffTests(unittest.TestCase):
         self.assertEqual(lr.Pace(75, {"pace": p.to_state()}).poll, 75)   # setting changed: start fresh
         self.assertEqual(lr.Pace(90, {"poll_seconds": 120}).poll, 90)    # old state file ignored
         self.assertEqual(lr.Pace(10).rungs[0], lr.MIN_POLL)
+
+    def test_pick_poll_rush_and_steady(self):
+        at = lambda h, m: time.struct_time((2026, 10, 27, h, m, 0, 1, 300, 1))
+        self.assertEqual(lr.pick_poll(60, at(9, 15)), lr.PEAK_POLL)      # morning rush
+        self.assertEqual(lr.pick_poll(45, at(14, 0)), lr.STEADY_POLL)    # never faster than 75 off-peak
+        self.assertEqual(lr.pick_poll(60, at(10, 30)), lr.STEADY_POLL)   # rush ends at 10:30
+        self.assertEqual(lr.pick_poll(60, at(9, 15), peak_ok=False), lr.STEADY_POLL)  # blocked in the rush today
+        self.assertEqual(lr.pick_poll(90, at(9, 15)), 90)                 # still slowed after a block
+
+    def test_block_waits_long_once_then_probes_lightly(self):
+        self.assertEqual([lr.block_wait(n) for n in (1, 2, 3, 4)], [900, 300, 300, 300])
 
     def test_github_runs_after_its_own_check(self):
         fresh = datetime.now(timezone.utc).isoformat(timespec="seconds")

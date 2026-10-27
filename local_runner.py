@@ -44,7 +44,15 @@ import check_stock as cs  # noqa: E402
 
 DEFAULTS = {"poll_seconds": 90, "heartbeat_seconds": 60, "nag_minutes": 2, "nag_max": 15}
 MIN_POLL = 45          # faster than this gets your connection rate-limited by Apple (HTTP 541)
-MAX_BACKOFF = 900      # when Apple pushes back, wait up to 15 min between tries
+MAX_BACKOFF = 900      # non-Apple errors (network etc.): wait up to 15 min between tries
+# Measured Oct 27: 75s ran all day with no blocks; 60s got blocked after 2h49m and again after 2h42m;
+# blocks lasted 17-32 min. So: 75s normally, 60s only in the morning rush (2h, under the ~2h45m
+# limit), and on a block wait 15 min before the first retry, then retry every 5 min.
+STEADY_POLL = 75
+PEAK_POLL = 60
+PEAK_WINDOW = ((8, 30), (10, 30))     # local (Eastern) time on the PC; most restocks land 9-11 AM
+BLOCK_FIRST_WAIT = 900
+BLOCK_PROBE = 300
 MAX_ADAPTIVE_POLL = 120
 PACE_LADDER = (45, 60, 75, 90, 120)   # seconds between checks
 START_PACE = 60                       # start here; owner prefers 60/45 (a block steps back to 75)
@@ -265,6 +273,22 @@ class Pace:
         return {"v": PACE_VERSION, "rungs": self.rungs, "idx": self.idx, "cooldown": self.cooldown, "clean": round(self.clean)}
 
 
+def pick_poll(ladder_poll: int, now: time.struct_time, peak_ok: bool = True) -> int:
+    """Seconds until the next check: 75s normally, 60s in the morning rush, slower after blocks."""
+    if ladder_poll > STEADY_POLL:                  # still paying for a recent block
+        return ladder_poll
+    (h1, m1), (h2, m2) = PEAK_WINDOW
+    minutes = now.tm_hour * 60 + now.tm_min
+    if peak_ok and h1 * 60 + m1 <= minutes < h2 * 60 + m2:
+        return PEAK_POLL
+    return STEADY_POLL
+
+
+def block_wait(errors_in_row: int) -> int:
+    """Apple 541 block: one long wait, then light probes (fewer requests while blocked)."""
+    return BLOCK_FIRST_WAIT if errors_in_row <= 1 else BLOCK_PROBE
+
+
 def spoken_text(alerts_or_rows) -> str:
     """'Night Sky at Grand Central, zip 1 0 0 1 7.' ZIP digits spaced so they're read one by one."""
     parts = []
@@ -355,7 +379,8 @@ def main(argv: list[str] | None = None) -> int:
     # Remember the pace and any active Apple block across restarts.
     state = cs.load_json("runner_state.json", {})
     pace = Pace(int(config["poll_seconds"]), state)
-    poll = pace.poll
+    poll = pick_poll(pace.poll, time.localtime())
+    no_peak_day = None                 # date (YYYY-MM-DD) on which a block during the rush disabled the 60s boost
     blocked_until = float(state.get("blocked_until") or 0)
     heartbeat = max(30, int(config["heartbeat_seconds"]))
 
@@ -423,6 +448,7 @@ def main(argv: list[str] | None = None) -> int:
                 settings, prev, history, source="pc",
                 log=lambda m: print(f"[{time.strftime('%H:%M:%S')}] !!! {m}") if m.startswith("WARN") else None)
             checks += 1
+            poll = pick_poll(pace.poll, time.localtime(), peak_ok=no_peak_day != time.strftime("%Y-%m-%d"))
             status["poll_seconds"] = poll
             status["runner"] = {"started_at": started, "checks": checks}
             pc_hb = {"checked_at": status["checked_at"], "error": status.get("error"), "poll_seconds": poll, "warned": False}
@@ -498,24 +524,30 @@ def main(argv: list[str] | None = None) -> int:
             if not status.get("error"):
                 prev = status
                 errors_in_row = 0
-                if pace.ok(poll):
-                    poll = pace.poll
-                    print(f"           {pace.cooldown // 60} min with no Apple blocks; speeding up to every {poll}s")
+                if pace.ok(poll) and pace.poll > STEADY_POLL:
+                    print(f"           {pace.cooldown // 60} min with no Apple blocks; easing back to every {max(pace.poll, STEADY_POLL)}s")
             else:
                 errors_in_row += 1
                 # Start of an Apple rate-limit episode: one step slower from now on.
                 if errors_in_row == 1 and "541" in (status.get("error") or ""):
+                    if poll == PEAK_POLL:
+                        no_peak_day = time.strftime("%Y-%m-%d")
                     pace.blocked()
-                    poll = pace.poll
+                    poll = max(pace.poll, STEADY_POLL)
                     status["poll_seconds"] = poll
-                    print(f"           Apple rate limit hit; checking every {poll}s once it clears "
-                          f"(next speed-up try in {pace.cooldown // 60} min)")
+                    print(f"           Apple rate limit hit; checking every {poll}s once it clears"
+                          + (" (no 60s rush boost for the rest of today)" if no_peak_day == time.strftime("%Y-%m-%d") else ""))
             save_json("prev_status.json", prev if prev else status)
             save_json("history.local.json", history)
 
             if args.once:
                 return 0
-            wait = poll if not errors_in_row else min(MAX_BACKOFF, poll * 2 ** errors_in_row)
+            if not errors_in_row:
+                wait = poll
+            elif "541" in (status.get("error") or ""):
+                wait = block_wait(errors_in_row)
+            else:
+                wait = min(MAX_BACKOFF, poll * 2 ** errors_in_row)
             try:
                 save_json("runner_state.json", {"pace": pace.to_state(),
                                                 "blocked_until": (time.time() + wait) if errors_in_row else 0})
