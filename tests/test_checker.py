@@ -200,6 +200,23 @@ class AreaTests(unittest.TestCase):
             self.assertNotIn("33333", json.dumps(st))
 
 
+class RestartTests(unittest.TestCase):
+    def test_home_is_checked_first_when_its_data_is_missing(self):
+        settings = {"models": MODELS, "zip": "11111", "extra_zips": ["22222", "33333"], "max_stores": 12,
+                    "radius": 25, "keep_states": [], "topic": "", "server": "s"}
+        calls, orig = [], cs.fetch_apple
+        cs.fetch_apple = lambda parts, z: (calls.append(z), SOLD_OUT)[1]
+        try:
+            # previous run stopped long ago, pointer sat on the far zone
+            old = {"next_zone": 7, "zones": {"z2": {"checked_at": "2020-01-01T00:00:00+00:00", "models": []}}}
+            st, _, _ = cs.check_once(settings, old, {"events": []}, log=lambda m: None)
+            st, _, _ = cs.check_once(settings, st, {"events": []}, log=lambda m: None)
+        finally:
+            cs.fetch_apple = orig
+        self.assertEqual(calls[0], "11111")          # home first
+        self.assertEqual(calls[1], "33333")          # then the schedule carries on where it was
+
+
 class RushTests(unittest.TestCase):
     """A restock in one zone (American Dream) sends the next check to the other zones
     (where Garden State Plaza also restocked) instead of waiting for their usual turn."""

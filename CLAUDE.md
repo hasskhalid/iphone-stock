@@ -123,7 +123,7 @@ home-screen dashboard. Keep it free to run and dependency-light.
   = American Dream's store ZIP, whose 12 nearest include the NYC stores (Fifth Ave, Grand Central,
   SoHo, WTC, W 14th, Williamsburg, Brooklyn), so those sit in BOTH frequent searches (a Fifth Ave
   restock was missed when it was only the 12th store of the home search); then Rockaway area
-  (Rockaway, Tice's Corner) and South Jersey. Planner names areas by each zone's nearest store. Rows carry `state`.
+  (Rockaway, Tice's Corner) and South Jersey. Planner names areas by each zone's nearest store. Rows carry `state`. If the home zone (z0) isn't cached and fresh (restart after >30 min, first run), the next check always searches home first, so distances/sorting never come from another area.
   Apple's `storedistance` is from the SEARCHED zip, so merge_zones keeps z0 (home) distances and
   recomputes other stores' miles from home: `estimate_home()` trilaterates the home point from z0
   stores' `lat`/`lng` (storelatitude/storelongitude) + miles, then `haversine_miles()`.

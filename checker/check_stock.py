@@ -544,7 +544,13 @@ def check_once(settings: dict, prev: dict, history: dict, *, source: str = "cli"
         pos = int(prev.get("next_zone", 0) or 0) % len(order)
         # After a restock anywhere, check the other zones right away (restocks land in waves).
         rush = [z for z in (prev.get("rush_zones") or []) if isinstance(z, int) and 0 <= z < len(zips)]
-        idx = rush.pop(0) if rush else order[pos]
+        # Home must be loaded first (after a restart or long pause): every store's distance is
+        # measured from it, and without it the list would sort and filter by another area's distances.
+        home_fresh = (prev.get("zones") or {}).get("z0")
+        if len(zips) > 1 and not (home_fresh and (seconds_since(home_fresh.get("checked_at")) or 0) < ZONE_MAX_AGE):
+            idx = 0
+        else:
+            idx = rush.pop(0) if rush else order[pos]
         data = load_json(fixture, None) if fixture else fetch_apple([m["part"] for m in models], zips[idx])
         if data is None:
             raise RuntimeError(f"Could not read fixture {fixture}")
