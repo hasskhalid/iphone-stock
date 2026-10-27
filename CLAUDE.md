@@ -109,8 +109,11 @@ home-screen dashboard. Keep it free to run and dependency-light.
   smooth weighted round robin; wrong-length/invalid weights fall back to the default. The backup
   reads docs/plan.json from its checkout; the PC runner re-reads it from GitHub main every hour. Extra zones are not
   cut by radius; `filter_area()` keeps stores within `radius_miles` of home plus every store in
-  `keep_states` (config: ["NJ"], i.e. all 12 NJ Apple Stores; owner's extra zips cover North and
-  South Jersey). Rows carry `state`.
+  `keep_states` (config: ["NJ"], i.e. all 12 NJ Apple Stores). Owner's extra zips (Oct 26): first
+  = American Dream's store ZIP, whose 12 nearest include the NYC stores (Fifth Ave, Grand Central,
+  SoHo, WTC, W 14th, Williamsburg, Brooklyn), so those sit in BOTH frequent searches (a Fifth Ave
+  restock was missed when it was only the 12th store of the home search); then Rockaway area
+  (Rockaway, Tice's Corner) and South Jersey. Planner names areas by each zone's nearest store. Rows carry `state`.
   Apple's `storedistance` is from the SEARCHED zip, so merge_zones keeps z0 (home) distances and
   recomputes other stores' miles from home: `estimate_home()` trilaterates the home point from z0
   stores' `lat`/`lng` (storelatitude/storelongitude) + miles, then `haversine_miles()`.

@@ -119,8 +119,20 @@ def suggest_extra_zips(status: dict, recent: list, history_days: float, keep_sta
     }
 
 
-def split_text(weights: list[int]) -> str:
-    names = ["home area", "North Jersey area", "South Jersey area"] + [f"area {i}" for i in range(3, 10)]
+def zone_names(status: dict) -> list[str]:
+    """Human name per zone: 'home area', then '<closest store> area' (zone rows keep Apple's
+    distance from the searched ZIP, so the nearest store marks where that search is centered)."""
+    zones = status.get("zones") or {}
+    names = []
+    for i in range(len(zones)):
+        rows = [st for m in (zones.get(f"z{i}") or {}).get("models", []) for st in m.get("stores", [])]
+        near = min(rows, key=lambda r: r.get("miles") if r.get("miles") is not None else 999, default=None)
+        names.append("home area" if i == 0 else f"{near['name']} area" if near and near.get('name') else f"area {i}")
+    return names
+
+
+def split_text(weights: list[int], names: list[str] | None = None) -> str:
+    names = (names or []) + [f"area {i}" for i in range(len(names or []), len(weights))]
     total = sum(weights)
     return ", ".join(f"{names[i]} {w / total:.0%}" for i, w in enumerate(weights))
 
@@ -164,7 +176,7 @@ def plan(status: dict, history: dict, now: datetime | None = None) -> dict:
                + (f"; busiest: {', '.join(f'{n} ({c})' for n, c in stores.most_common(3))}" if stores else "")
                + (f"; peak hours {', '.join(peak)}" if peak else "")
                + (f". Yesterday: {len(y_events)} restock(s)" if y_events else ". Yesterday: none seen")
-               + (f". Checking split: {split_text(weights)}" if weights else ". Not enough data yet: default schedule"))
+               + (f". Checking split: {split_text(weights, zone_names(status))}" if weights else ". Not enough data yet: default schedule"))
     return {
         "updated_at": now.isoformat(timespec="seconds"),
         "zone_weights": weights,
