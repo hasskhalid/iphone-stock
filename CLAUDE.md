@@ -79,6 +79,16 @@ home-screen dashboard. Keep it free to run and dependency-light.
   ({updated_at, summary, items:[{title, summary, source, url, date}]}), refreshed daily at 7:47 AM ET
   by a scheduled Claude task (paraphrased summaries with links, never copied text) and links out to other trackers (Manzana, Apple Inventory Check, iPhone Stock
   Checker); their data is not scraped or imported.
+- Forecast: `tools/forecast.py` (stdlib) = smoothed probability model, not ML: hour-of-day profile
+  (national counts in `docs/priors.json`, read off iPhone Stock Checker's Patterns page as shared by
+  the owner, never scraped; blended with local restocks), store weights (local restocks, 3-day
+  half-life, small even prior), colour share (national 256GB split + local), daily rate; flapping
+  in/out within 15 min counts once. Rolling back-test predicts each past restock from earlier ones
+  only and publishes hit rates (top-3 store, colour, 6h window). LightGBM/regression rejected: ~10
+  local events. Runner recomputes on each new history event and hourly; backup runs it each check;
+  both publish `forecast.json` on the status branch (must be included in every orphan commit or it
+  disappears). Dashboard banner shows "🔮 Next likely" + live next-hour odds + measured accuracy
+  ("still learning" under 20 tests); never claim accuracy the back-test hasn't shown.
 - Checkout automation was tried and removed (Oct 2026): Apple's sign-in stalls after 2FA and
   Add to Bag returns "page not found" in script-driven browsers. Don't re-add it or work around
   Apple's bot checks; the buying path is alert → Apple Store app → Apple Pay.

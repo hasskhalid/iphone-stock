@@ -54,17 +54,24 @@ jobs:
           --prev prev_status.json --out status.json
           --history-in prev_history.json --history-out history.json
 
+      - name: Forecast the next restock
+        if: hashFiles('status.json') != ''
+        continue-on-error: true
+        run: python tools/forecast.py --status status.json --history history.json --priors docs/priors.json --out forecast.json
+
       - name: Publish status to the status branch
         if: hashFiles('status.json') != ''
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           mkdir -p publish && cp status.json history.json publish/
+          [ -f forecast.json ] && cp forecast.json publish/ || true
           cd publish
           git init -q -b status
           git config user.name "stock-bot"
           git config user.email "stock-bot@users.noreply.github.com"
           git add status.json history.json
+          [ -f forecast.json ] && git add forecast.json || true
           git commit -qm "status $(date -u +%Y-%m-%dT%H:%M:%SZ)"
           # Retry: the PC runner may update the same branch at the same moment.
           for i in 1 2 3 4; do

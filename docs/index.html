@@ -151,6 +151,7 @@
   .banner { border-radius: var(--r); padding: 14px 16px; margin-bottom: 12px; display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
   .banner b { display: block; font-size: 15px; margin-bottom: 2px; }
   .banner small { color: var(--muted); font-size: 13px; }
+  .fc-acc { color: var(--faint); font-size: 12px; }
   .banner.calm { background: var(--panel); border: 1px solid var(--line); }
   .banner.hot { background: var(--ok-soft); border: 1px solid var(--ok); animation: breathe 1.6s ease-in-out infinite; }
   .banner.err { background: rgba(255,138,154,.08); border: 1px solid rgba(255,138,154,.4); }
@@ -451,6 +452,7 @@
   async function fetchData() {
     if (!REPO) {
       const t = "?t=" + Date.now();
+      FORECAST = await fetchJSON(LOCAL_BASE + "forecast.json" + t, null);
       return { status: await fetchJSON(LOCAL_BASE + "status.json" + t),
                history: await fetchJSON(LOCAL_BASE + "history.json" + t, { events: [] }), changed: true };
     }
@@ -458,9 +460,11 @@
     if (sha && sha === lastSha && STATUS) return { status: STATUS, history: HISTORY, changed: false };
     const root = `https://raw.githubusercontent.com/${REPO}/${sha || "status"}/`;
     const bust = sha ? "" : "?t=" + Date.now();
-    const [status, history] = await Promise.all([
+    const [status, history, fcast] = await Promise.all([
       fetchJSON(root + "status.json" + bust), fetchJSON(root + "history.json" + bust, { events: [] }),
+      fetchJSON(root + "forecast.json" + bust, null),
     ]);
+    if (fcast) FORECAST = fcast;
     const changed = !STATUS || status.checked_at !== STATUS.checked_at;
     if (sha) lastSha = sha;
     return { status, history, changed };
@@ -482,7 +486,7 @@
   const store = { get(k) { try { return localStorage.getItem(k); } catch { return null; } },
                   set(k, v) { try { localStorage.setItem(k, v); } catch {} } };
 
-  let STATUS = null, HISTORY = { events: [] };
+  let STATUS = null, HISTORY = { events: [] }, FORECAST = null;
 
   // ---------- derived ----------
   const DEMO = QS.get("demo") === "1";
@@ -532,7 +536,11 @@
     } else {
       const r = restocks(), last = r[r.length - 1];
       const usual = typicalHour(last ? r.filter((e) => e.store_id === last.store_id) : []);
-      const detail = last
+      const lastLine = last ? `Last: ${esc(last.store)} ${esc(when(last.t))} (${esc(last.color || last.label)})` : "No restocks seen yet";
+      const f = forecastNow();
+      const detail = f
+        ? `<b>🔮 Next likely: ${esc(f.when)}</b><small>Watch ${esc(f.stores)} · ${esc(f.colour)}<br>${esc(f.odds)} · ${lastLine}<br><span class="fc-acc">${esc(f.accuracy)}</span></small>`
+        : last
         ? `<b>🌙 ${esc(last.store)} last restocked ${esc(when(last.t))}</b><small>${esc(last.color || last.label)}${usual !== null ? ` · usually around ${hourLabel(usual)}` : ""} · you'll get a push the second it's back</small>`
         : `<b>🌙 Nothing nearby yet… we're on it</b><small>The second a Duo lands at one of these stores, your phone rings.</small>`;
       html += `<div class="banner calm"><div>${detail}</div>
@@ -567,6 +575,26 @@
   function weekCount(storeId) {
     const since = Date.now() - 7 * 864e5;
     return restocks().filter((e) => e.store_id === storeId && new Date(e.t) >= since).length;
+  }
+  // Forecast (tools/forecast.py, published with the status data): turn its hour profile and
+  // daily rate into live odds from *now*, plus its back-tested accuracy so it never oversells.
+  function forecastNow() {
+    const F = FORECAST;
+    if (!F || !Array.isArray(F.hours_et) || F.hours_et.length !== 24) return null;
+    const etHour = (d) => Number(new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour: "numeric", hourCycle: "h23" }).format(d));
+    const now = new Date(), h0 = etHour(now), rate = F.rate_per_day || 1;
+    const nextHour = 1 - Math.exp(-rate * F.hours_et[h0] * (1 - now.getMinutes() / 60));
+    const w = F.window || {}, inWin = ((h0 - w.start_et + 24) % 24) < 6;
+    const lbl = (h) => (h % 12 || 12) + (h < 12 ? " AM" : " PM");
+    const winText = `${lbl(w.start_et)}–${lbl(w.end_et)}`;
+    const whenTxt = inWin ? `now (busy window ${winText})` : `${winText} ${h0 < w.start_et ? "today" : "tomorrow"}`;
+    const top = (F.stores || []).slice(0, 3).map((x) => x.name).join(", ");
+    const c = F.colours || {}, cName = Object.keys(c).sort((a, b) => c[b] - c[a])[0];
+    const b = F.backtest || {};
+    const acc = b.n >= 3 ? `Tested on ${b.n} past restocks: right store in top 3 ${b.hits.top3_store}/${b.n}, right time ${b.hits.time_window}/${b.n}${b.n < 20 ? " · still learning" : ""}`
+                         : "Forecast still learning (needs more restocks)";
+    return { when: whenTxt, stores: top, colour: cName ? `${cName} ${Math.round(c[cName] * 100)}%` : "",
+             odds: `Next hour: ${nextHour < 0.01 ? "<1" : Math.round(nextHour * 100)}%`, accuracy: acc };
   }
   function lastRestock(storeId) {
     const ev = restocks().filter((e) => e.store_id === storeId);

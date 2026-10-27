@@ -1,0 +1,9 @@
+{
+  "note": "National iPhone Duo restock patterns used as a starting point for the forecast. Aggregate counts read off iPhone Stock Checker's public Patterns page (7 days to Oct 26 2026, US, Eastern time) as shared by the owner; not scraped. Local facts are things the owner saw on that site for watched stores.",
+  "source": "iphonestockchecker.com Patterns (US), shared Oct 26 2026",
+  "hour_counts_et": [27, 12, 3, 1, 2, 0, 1, 1, 82, 22, 71, 83, 61, 69, 26, 18, 10, 7, 7, 5, 9, 5, 10, 0],
+  "colour_counts_256gb": {"Night Sky": 131, "Star White": 109},
+  "external_local_restocks": [
+    {"t": "2026-10-27T00:59:00+00:00", "store": "Fifth Avenue", "color": "Night Sky", "via": "iPhone Stock Checker (missed by tracker)"}
+  ]
+}

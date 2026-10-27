@@ -39,6 +39,7 @@ from datetime import datetime, timezone
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "checker"))
+sys.path.insert(0, os.path.join(HERE, "tools"))
 import check_stock as cs  # noqa: E402
 
 DEFAULTS = {"poll_seconds": 90, "heartbeat_seconds": 60, "nag_minutes": 2, "nag_max": 15}
@@ -403,6 +404,7 @@ def main(argv: list[str] | None = None) -> int:
         print("(the GitHub backup keeps checking meanwhile; restarting won't make this faster)")
         time.sleep(wait0)
     plan_checked = time.time()
+    fc_json, fc_events, fc_at = None, -1, 0.0
     try:
         while True:
             t0 = time.time()
@@ -448,6 +450,15 @@ def main(argv: list[str] | None = None) -> int:
                 except Exception as e:
                     print(f"[{time.strftime('%H:%M:%S')}] nag push failed: {e}")
 
+            # Forecast: recompute when a restock is logged, or hourly (time-of-day odds shift).
+            n_ev = len(history.get("events") or [])
+            if n_ev != fc_events or t0 - fc_at > 3600:
+                try:
+                    import forecast as fc
+                    fc_json = json.dumps(fc.forecast(status, history, cs.load_json(os.path.join(HERE, "docs", "priors.json"), {})), indent=1)
+                    fc_events, fc_at = n_ev, t0
+                except Exception as e:  # the forecast must never stop the tracker
+                    print(f"           (forecast skipped: {e})")
             sig = availability_signature(status)
             changed = sig != last_sig
             note = ""
@@ -456,10 +467,10 @@ def main(argv: list[str] | None = None) -> int:
             due = t0 - last_publish >= heartbeat and not status.get("error")
             if publisher and (changed or due):
                 try:
-                    publisher.publish(
-                        {"status.json": json.dumps(status, indent=1), "history.json": json.dumps(history, indent=1)},
-                        f"status {status['checked_at']}",
-                    )
+                    files = {"status.json": json.dumps(status, indent=1), "history.json": json.dumps(history, indent=1)}
+                    if fc_json:
+                        files["forecast.json"] = fc_json
+                    publisher.publish(files, f"status {status['checked_at']}")
                     last_publish, last_sig = t0, sig
                     note = "  ↑ published"
                 except Exception as e:
@@ -471,9 +482,11 @@ def main(argv: list[str] | None = None) -> int:
                     merged = merge_pc_heartbeat(remote, pc_hb)
                     if merged:
                         remote_hist = publisher.get_json("history.json") or history
-                        publisher.publish({"status.json": json.dumps(merged, indent=1),
-                                           "history.json": json.dumps(remote_hist, indent=1)},
-                                          f"pc heartbeat {status['checked_at']}")
+                        files = {"status.json": json.dumps(merged, indent=1), "history.json": json.dumps(remote_hist, indent=1)}
+                        remote_fc = publisher.get_json("forecast.json")
+                        if remote_fc:
+                            files["forecast.json"] = json.dumps(remote_fc, indent=1)
+                        publisher.publish(files, f"pc heartbeat {status['checked_at']}")
                         note = "  ↑ heartbeat (backup's data kept)"
                     last_publish = t0
                 except Exception as e:
