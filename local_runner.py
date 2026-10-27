@@ -290,6 +290,11 @@ def pick_poll(now: time.struct_time, no_peak_day: str | None = None, slow_day: s
     return STEADY_POLL
 
 
+def flip_poll(n: int) -> int:
+    """60/75 flip experiment: alternate every check (average ~67s)."""
+    return PEAK_POLL if n % 2 == 0 else STEADY_POLL
+
+
 def block_wait(errors_in_row: int) -> int:
     """Apple 541 block: one long wait, then light probes (fewer requests while blocked)."""
     return BLOCK_FIRST_WAIT if errors_in_row <= 1 else BLOCK_PROBE
@@ -387,6 +392,10 @@ def main(argv: list[str] | None = None) -> int:
     pace = Pace(int(config["poll_seconds"]), state)
     # Days on which Apple blocked us (saved, so a restart doesn't forget and get blocked again).
     no_peak_day, slow_day = state.get("no_peak_day"), state.get("slow_day")
+    # pace_mode "flip" (config.json, an experiment): alternate 60s/75s all day; a block ends the flip
+    # for that day (75s after). Its start/block times are published so the result can be reviewed.
+    pace_mode = str(config.get("pace_mode") or "windows")
+    flip = dict(state.get("flip") or {})
     poll = pick_poll(time.localtime(), no_peak_day, slow_day)
     blocked_until = float(state.get("blocked_until") or 0)
     heartbeat = max(30, int(config["heartbeat_seconds"]))
@@ -456,8 +465,18 @@ def main(argv: list[str] | None = None) -> int:
                 log=lambda m: print(f"[{time.strftime('%H:%M:%S')}] !!! {m}") if m.startswith("WARN") else None)
             checks += 1
             poll = pick_poll(time.localtime(), no_peak_day, slow_day)
+            if pace_mode == "flip":
+                today = time.strftime("%Y-%m-%d")
+                if flip.get("day") != today:
+                    flip = {"day": today, "started_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                            "blocked_at": None, "checks": 0}
+                if not flip.get("blocked_at") and slow_day != today:
+                    poll = flip_poll(flip["checks"])
+                    flip["checks"] += 1
             status["poll_seconds"] = poll
-            status["runner"] = {"started_at": started, "checks": checks}
+            status["runner"] = {"started_at": started, "checks": checks, "mode": pace_mode}
+            if pace_mode == "flip":
+                status["runner"]["flip"] = flip
             pc_hb = {"checked_at": status["checked_at"], "error": status.get("error"), "poll_seconds": poll, "warned": False}
             status["pc"] = pc_hb
 
@@ -536,7 +555,11 @@ def main(argv: list[str] | None = None) -> int:
                 # Start of an Apple rate-limit episode: one step slower from now on.
                 if errors_in_row == 1 and "541" in (status.get("error") or ""):
                     today = time.strftime("%Y-%m-%d")
-                    if poll >= STEADY_POLL:
+                    if pace_mode == "flip" and flip.get("day") == today and not flip.get("blocked_at"):
+                        flip["blocked_at"] = datetime.now(timezone.utc).isoformat(timespec="seconds")
+                        mins = (datetime.now(timezone.utc) - datetime.fromisoformat(flip["started_at"])).total_seconds() / 60
+                        print(f"           60/75 flip test: blocked after {mins:.0f} min ({flip['checks']} checks); 75s for the rest of today")
+                    elif poll >= STEADY_POLL:
                         slow_day = today            # even 75s was too fast today
                     no_peak_day = today
                     poll = pick_poll(time.localtime(), no_peak_day, slow_day)
@@ -554,7 +577,7 @@ def main(argv: list[str] | None = None) -> int:
             else:
                 wait = min(MAX_BACKOFF, poll * 2 ** errors_in_row)
             try:
-                save_json("runner_state.json", {"pace": pace.to_state(), "no_peak_day": no_peak_day, "slow_day": slow_day,
+                save_json("runner_state.json", {"pace": pace.to_state(), "no_peak_day": no_peak_day, "slow_day": slow_day, "flip": flip,
                                                 "blocked_until": (time.time() + wait) if errors_in_row else 0})
             except OSError:
                 pass

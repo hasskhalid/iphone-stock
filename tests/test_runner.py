@@ -203,6 +203,9 @@ class HandoffTests(unittest.TestCase):
         self.assertEqual(lr.pick_poll(at(27, 9), "2026-10-27", slow_day="2026-10-27"), lr.SLOW_POLL)
         self.assertEqual(lr.pick_poll(at(28, 9), "2026-10-27", "2026-10-27"), lr.PEAK_POLL)  # next day: fresh
 
+    def test_flip_alternates_60_and_75(self):
+        self.assertEqual([lr.flip_poll(n) for n in range(4)], [60, 75, 60, 75])
+
     def test_block_waits_long_once_then_probes_lightly(self):
         self.assertEqual([lr.block_wait(n) for n in (1, 2, 3, 4)], [900, 300, 300, 300])
 
