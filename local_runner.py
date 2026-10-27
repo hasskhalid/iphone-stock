@@ -50,7 +50,9 @@ MAX_BACKOFF = 900      # non-Apple errors (network etc.): wait up to 15 min betw
 # limit), and on a block wait 15 min before the first retry, then retry every 5 min.
 STEADY_POLL = 75
 PEAK_POLL = 60
-PEAK_WINDOW = ((8, 30), (10, 30))     # local (Eastern) time on the PC; most restocks land 9-11 AM
+# 60s windows, local (Eastern) time on the PC: the morning rush and the early-afternoon wave
+# (Oct 27 restocks: 8:50-9:52 and 1:19-1:51 PM), each 2h (under the ~2h45m limit) with 2h at 75s between.
+PEAK_WINDOWS = (((8, 30), (10, 30)), ((12, 30), (14, 30)))
 BLOCK_FIRST_WAIT = 900
 BLOCK_PROBE = 300
 MAX_ADAPTIVE_POLL = 120
@@ -277,9 +279,8 @@ def pick_poll(ladder_poll: int, now: time.struct_time, peak_ok: bool = True) -> 
     """Seconds until the next check: 75s normally, 60s in the morning rush, slower after blocks."""
     if ladder_poll > STEADY_POLL:                  # still paying for a recent block
         return ladder_poll
-    (h1, m1), (h2, m2) = PEAK_WINDOW
     minutes = now.tm_hour * 60 + now.tm_min
-    if peak_ok and h1 * 60 + m1 <= minutes < h2 * 60 + m2:
+    if peak_ok and any(h1 * 60 + m1 <= minutes < h2 * 60 + m2 for (h1, m1), (h2, m2) in PEAK_WINDOWS):
         return PEAK_POLL
     return STEADY_POLL
 

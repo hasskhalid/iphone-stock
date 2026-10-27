@@ -192,7 +192,9 @@ class HandoffTests(unittest.TestCase):
     def test_pick_poll_rush_and_steady(self):
         at = lambda h, m: time.struct_time((2026, 10, 27, h, m, 0, 1, 300, 1))
         self.assertEqual(lr.pick_poll(60, at(9, 15)), lr.PEAK_POLL)      # morning rush
-        self.assertEqual(lr.pick_poll(45, at(14, 0)), lr.STEADY_POLL)    # never faster than 75 off-peak
+        self.assertEqual(lr.pick_poll(45, at(14, 0)), lr.PEAK_POLL)      # afternoon wave
+        self.assertEqual(lr.pick_poll(45, at(11, 30)), lr.STEADY_POLL)   # break between windows
+        self.assertEqual(lr.pick_poll(45, at(2, 0)), lr.STEADY_POLL)     # overnight
         self.assertEqual(lr.pick_poll(60, at(10, 30)), lr.STEADY_POLL)   # rush ends at 10:30
         self.assertEqual(lr.pick_poll(60, at(9, 15), peak_ok=False), lr.STEADY_POLL)  # blocked in the rush today
         self.assertEqual(lr.pick_poll(90, at(9, 15)), 90)                 # still slowed after a block

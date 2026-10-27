@@ -44,9 +44,10 @@ home-screen dashboard. Keep it free to run and dependency-light.
   Local state: `prev_status.json`, `history.local.json`. All gitignored.
 - Pacing (measured Oct 27, overrides the ladder's speed-ups): 75s ran all day with no blocks; 60s
   was blocked after 2h49m and again after 2h42m; blocks lasted 17-32 min. `pick_poll()`: 75s
-  normally, 60s only 8:30-10:30 AM PC-local (Eastern) time = the morning rush (most restocks
-  9-11 AM), never faster than 75 otherwise; a block during the rush disables the boost for the
-  rest of that day; a still-penalized ladder (>75s) wins. On HTTP 541, `block_wait()`: wait 15 min
+  normally and overnight, 60s only in `PEAK_WINDOWS` (8:30-10:30 AM and 12:30-2:30 PM PC-local
+  Eastern time: the morning rush and the early-afternoon wave, each 2h with 2h at 75s between;
+  owner's request), never faster than 75 otherwise; a block during a 60s window disables the boost
+  for the rest of that day; a still-penalized ladder (>75s) wins. On HTTP 541, `block_wait()`: wait 15 min
   before the first retry, then probe every 5 min (fewer requests while blocked; whether retries
   extend a block is unknown). Non-541 errors keep exponential backoff (max 900s).
 - `.github/workflows/check-stock.yml`: backup, runs every 5 min; `--defer-to-pc 300` makes it
