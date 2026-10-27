@@ -42,14 +42,15 @@ home-screen dashboard. Keep it free to run and dependency-light.
   `heartbeat_seconds` (60, i.e. every check, so the app shows each check). Private files: `config.local.json` (zip, ntfy_topic,
   overrides; models merge by part) and `.env.local` (GITHUB_TOKEN, GITHUB_REPO).
   Local state: `prev_status.json`, `history.local.json`. All gitignored.
-- Pacing (measured Oct 27, overrides the ladder's speed-ups): 75s ran all day with no blocks; 60s
-  was blocked after 2h49m and again after 2h42m; blocks lasted 17-32 min. `pick_poll()`: 75s
-  normally and overnight, 60s only in `PEAK_WINDOWS` (8:30-10:30 AM and 12:30-2:30 PM PC-local
-  Eastern time: the morning rush and the early-afternoon wave, each 2h with 2h at 75s between;
-  owner's request), never faster than 75 otherwise; a block during a 60s window disables the boost
-  for the rest of that day; a still-penalized ladder (>75s) wins. On HTTP 541, `block_wait()`: wait 15 min
-  before the first retry, then probe every 5 min (fewer requests while blocked; whether retries
-  extend a block is unknown). Non-541 errors keep exponential backoff (max 900s).
+- Pacing (measured Oct 27; the old Pace ladder is kept only for state compatibility): 75s ran all
+  day with no blocks; 60s was blocked after 2h49m and again after 2h42m; blocks lasted 17-32 min.
+  `pick_poll(now, no_peak_day, slow_day)`: 60s inside `PEAK_WINDOWS` (8:30-10:30 AM and
+  12:30-2:30 PM PC-local Eastern time; owner's request), 75s otherwise and overnight. Any block
+  sets `no_peak_day` = today (75s for the rest of the day); a block while already at 75s+ also sets
+  `slow_day` (90s rest of day). Both are saved in runner_state.json so a restart can't forget a block
+  (a restart right after a block used to go straight back to 60s and get blocked again). Next day
+  starts fresh. On HTTP 541, `block_wait()`: 15 min before the first retry, then every 5 min.
+  Non-541 errors keep exponential backoff (max 900s).
 - `.github/workflows/check-stock.yml`: backup, runs every 5 min; `--defer-to-pc 300` makes it
   skip (and not publish) while the PC runner's status (`source: "pc"`) is < 5 min old and not erroring. Reads the previous status
   from the `status` branch, runs the checker, force-pushes a single-commit `status`
