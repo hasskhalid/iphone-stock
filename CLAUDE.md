@@ -51,11 +51,12 @@ home-screen dashboard. Keep it free to run and dependency-light.
   (a restart right after a block used to go straight back to 60s and get blocked again). Next day
   starts fresh. On HTTP 541, `block_wait()`: 15 min before the first retry, then every 5 min.
   Non-541 errors keep exponential backoff (max 900s).
-  Experiment (Oct 27, owner's request): config.json `"pace_mode": "flip"` alternates 60s/75s every
-  check all day (`flip_poll`); a block ends the flip for that day (75s after). `runner_state.flip`
-  {day, started_at, blocked_at, checks} is also published in status.runner.flip for review.
-  Default mode "windows" = the PEAK_WINDOWS schedule. Revert config.json to "windows" if the flip
-  gets blocked.
+  Experiments (config.json `pace_mode`; default "windows" = PEAK_WINDOWS schedule): "burst" (Oct 27
+  test, owner's request) = 60s for BURST_MINUTES (120) from the first check of the day, then 75s;
+  "flip" = alternate 60s/75s every check. A block ends the experiment for that day (75s after).
+  Owner chose to keep the cooldown at 15 min then 5-min retries (a block on Oct 27 still failed at
+  17.5 min). `runner_state.flip` {day, started_at, burst_done_at, blocked_at, checks} is published as
+  status.runner.test for review. Don't change pace_mode after a test without the owner's input.
 - `.github/workflows/check-stock.yml`: backup, runs every 5 min; `--defer-to-pc 300` makes it
   skip (and not publish) while the PC runner's status (`source: "pc"`) is < 5 min old and not erroring. Reads the previous status
   from the `status` branch, runs the checker, force-pushes a single-commit `status`

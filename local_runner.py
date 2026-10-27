@@ -53,6 +53,7 @@ PEAK_POLL = 60
 # 60s windows, local (Eastern) time on the PC: the morning rush and the early-afternoon wave
 # (Oct 27 restocks: 8:50-9:52 and 1:19-1:51 PM), each 2h (under the ~2h45m limit) with 2h at 75s between.
 PEAK_WINDOWS = (((8, 30), (10, 30)), ((12, 30), (14, 30)))
+BURST_MINUTES = 120                    # "burst" test: 60s this long (under the ~2h45m seen before a block)
 SLOW_POLL = 90                         # only if Apple blocks even 75s on a given day
 BLOCK_FIRST_WAIT = 900
 BLOCK_PROBE = 300
@@ -392,8 +393,9 @@ def main(argv: list[str] | None = None) -> int:
     pace = Pace(int(config["poll_seconds"]), state)
     # Days on which Apple blocked us (saved, so a restart doesn't forget and get blocked again).
     no_peak_day, slow_day = state.get("no_peak_day"), state.get("slow_day")
-    # pace_mode "flip" (config.json, an experiment): alternate 60s/75s all day; a block ends the flip
-    # for that day (75s after). Its start/block times are published so the result can be reviewed.
+    # pace_mode "burst" (config.json, an experiment): 60s for BURST_MINUTES from the first check of
+    # the day, then 75s; "flip": alternate 60s/75s all day. A block ends the experiment for that day
+    # (75s after). Its start/block times are published so the result can be reviewed.
     pace_mode = str(config.get("pace_mode") or "windows")
     flip = dict(state.get("flip") or {})
     poll = pick_poll(time.localtime(), no_peak_day, slow_day)
@@ -473,10 +475,22 @@ def main(argv: list[str] | None = None) -> int:
                 if not flip.get("blocked_at") and slow_day != today:
                     poll = flip_poll(flip["checks"])
                     flip["checks"] += 1
+            elif pace_mode == "burst":
+                today = time.strftime("%Y-%m-%d")
+                if flip.get("day") != today:
+                    flip = {"day": today, "started_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                            "blocked_at": None, "checks": 0}
+                mins = (datetime.now(timezone.utc) - datetime.fromisoformat(flip["started_at"])).total_seconds() / 60
+                if not flip.get("blocked_at") and slow_day != today:
+                    poll = PEAK_POLL if mins < BURST_MINUTES else STEADY_POLL
+                    flip["checks"] += 1
+                    if poll == STEADY_POLL and not flip.get("burst_done_at"):
+                        flip["burst_done_at"] = datetime.now(timezone.utc).isoformat(timespec="seconds")
+                        print(f"           2h at 60s finished with no Apple block; 75s for the rest of today")
             status["poll_seconds"] = poll
             status["runner"] = {"started_at": started, "checks": checks, "mode": pace_mode}
-            if pace_mode == "flip":
-                status["runner"]["flip"] = flip
+            if pace_mode in ("flip", "burst"):
+                status["runner"]["test"] = flip
             pc_hb = {"checked_at": status["checked_at"], "error": status.get("error"), "poll_seconds": poll, "warned": False}
             status["pc"] = pc_hb
 
@@ -555,10 +569,10 @@ def main(argv: list[str] | None = None) -> int:
                 # Start of an Apple rate-limit episode: one step slower from now on.
                 if errors_in_row == 1 and "541" in (status.get("error") or ""):
                     today = time.strftime("%Y-%m-%d")
-                    if pace_mode == "flip" and flip.get("day") == today and not flip.get("blocked_at"):
+                    if pace_mode in ("flip", "burst") and flip.get("day") == today and not flip.get("blocked_at"):
                         flip["blocked_at"] = datetime.now(timezone.utc).isoformat(timespec="seconds")
                         mins = (datetime.now(timezone.utc) - datetime.fromisoformat(flip["started_at"])).total_seconds() / 60
-                        print(f"           60/75 flip test: blocked after {mins:.0f} min ({flip['checks']} checks); 75s for the rest of today")
+                        print(f"           {pace_mode} test: blocked after {mins:.0f} min ({flip['checks']} checks); 75s for the rest of today")
                     elif poll >= STEADY_POLL:
                         slow_day = today            # even 75s was too fast today
                     no_peak_day = today

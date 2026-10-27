@@ -5,7 +5,7 @@
     "NJ"
   ],
   "max_stores": 12,
-  "pace_mode": "flip",
+  "pace_mode": "burst",
   "models": [
     {
       "label": "iPhone Duo 256GB Night Sky",
