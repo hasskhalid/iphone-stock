@@ -313,6 +313,28 @@
   html.spooky { --sky: linear-gradient(90deg, #ffb066, #d9a8ff 55%, #f4f1ea); --gold: #ffc27a; }
   html.spooky .tab-ink { background: linear-gradient(180deg, #fff4e4, #ffd6a6); }
 
+  /* ---------- Seasonal extras: falling leaves (harvest) / snow (holidays), phone only ---------- */
+  .sky .fall { display: none; position: absolute; inset: 0; }
+  html.harvest .sky .fall, html.snowy .sky .fall { display: block; }
+  .sky .fall i { position: absolute; top: -30px; width: 10px; height: 10px; border-radius: 50%; background: #fff; opacity: .75;
+                 animation: fall 14s linear infinite; }
+  html.harvest .sky .fall i { width: 13px; height: 9px; border-radius: 0 80% 0 80%; background: #ff9a3c; opacity: .55; }
+  html.harvest .sky .fall i:nth-child(3n) { background: #e8603c; } html.harvest .sky .fall i:nth-child(3n+1) { background: #ffc857; }
+  html.snowy .sky .fall i:nth-child(odd) { width: 6px; height: 6px; }
+  .sky .fall i:nth-child(1) { left: 6%; animation-delay: -1s; } .sky .fall i:nth-child(2) { left: 15%; animation-delay: -8s; animation-duration: 17s; }
+  .sky .fall i:nth-child(3) { left: 24%; animation-delay: -4s; } .sky .fall i:nth-child(4) { left: 33%; animation-delay: -11s; animation-duration: 19s; }
+  .sky .fall i:nth-child(5) { left: 42%; animation-delay: -2s; animation-duration: 16s; } .sky .fall i:nth-child(6) { left: 51%; animation-delay: -9s; }
+  .sky .fall i:nth-child(7) { left: 60%; animation-delay: -6s; animation-duration: 18s; } .sky .fall i:nth-child(8) { left: 69%; animation-delay: -13s; }
+  .sky .fall i:nth-child(9) { left: 78%; animation-delay: -3s; animation-duration: 15s; } .sky .fall i:nth-child(10) { left: 87%; animation-delay: -10s; }
+  .sky .fall i:nth-child(11) { left: 94%; animation-delay: -5s; animation-duration: 20s; } .sky .fall i:nth-child(12) { left: 2%; animation-delay: -12s; animation-duration: 18s; }
+  @keyframes fall { 0% { transform: translate(0, 0) rotate(0); } 50% { transform: translate(24px, 55vh) rotate(180deg); } 100% { transform: translate(-10px, 112vh) rotate(360deg); } }
+  html.harvest { --sky: linear-gradient(90deg, #ffb066, #ffd98a 50%, #f4f1ea); }
+  html.harvest .tab-ink { background: linear-gradient(180deg, #fff4e4, #ffd6a6); }
+  html.snowy { --sky: linear-gradient(90deg, #ff7a8a, #f4f1ea 50%, #7ee0a6); }
+  html.snowy .tab-ink { background: linear-gradient(180deg, #ffffff, #e6f3ff); }
+  html.harvest body[data-tab="stock"] .mascot .acc-harvest, html.snowy body[data-tab="stock"] .mascot .acc-snow { display: block; }
+  body[data-tab="changes"] .mascot[data-fit="7"] .f7, body[data-tab="changes"] .mascot[data-fit="8"] .f8 { display: block; animation: fitIn .45s cubic-bezier(.3,1.7,.5,1); }
+
   /* ---------- Storage badges: Night Sky = blue circle / white text, Star White = white circle / blue text ---------- */
   .gb { display: inline-grid; place-items: center; flex: none; width: 27px; height: 27px; border-radius: 50%; font-style: normal;
         font-size: 9.5px; font-weight: 900; letter-spacing: -.03em; font-variant-numeric: tabular-nums; line-height: 1; vertical-align: middle; }
@@ -320,6 +342,10 @@
   .gb.w { background: #f6f3ec; color: #2c47d8; box-shadow: inset 0 0 0 1.5px #b9c4ff; }
   .gb.on { box-shadow: 0 0 0 2px var(--ok), 0 0 12px rgba(110,242,177,.65); }
   .gb.off { opacity: .35; }
+  /* Hollow = sold out / not in stock right now; filled = in stock (green glow). */
+  .gb.hol.n { background: transparent; color: #9fb0ff; box-shadow: inset 0 0 0 2px #5873ff; }
+  .gb.hol.w { background: transparent; color: #f6f3ec; box-shadow: inset 0 0 0 2px #e9e4d8; }
+  .sw.w .gb.hol.w { color: #2c47d8; box-shadow: inset 0 0 0 2px #2c47d8; }   /* readable on the white swatch */
   .gbs { display: flex; align-items: center; gap: 4px; margin-top: 5px; min-width: 0; }
   .gbs em { margin-left: 4px; font-size: 11.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .banner b .gb { margin: -4px 2px 0; }
@@ -412,7 +438,7 @@
     body::after { animation: none; }          /* glows stay put, so the blur is drawn once */
     body::before { animation: none; opacity: .6; }   /* static stars behind the glass */
     .sky .planet, .sky .batflock g, .sky .batflock path { animation: none; }   /* static sky */
-    .sky .shoot { display: none; }
+    .sky .shoot, .sky .fall { display: none !important; }
   }
   /* Phones */
   @media (max-width: 420px) { h1 { font-size: 23px; } .mascot { width: 100px; height: 80px; } .mrow { grid-template-columns: 112px 1fr; } .dots { display: none; } }
@@ -432,6 +458,7 @@
   <svg class="planet" viewBox="0 0 60 40"><path d="M5 24 Q30 12 55 24" fill="none" stroke="#c7a8ff" stroke-width="2" opacity=".55"/><circle cx="30" cy="20" r="11" fill="#8f6cff"/>
     <path d="M22 16 q6 -3 14 0" stroke="#b9a2ff" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M5 24 Q30 34 55 24" fill="none" stroke="#c7a8ff" stroke-width="2"/></svg>
   <i class="shoot"></i>
+  <div class="fall"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
   <svg class="batflock" viewBox="0 0 120 50" fill="#1d1538" stroke="#8d6bd6" stroke-width=".7"><g>
     <path transform="translate(20 20)" d="M0 2 Q-3 -3 -6 -1 Q-9 -6 -14 -2 Q-10 0 -9 4 Q-6 2 -4 5 Q-2 2 0 4 Q2 2 4 5 Q6 2 9 4 Q10 0 14 -2 Q9 -6 6 -1 Q3 -3 0 2Z"/>
     <path transform="translate(62 32) scale(.75)" d="M0 2 Q-3 -3 -6 -1 Q-9 -6 -14 -2 Q-10 0 -9 4 Q-6 2 -4 5 Q-2 2 0 4 Q2 2 4 5 Q6 2 9 4 Q10 0 14 -2 Q9 -6 6 -1 Q3 -3 0 2Z"/>
@@ -472,6 +499,10 @@
             <ellipse class="oh" cx="0" cy="13" rx="4" ry="5" fill="#141933" stroke-width="1.6"/>
           </g>
           <!-- Night Sky outfits -->
+          <g class="acc acc-snow"><path d="M30 13 Q39 -14 59 -12 Q73 -10 77 2 L72 13 Z" fill="#e8394d"/><circle cx="77" cy="3" r="4.2" fill="#fff"/><rect x="27" y="8" width="48" height="8" rx="4" fill="#fff"/></g>
+          <g class="acc acc-harvest"><path d="M29 13 Q29 -10 51 -10 Q73 -10 73 13 Z" fill="#ff8a3c"/><rect x="27" y="7" width="48" height="8" rx="3" fill="#8a4b1f" opacity=".85"/><circle cx="51" cy="-12" r="4.5" fill="#fff3dd"/></g>
+          <g class="fit f7"><rect x="21" y="78" width="60" height="20" rx="8" fill="#c8304a"/><path d="M25 84 l4 4 4 -4 4 4 4 -4 4 4 4 -4 4 4 4 -4 4 4 4 -4 4 4 4 -4 4 4" stroke="#fff" stroke-width="1.6" fill="none"/><circle cx="51" cy="93" r="2" fill="#ffd98a"/></g>
+          <g class="fit f8"><path d="M29 13 Q29 -10 51 -10 Q73 -10 73 13 Z" fill="#ffb347"/><rect x="27" y="7" width="48" height="8" rx="3" fill="#8a4b1f" opacity=".85"/><circle cx="51" cy="-12" r="4.5" fill="#fff3dd"/></g>
           <g class="acc acc-stock"><ellipse cx="51" cy="13" rx="26" ry="4.5" fill="#2b1f4d" stroke="#b18cff" stroke-width="1.5"/>
             <path d="M37 12 Q44 -6 52 -16 Q56 -21 64 -18 Q58 -14 59 -6 L65 12 Z" fill="#3a2a6b" stroke="#b18cff" stroke-width="1.5" stroke-linejoin="round"/>
             <path d="M39 8 L63 8 L64 11 L38 11Z" fill="#ffa24c"/><path d="M50 -1l1.3 2.8 2.8 1.3-2.8 1.3-1.3 2.8-1.3-2.8-2.8-1.3 2.8-1.3z" fill="#ffd98a"/></g>
@@ -515,6 +546,11 @@
             <ellipse class="oh" cx="0" cy="13" rx="4" ry="5" fill="#141933" stroke-width="1.6"/>
           </g>
           <!-- Star White outfits -->
+          <g class="acc acc-snow"><path d="M108 13 Q117 -14 137 -12 Q151 -10 155 2 L150 13 Z" fill="#e8394d"/><circle cx="155" cy="3" r="4.2" fill="#fff"/><rect x="105" y="8" width="48" height="8" rx="4" fill="#fff"/></g>
+          <g class="acc acc-harvest"><path d="M129 12 q-2 -10 6 -16 q-1 9 -6 16z" fill="#e8603c"/><path d="M129 12 q8 -8 15 -6 q-6 6 -15 6z" fill="#ffc857"/><path d="M129 12 l3 -9" stroke="#7a4a1f" stroke-width="1.2"/>
+            <path d="M163 86 q0 -10 9 -10 q9 0 9 10 q0 8 -9 8 q-9 0 -9 -8z" fill="#ff9a3c" stroke="#d9711f" stroke-width="1.2"/><path d="M172 76 q1 -4 4 -5" stroke="#4f8a3a" stroke-width="2" fill="none"/></g>
+          <g class="fit f7"><rect x="99" y="78" width="60" height="20" rx="8" fill="#2f8f5b"/><path d="M103 84 l4 4 4 -4 4 4 4 -4 4 4 4 -4 4 4 4 -4 4 4 4 -4 4 4 4 -4 4 4" stroke="#fff" stroke-width="1.6" fill="none"/><circle cx="129" cy="93" r="2" fill="#ffd98a"/></g>
+          <g class="fit f8"><path d="M100 80 Q129 91 158 80 L158 89 Q129 100 100 89Z" fill="#ffb347"/><rect x="140" y="86" width="9" height="17" rx="3.5" fill="#ffb347"/></g>
           <g class="acc acc-stock"><path d="M103 21 L104 -2 L121 13 Z" fill="#f4f1ea" stroke="#d9d3c5" stroke-width="2" stroke-linejoin="round"/><path d="M107 13 L107.5 4 L115 11Z" fill="#ff9ec8"/>
             <path d="M155 21 L154 -2 L137 13 Z" fill="#f4f1ea" stroke="#d9d3c5" stroke-width="2" stroke-linejoin="round"/><path d="M151 13 L150.5 4 L143 11Z" fill="#ff9ec8"/>
             <path d="M163 86 q0 -10 9 -10 q9 0 9 10 q0 8 -9 8 q-9 0 -9 -8z" fill="#ff9a3c" stroke="#d9711f" stroke-width="1.2"/><path d="M164 80 q8 -8 16 0" stroke="#3a2a6b" stroke-width="1.4" fill="none"/>
@@ -589,6 +625,15 @@
       <input id="ghToken" type="password" placeholder="GitHub token · lets Refresh run a fresh check" autocomplete="off" autocapitalize="off" spellcheck="false">
       <button class="icon-btn" id="saveToken" type="button">Save</button>
     </div>
+    <div class="alerts">
+      <span>Theme</span>
+      <select id="themePick" class="icon-btn" style="flex:1 1 160px">
+        <option value="auto">✨ Auto (by season)</option><option value="halloween">🎃 Halloween</option>
+        <option value="harvest">🍂 Harvest / Thanksgiving</option><option value="holidays">🎄 Holidays + snow</option>
+        <option value="galaxy">🌙 Just the galaxy</option>
+      </select>
+    </div>
+    <div class="note">Auto: Halloween in October, harvest in November, holidays in December, galaxy the rest of the year.</div>
     <div class="note" id="tokenNote">Fine-grained token for this repo only with <b>Actions: Read and write</b>. Stored on this device only.</div>
   </details>
 </div>
@@ -675,14 +720,28 @@
 
   let STATUS = null, HISTORY = { events: [] }, FORECAST = null;
 
-  // Halloween look from Oct 1 to Nov 2 (or force with ?spooky=1 / ?spooky=0).
-  const SPOOKY = QS.has("spooky") ? QS.get("spooky") === "1"
-    : (() => { const d = new Date(); return d.getMonth() === 9 || (d.getMonth() === 10 && d.getDate() <= 2); })();
-  document.documentElement.classList.toggle("spooky", SPOOKY);
-  if (SPOOKY) {
-    document.getElementById("tabStock").textContent = "🎃 Stock";
-    document.getElementById("foot").innerHTML = "🎃 <b>Duo Watch</b> 👻 two little phones keeping watch (in costume)";
+  // Seasonal themes on top of the galaxy. Auto by date, or pick one in Settings (saved on this device),
+  // or force with ?theme=halloween|harvest|holidays|galaxy (?spooky=1 still works).
+  const THEMES = {
+    halloween: { cls: "spooky", tab: "🎃 Stock", foot: "🎃 <b>Duo Watch</b> 👻 two little phones keeping watch (in costume)" },
+    harvest: { cls: "harvest", tab: "🍂 Stock", foot: "🍂 <b>Duo Watch</b> 🥧 two cozy phones keeping watch" },
+    holidays: { cls: "snowy", tab: "🎄 Stock", foot: "❄️ <b>Duo Watch</b> 🎁 two little elves keeping watch" },
+    galaxy: { cls: "", tab: "🌙 Stock", foot: "" },
+  };
+  function autoTheme(d = new Date()) {
+    const m = d.getMonth(), day = d.getDate();
+    if (m === 9 || (m === 10 && day <= 2)) return "halloween";
+    if (m === 10) return "harvest";
+    if (m === 11 || (m === 0 && day <= 2)) return "holidays";
+    return "galaxy";
   }
+  const THEME_PICK = QS.get("theme") || (QS.has("spooky") ? (QS.get("spooky") === "1" ? "halloween" : "galaxy") : null)
+    || (() => { try { return localStorage.getItem("theme"); } catch { return null; } })() || "auto";
+  const THEME = THEMES[THEME_PICK] ? THEME_PICK : autoTheme();
+  const SPOOKY = THEME === "halloween", HARVEST = THEME === "harvest", SNOWY = THEME === "holidays";
+  if (THEMES[THEME].cls) document.documentElement.classList.add(THEMES[THEME].cls);
+  document.getElementById("tabStock").textContent = THEMES[THEME].tab;
+  if (THEMES[THEME].foot) document.getElementById("foot").innerHTML = THEMES[THEME].foot;
 
   // Storage badge: Night Sky = blue circle / white text, Star White = white circle / blue text.
   const gbOf = (x) => ((String(x || "").match(/(\d{3,4})\s*(GB|TB)?\b/i) || [])[1]) || "";
@@ -765,7 +824,7 @@
     "Double, double, restock trouble… 🫧", "Eye of newt and wing of bat, where's a Duo? Tell us that 🦇",
     "Bubble bubble, 256 or 512? 🫧", "Abra-cad-Apple-Pay ✨", "By the light of the Night Sky moon… 🌙",
     "Hocus pocus, restock focus 🔮", "Stir clockwise for Star White, counter for Night Sky 🥄",
-    SPOOKY ? "Trick or restock?? 🎃" : "Sim sala bim, pickup today please ✨",
+    SPOOKY ? "Trick or restock?? 🎃" : SNOWY ? "Jingle bells, restock smells… 🔔" : HARVEST ? "A pinch of cinnamon, a dash of restock 🥧" : "Sim sala bim, pickup today please ✨",
   ];
   // Two mini Duos stirring a cauldron for the forecast banner.
   const CAULDRON = `<svg class="cauldron" viewBox="0 0 130 86" aria-hidden="true">
@@ -808,7 +867,7 @@
         <div class="models">
           ${s.colors.slice().sort((a, b) => (b.available - a.available)).map((c) => `
             <div class="mrow">
-              <span class="sw ${sw(c.color)}">${badge(c.color, c.storage, c.available ? "on" : "")}${esc(c.color)}</span>
+              <span class="sw ${sw(c.color)}">${badge(c.color, c.storage, c.available ? "on" : "hol")}${esc(c.color)}</span>
               ${c.available
                 ? `<a class="st yes" href="${esc(c.url)}" target="_blank" rel="noopener">Buy · ${esc(c.quote || "Available")} →</a>`
                 : `<span class="st no">sold out</span>`}
@@ -872,7 +931,7 @@
       <div class="wrow" ${delay}>
         <span class="rank">${s.rank}</span>
         <a class="wmain" href="${esc(buy)}" target="_blank" rel="noopener"><b>${esc(s.name)}</b><small>${where}</small>
-          <span class="gbs">${s.colors.map((c) => badge(c.color, c.storage)).join("")}${lr ? `<em>✨ restocked ${esc(shortAgo(lr.t))}</em>` : ""}</span></a>
+          <span class="gbs">${s.colors.map((c) => badge(c.color, c.storage, c.available ? "on" : "hol")).join("")}${lr ? `<em>✨ restocked ${esc(shortAgo(lr.t))}</em>` : ""}</span></a>
         ${s.zip ? `<button class="copyzip" data-zip="${esc(s.zip)}" aria-label="Copy ZIP ${esc(s.zip)}">📋<span>ZIP</span></button>` : ""}
         <button class="rbtn${spinningStore === s.id ? " spin" : ""}" data-store="${esc(s.id)}" aria-label="Re-check ${esc(s.name)}"><span>↻</span></button>
       </div>`;
@@ -902,7 +961,7 @@
       (DEMO ? `<div class="demo-flag">✨ Preview · fake restock to show what it looks like · <a href="./">exit</a></div>` : "") +
       (hot.length ? `<div class="sec hot"><h2>🎉 In stock now · ${hot.length}</h2><span>closest first</span></div>
                      <div class="grid">${hot.map(storeCard).join("")}</div>` : "") +
-      (rest.length ? `<div class="sec"><h2>${hot.length ? "😴 Sold out" : "👀 Watching"} · ${rest.length}</h2><span>closest first</span></div>
+      (rest.length ? `<div class="sec"><h2>${hot.length ? "😴 Sold out" : "👀 Watching"} · ${rest.length}</h2><span>closest first · ◯ sold out</span></div>
                       <div class="watch">${rest.map(watchRow).join("")}</div>` : "");
   }
 
@@ -910,7 +969,7 @@
     const ev = (HISTORY.events || []).slice().reverse().slice(0, 100);
     $("changes").innerHTML = ev.length ? ev.map((e) => `
       <div class="row">
-        <div class="evl">${badge(evColor(e), evStorage(e), e.kind === "in" ? "" : "off")}<div><b>${esc(e.store)}</b><br><span class="when">${evStorage(e) ? esc(evStorage(e)) + "GB " : ""}${esc(evColor(e))} · ${esc(when(e.t))}</span></div></div>
+        <div class="evl">${badge(evColor(e), evStorage(e), e.kind === "in" ? "" : "hol")}<div><b>${esc(e.store)}</b><br><span class="when">${evStorage(e) ? esc(evStorage(e)) + "GB " : ""}${esc(evColor(e))} · ${esc(when(e.t))}</span></div></div>
         <span class="tag ${e.kind}">${e.kind === "in" ? "Restocked" : "Sold out"}</span>
       </div>`).join("")
       : `<div class="empty">No restocks seen yet. Every restock and sell-out at these stores will be logged here.</div>`;
@@ -1100,6 +1159,8 @@
     ];
     if (usual !== null) lines.push(`Restocks here usually land around ${hourLabel(usual)} ⏰`);
     if (SPOOKY) lines.push("Trick or restock? 🎃", "We dressed up but we're still watching 👀🎃", "Boo! …no Duos yet 👻", "Tap us for a spooky trick 🦇");
+    if (HARVEST) lines.push("Grateful for every restock 🦃", "Pumpkin spice and Duo watch 🍂☕", "Cozy season, eyes still open 🧣");
+    if (SNOWY) lines.push("Santa checks his list twice, we check every minute 🎅", "All we want for Christmas is a Duo 🎁", "Snowed in, still watching ❄️");
     if (h >= 6 && h < 12) lines.push("Good morning ☀️ mornings are prime restock time");
     else if (h >= 12 && h < 18) lines.push("Afternoon shift 🍵 still watching");
     else if (h >= 18 && h < 23) lines.push("Evening watch 🌆 stores close soon, eyes open");
@@ -1279,6 +1340,7 @@
     ["t-wink", "We got you 😉"], ["t-squish", "Squish! 🍡"], ["t-star", "Wish upon a Star White ⭐"],
     ["t-swap", "Switcheroo! 🔄 Night Sky ⇄ Star White"],
   ];
+  if (SNOWY) TRICKS.push(["t-star", "Ho ho ho ⭐ make a wish"]);
   if (SPOOKY) TRICKS.push(["t-boo", "BOO! 👻 …did we scare you?"], ["t-boo", "We're ghosts now 👻 spooky Duos"], ["t-bats", "Bat squad, go find Duos! 🦇🦇"]);
   const SOLO = {
     a: ["Hey! That tickles 🤭", "Night Sky reporting for duty 🫡", "Boop received 🌙", "I'm the dark-mode one 😎", "Stop it, I'm watching Apple 👀"],
@@ -1322,6 +1384,8 @@
     [3, "Too cool for sold out 😎"], [4, "Party mode 🎉 dressed for a restock"], [5, "Cozy fit 🧣 for long pickup lines"],
   ];
   if (SPOOKY) FITS.push([6, "Spooky fit 🧛🎃 trick or restock?"]);
+  if (SNOWY) FITS.push([7, "Holiday sweaters 🎄 matching, obviously"]);
+  if (HARVEST) FITS.push([8, "Fall fit 🍂 beanie season"]);
   let fitTimer = null, fitIdx = -1;
   function nextFit() {
     if (document.documentElement.classList.contains("paused")) return;
@@ -1383,6 +1447,8 @@
   requestAnimationFrame(moveInk);
 
   // ---------- test push ----------
+  $("themePick").value = (() => { try { return localStorage.getItem("theme") || "auto"; } catch { return "auto"; } })();
+  $("themePick").addEventListener("change", (e) => { store.set("theme", e.target.value); location.reload(); });
   $("ghToken").value = store.get("ghToken") || "";
   $("saveToken").addEventListener("click", () => {
     const v = $("ghToken").value.trim();

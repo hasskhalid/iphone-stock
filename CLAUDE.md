@@ -103,7 +103,10 @@ home-screen dashboard. Keep it free to run and dependency-light.
   cat ears, bats, boo/bats tap tricks). Chibis act per tab: Stock = watching (spooky costumes), Changes =
   trying on outfits every 2.8s (`data-fit` 1-6), Patterns = detectives (deerstalker, magnifier, notepad).
   Tap one chibi = solo trick (other looks over), every 3rd tap = duo trick; eyes follow finger/mouse;
-  `say(text, ms)` holds the bubble. Forecast banner = the Duos stirring a cauldron with a rotating spell.
+  `say(text, ms)` holds the bubble. Themes (`THEMES`, Settings picker saved in localStorage, `?theme=`):
+  auto = halloween Oct 1-Nov 2, harvest rest of Nov (falling leaves, beanie, fall fit), holidays Dec 1-Jan 2
+  (snow, Santa hats, sweater fit), galaxy otherwise. Badges are hollow (outline) when not in stock,
+  filled with a green glow when in stock. Forecast banner = the Duos stirring a cauldron with a rotating spell.
   Storage badges everywhere (`badge()`): Night Sky = blue circle/white text, Star White = white circle/
   blue text, "256"/"512". Watching rows show badges + last restock only (weekly "🔥 N× this week"
   lives in Patterns → Hot stores with per-variant counts). Patterns hour chart is swipeable
@@ -128,8 +131,9 @@ home-screen dashboard. Keep it free to run and dependency-light.
   Apple's bot checks; the buying path is alert → Apple Store app → Apple Pay.
 - `config.json`: models (`label`, `color`, `part`, `url`), `zip`, `radius_miles`, `max_stores`,
   optional `ntfy_topic`. Env vars `APPLE_ZIP` / `NTFY_TOPIC` (repo secrets) override.
-- Tracking (Oct 27): iPhone Duo unlocked 256GB AND 512GB, both colours: 256GB Night Sky
-  `MK1F4LL/A` / Star White `MK1E4LL/A`, 512GB Night Sky `MK1H4LL/A` / Star White `MK1G4LL/A`.
+- Tracking: iPhone Duo unlocked 256GB only, both colours: Night Sky `MK1F4LL/A` / Star White
+  `MK1E4LL/A` (512GB `MK1H4LL/A`/`MK1G4LL/A` was added Oct 27 then removed the same night at the
+  owner's request; don't re-add without asking).
   NJ stores only: config `only_states: ["NJ"]` makes `filter_area()` keep only NJ (any distance,
   all 12 NJ Apple Stores), dropping NY. Owner's search ZIPs for that: home + Rockaway area (8 NJ
   stores incl. Garden State Plaza, Willowbrook, Tice's Corner) + South Jersey; the American Dream
