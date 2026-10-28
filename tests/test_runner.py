@@ -200,8 +200,9 @@ class HandoffTests(unittest.TestCase):
         self.assertEqual(lr.pick_poll(at(9, 15)), lr.PEAK_POLL)       # morning rush
         self.assertEqual(lr.pick_poll(at(14, 0)), lr.PEAK_POLL)       # afternoon wave
         self.assertEqual(lr.pick_poll(at(11, 30)), lr.STEADY_POLL)    # break between windows
-        self.assertEqual(lr.pick_poll(at(2, 0)), 120)                 # overnight 120s
-        self.assertEqual(lr.pick_poll(at(23, 30)), 120)
+        self.assertEqual(lr.pick_poll(at(2, 0)), 75)                  # overnight 75s
+        self.assertEqual(lr.pick_poll(at(23, 30)), 75)
+        self.assertEqual(lr.pick_poll(at(2, 0), night_slow=True), 90)   # after a night block
         self.assertEqual(lr.pick_poll(at(7, 0)), lr.STEADY_POLL)      # 75s from 7 AM
         self.assertEqual(lr.pick_poll(at(22, 59)), lr.STEADY_POLL)
         self.assertEqual(lr.pick_poll(at(10, 30)), lr.STEADY_POLL)    # window ends at 10:30
@@ -330,6 +331,18 @@ class PushDayTests(unittest.TestCase):
     def test_push_day_is_60s_all_day_until_blocked(self):
         at = lambda h, m: time.strptime(f"2026-10-28 {h:02d}:{m:02d}", "%Y-%m-%d %H:%M")
         self.assertEqual(lr.pick_poll(at(15, 0), push_day="2026-10-28"), lr.PEAK_POLL)        # afternoon, normally 75
-        self.assertEqual(lr.pick_poll(at(23, 30), push_day="2026-10-28"), lr.QUIET_POLL)      # night stays 120
+        self.assertEqual(lr.pick_poll(at(23, 30), push_day="2026-10-28"), lr.QUIET_POLL)      # night stays at the night pace
         self.assertEqual(lr.pick_poll(at(15, 0), "2026-10-28", None, "2026-10-28"), lr.STEADY_POLL)  # blocked -> 75
         self.assertEqual(lr.pick_poll(at(15, 0), push_day="2026-10-27"), lr.STEADY_POLL)      # only that day
+
+
+class NightBlockTests(unittest.TestCase):
+    def test_night_end_is_next_7am(self):
+        start = time.mktime((2026, 10, 28, 23, 30, 0, 0, 0, -1))
+        self.assertEqual(time.localtime(lr.night_end(start))[:5], (2026, 10, 29, 7, 0))
+        early = time.mktime((2026, 10, 29, 2, 0, 0, 0, 0, -1))
+        self.assertEqual(time.localtime(lr.night_end(early))[:5], (2026, 10, 29, 7, 0))
+
+    def test_night_slow_does_not_touch_daytime(self):
+        at = lambda d, h: time.strptime(f"2026-10-{d} {h:02d}:00", "%Y-%m-%d %H:%M")
+        self.assertEqual(lr.pick_poll(at(29, 9), night_slow=True), lr.PEAK_POLL)   # 60s window still on

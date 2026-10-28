@@ -45,8 +45,10 @@ home-screen dashboard. Keep it free to run and dependency-light.
 - Pacing (measured Oct 27; the old Pace ladder is kept only for state compatibility): 75s ran all
   day with no blocks; 60s was blocked after 2h49m and again after 2h42m; blocks lasted 17-32 min.
   `pick_poll(now, no_peak_day, slow_day)`: 60s inside `PEAK_WINDOWS` (8:30-10:30 AM and
-  12:30-2:30 PM PC-local Eastern time; owner's request), 120s in `QUIET_HOURS` (11 PM-7 AM; 90s Oct 27, raised to
-  `QUIET_POLL` 120 Oct 28 after a 90s night then 60s at 8:30 was blocked at 8:53), 75s otherwise. Any block
+  12:30-2:30 PM PC-local Eastern time; owner's request), `QUIET_POLL` 75s in `QUIET_HOURS` (11 PM-7 AM; owner's choice Oct 28 2:15 PM,
+  after trying 90s then 120s). A block during QUIET_HOURS sets `night_slow_until` (next 7 AM, saved in
+  runner_state): 90s for the rest of that night only, and does NOT set no_peak_day/slow_day, so the next
+  day's 60s windows are untouched (owner: "if it locks overnight do 90s but that's it"), 75s otherwise. Any block
   sets `no_peak_day` = today (75s for the rest of the day); a block while already at 75s+ also sets
   `slow_day` (90s rest of day). Both are saved in runner_state.json so a restart can't forget a block
   (a restart right after a block used to go straight back to 60s and get blocked again). Next day
@@ -63,7 +65,8 @@ home-screen dashboard. Keep it free to run and dependency-light.
 - Block log: every Apple error is appended to gitignored `blocks.local.jsonl` (one JSON per line);
   when a block clears, a record {start, end, minutes, at_least_minutes, pace} is logged too, kept
   in runner_state (`block_open`, `blocks_today`, survives restarts) and published as
-  status.runner.blocks_today. Oct 27 blocks: 6:45 AM (60s, 18-32 min), 2:04 PM, ~2:16 PM (60s),
+  status.runner.blocks_today. Oct 28: Apple's online store was down ~12:00-1:10 PM for a MacBook launch (may explain errors then).
+  Oct 27 blocks: 6:45 AM (60s, 18-32 min), 2:04 PM, ~2:16 PM (60s),
   4:30 PM (60s after 49 min, 25-30 min), 6:54 PM (75s after 1h54m, 25-30 min).
 - `.github/workflows/check-stock.yml`: backup, runs every 5 min (uses the runner's system python3,
   no setup-python step, to start faster; never make it check more often to cover a PC block); `--defer-to-pc 300` makes it
