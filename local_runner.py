@@ -87,12 +87,16 @@ def load_env(path: str) -> dict:
 
 
 def merge_config(base: dict, local: dict) -> dict:
-    """Overlay config.local.json on config.json. Models merge by part number so a
-    local file with just {"part": ...} keeps the repo's label, color and buy link."""
+    """Overlay config.local.json on config.json. Models merge by part number: every repo
+    model is always tracked (a local entry with the same part only overrides its fields),
+    and local-only parts are added. An old local list can't silently drop new repo models
+    (that's how the 512GB models went missing on Oct 27)."""
     out = {**base, **{k: v for k, v in local.items() if k != "models"}}
     if local.get("models"):
-        by_part = {m.get("part"): m for m in base.get("models", [])}
-        out["models"] = [{**by_part.get(m.get("part"), {}), **m} for m in local["models"]]
+        mine = {m.get("part"): m for m in local["models"]}
+        base_parts = {m.get("part") for m in base.get("models", [])}
+        out["models"] = ([{**m, **mine.get(m.get("part"), {})} for m in base.get("models", [])]
+                         + [m for m in local["models"] if m.get("part") not in base_parts])
     for k, v in DEFAULTS.items():
         out.setdefault(k, v)
     return out

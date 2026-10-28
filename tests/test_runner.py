@@ -45,7 +45,13 @@ class ConfigTests(unittest.TestCase):
 
     def test_local_models_keep_repo_urls(self):
         cfg = lr.merge_config(BASE, {"models": [{"label": "Mine", "part": "A1/A"}]})
-        self.assertEqual(cfg["models"], [{"label": "Mine", "color": "Night Sky", "part": "A1/A", "url": "https://x/night"}])
+        self.assertEqual(cfg["models"][0], {"label": "Mine", "color": "Night Sky", "part": "A1/A", "url": "https://x/night"})
+        self.assertEqual(len(cfg["models"]), len(BASE["models"]))   # repo models are never dropped
+
+    def test_local_only_models_are_added(self):
+        cfg = lr.merge_config(BASE, {"models": [{"label": "Extra", "part": "Z9/A"}]})
+        self.assertEqual([m["part"] for m in cfg["models"]][-1], "Z9/A")
+        self.assertEqual(len(cfg["models"]), len(BASE["models"]) + 1)
 
     def test_env_file(self):
         with tempfile.TemporaryDirectory() as tmp:

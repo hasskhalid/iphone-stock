@@ -27,16 +27,17 @@
     --r: 20px;
   }
   * { box-sizing: border-box; }
-  html { background: var(--bg); -webkit-text-size-adjust: 100%; }
+  html { background: radial-gradient(900px 520px at 50% -220px, #2a1d5e 0%, transparent 70%), var(--bg); -webkit-text-size-adjust: 100%; min-height: 100%; }
   body {
-    margin: 0; color: var(--text); background: radial-gradient(900px 520px at 50% -220px, #18235a 0%, transparent 70%), var(--bg);
+    margin: 0; color: var(--text); background: transparent;
     font: 15px/1.45 ui-rounded, "SF Pro Rounded", "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     padding: max(12px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(28px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
     -webkit-font-smoothing: antialiased; min-height: 100vh;
   }
-  body.instock { background: radial-gradient(900px 520px at 50% -200px, rgba(110,242,177,.22) 0%, transparent 70%), var(--bg); }
+
   /* One fixed starfield layer: cheap to animate (opacity only). */
-  body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: .7;
+  body::before { content: ""; position: fixed; inset: 0; z-index: -2; pointer-events: none; opacity: .75;
+    background-size: 260px 260px, 260px 260px, 340px 340px, 340px 340px, 180px 180px, 180px 180px, 420px 420px, 420px 420px, 300px 300px, 300px 300px, 220px 220px, 220px 220px;
     background-image:
       radial-gradient(1.6px 1.6px at 12% 18%, #fff, transparent), radial-gradient(1px 1px at 78% 9%, #fff, transparent),
       radial-gradient(1.2px 1.2px at 52% 32%, #c7d0ff, transparent), radial-gradient(1px 1px at 88% 41%, #fff, transparent),
@@ -53,7 +54,7 @@
 
   /* ---------- Header: the Duo chibis ---------- */
   .top { display: flex; align-items: center; gap: 12px; padding: 6px 0 12px; }
-  .mascot { width: 118px; height: 78px; flex: none; overflow: visible; cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+  .mascot { width: 118px; height: 94px; flex: none; overflow: visible; cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
   .mascot .bod { transform-box: fill-box; transform-origin: 50% 100%; animation: idle 3.2s ease-in-out infinite; }
   .mascot .b .bod { animation-delay: -1.6s; }
   .mascot .eyes { transform-box: fill-box; transform-origin: 50% 50%; animation: blink 4.6s infinite; }
@@ -231,8 +232,7 @@
   .empty .big { display: block; font-size: 30px; margin-bottom: 6px; }
   h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); margin: 20px 4px 8px; }
   .hours { display: grid; grid-template-columns: repeat(24, 1fr); gap: 3px; align-items: end; height: 90px; padding: 14px 16px 4px; }
-  .hours div { background: var(--sky); border-radius: 3px 3px 0 0; min-height: 2px; }
-  .hours div.zero { background: var(--line); }
+
   .hour-labels { display: grid; grid-template-columns: repeat(24, 1fr); padding: 0 16px 12px; color: var(--faint); font-size: 10px; }
   .hour-labels span { text-align: center; }
   .insight { padding: 14px 16px; border-top: 1px solid var(--line); } .insight:first-child { border-top: 0; }
@@ -261,10 +261,13 @@
           --glass-shadow: inset 0 1px 0 rgba(255,255,255,.22), inset 0 -1px 0 rgba(255,255,255,.05), 0 10px 30px rgba(0,0,0,.35);
           --blur: blur(22px) saturate(170%); }
   /* Soft Night Sky + Star White glows drifting behind the glass (one fixed layer, transform only). */
-  body::after { content: ""; position: fixed; inset: -20%; z-index: -1; pointer-events: none;
-    background: radial-gradient(38% 30% at 22% 28%, rgba(111,140,255,.42), transparent 70%),
-                radial-gradient(30% 26% at 80% 62%, rgba(244,241,234,.13), transparent 70%),
-                radial-gradient(26% 22% at 40% 85%, rgba(130,110,255,.16), transparent 70%);
+  /* Galaxy: soft violet / blue nebula clouds and a faint milky band (one fixed layer, transform only). */
+  body::after { content: ""; position: fixed; inset: -20%; z-index: -3; pointer-events: none;
+    background: radial-gradient(34% 26% at 22% 26%, rgba(111,140,255,.36), transparent 70%),
+                radial-gradient(30% 24% at 78% 58%, rgba(177,110,255,.30), transparent 70%),
+                radial-gradient(24% 20% at 36% 82%, rgba(255,110,190,.14), transparent 70%),
+                radial-gradient(22% 18% at 84% 18%, rgba(255,190,120,.12), transparent 70%),
+                linear-gradient(125deg, transparent 38%, rgba(199,180,255,.07) 48%, rgba(255,255,255,.05) 52%, transparent 62%);
     animation: drift-glow 26s ease-in-out infinite alternate; will-change: transform; }
   @keyframes drift-glow { to { transform: translate3d(4%, -3%, 0) scale(1.06); } }
   body.instock::after { background: radial-gradient(40% 32% at 50% 20%, rgba(110,242,177,.28), transparent 70%),
@@ -289,30 +292,163 @@
     .status, .tabs, .stat, .banner.calm, .watch, .panel, details.settings, .bubble, .store { background: var(--panel); } }
   .paused body::after { animation-play-state: paused; }
 
+
+  /* ---------- Galaxy sky: moon, ringed planet, shooting star, bats (spooky season) ---------- */
+  .sky { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
+  .sky .moon { position: absolute; top: max(70px, 9vh); right: 4%; width: 120px; opacity: .92; }
+  .sky .planet { position: absolute; bottom: 12%; left: 5%; width: 74px; opacity: .55; animation: bob 9s ease-in-out infinite; }
+  .sky .shoot { position: absolute; top: 16%; left: -12%; width: 120px; height: 2px; border-radius: 2px; opacity: 0;
+                background: linear-gradient(90deg, transparent, #fff); animation: shoot 13s linear 4s infinite; }
+  .sky .batflock { position: absolute; top: max(58px, 7vh); right: 18%; width: 120px; display: none; }
+  .sky .batflock path { transform-box: fill-box; transform-origin: 50% 50%; animation: flap .5s ease-in-out infinite; }
+  .sky .batflock path:nth-child(2) { animation-delay: -.2s; } .sky .batflock path:nth-child(3) { animation-delay: -.35s; }
+  .sky .batflock g { animation: batdrift 12s ease-in-out infinite alternate; }
+  html.spooky .sky .batflock { display: block; }
+  @keyframes shoot { 0% { opacity: 0; transform: rotate(-16deg) translateX(0); } 1% { opacity: 1; } 7% { opacity: 0; transform: rotate(-16deg) translateX(110vw); } 100% { opacity: 0; transform: rotate(-16deg) translateX(110vw); } }
+  @keyframes bob { 50% { transform: translateY(-8px); } }
+  @keyframes flap { 50% { transform: scaleY(.45); } }
+  @keyframes batdrift { to { transform: translate(-30px, 14px); } }
+
+  /* ---------- Halloween palette (Oct 1 - Nov 2, or ?spooky=1) ---------- */
+  html.spooky { --sky: linear-gradient(90deg, #ffb066, #d9a8ff 55%, #f4f1ea); --gold: #ffc27a; }
+  html.spooky .tab-ink { background: linear-gradient(180deg, #fff4e4, #ffd6a6); }
+
+  /* ---------- Storage badges: Night Sky = blue circle / white text, Star White = white circle / blue text ---------- */
+  .gb { display: inline-grid; place-items: center; flex: none; width: 27px; height: 27px; border-radius: 50%; font-style: normal;
+        font-size: 9.5px; font-weight: 900; letter-spacing: -.03em; font-variant-numeric: tabular-nums; line-height: 1; vertical-align: middle; }
+  .gb.n { background: #3f5cf0; color: #fff; box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.28); }
+  .gb.w { background: #f6f3ec; color: #2c47d8; box-shadow: inset 0 0 0 1.5px #b9c4ff; }
+  .gb.on { box-shadow: 0 0 0 2px var(--ok), 0 0 12px rgba(110,242,177,.65); }
+  .gb.off { opacity: .35; }
+  .gbs { display: flex; align-items: center; gap: 4px; margin-top: 5px; min-width: 0; }
+  .gbs em { margin-left: 4px; font-size: 11.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .banner b .gb { margin: -4px 2px 0; }
+  .sw { display: flex; align-items: center; gap: 7px; padding: 5px 8px 5px 5px; }
+  .evl { display: flex; align-items: center; gap: 10px; min-width: 0; }
+
+  /* ---------- Conjured forecast ---------- */
+  .banner.conjure { align-items: center; }
+  .conjure .cj-text { flex: 1 1 170px; min-width: 0; }
+  .spell { display: block; color: #d3bbff; font-size: 11.5px; font-style: italic; font-weight: 700; margin-bottom: 3px; }
+  .cauldron { width: 104px; height: 69px; flex: none; margin: -4px 0 -6px -6px; overflow: visible; }
+  .cauldron .bub { animation: bub 2.4s ease-in infinite; } .cauldron .b2 { animation-delay: .6s; } .cauldron .b3 { animation-delay: 1.2s; } .cauldron .b4 { animation-delay: 1.8s; }
+  .cauldron .sp { animation: twinkle 1.4s ease-in-out infinite; } .cauldron .s2 { animation-delay: .45s; } .cauldron .s3 { animation-delay: .9s; }
+  .cauldron .wa { transform-origin: 27px 56px; animation: stir 1.5s ease-in-out infinite; }
+  .cauldron .wb { transform-origin: 103px 56px; animation: stirB 1.5s ease-in-out infinite; }
+  .cauldron .mc { transform-box: fill-box; transform-origin: 50% 100%; animation: idle 2.6s ease-in-out infinite; } .cauldron .mb { animation-delay: -1.3s; }
+  .cauldron .flames { transform-box: fill-box; transform-origin: 50% 100%; animation: flick .5s ease-in-out infinite alternate; }
+  .cauldron .brew { animation: twinkle 2.2s ease-in-out infinite; }
+  @keyframes bub { 0% { opacity: 0; transform: translateY(0); } 15% { opacity: 1; } 100% { opacity: 0; transform: translateY(-22px); } }
+  @keyframes stir { 0%,100% { transform: rotate(-10deg); } 50% { transform: rotate(12deg); } }
+  @keyframes stirB { 0%,100% { transform: rotate(10deg); } 50% { transform: rotate(-12deg); } }
+  @keyframes flick { to { transform: scale(1.08, .78); } }
+
+  /* ---------- Chibi outfits per tab ---------- */
+  .mascot .acc, .mascot .fit, .mascot .boo, .mascot .bats, .mascot .poof { display: none; }
+  .mascot .acc, .mascot .fit { transform-box: fill-box; transform-origin: 50% 100%; }
+  html.spooky body[data-tab="stock"] .mascot .acc-stock { display: block; }
+  body[data-tab="patterns"] .mascot .acc-det { display: block; }
+  body[data-tab="patterns"] .mascot .pupils { animation: look 2.4s ease-in-out infinite; }
+  .mascot .mag { transform-origin: 84px 76px; animation: sweep 3s ease-in-out infinite; }
+  .mascot .pencil { transform-box: fill-box; transform-origin: 0 100%; animation: scribble .35s ease-in-out infinite alternate; }
+  @keyframes sweep { 0%,100% { transform: rotate(0); } 30% { transform: rotate(-14deg) translateY(-2px); } 65% { transform: rotate(9deg); } }
+  @keyframes scribble { to { transform: rotate(10deg) translateX(1.5px); } }
+  body[data-tab="changes"] .mascot[data-fit="1"] .f1, body[data-tab="changes"] .mascot[data-fit="2"] .f2,
+  body[data-tab="changes"] .mascot[data-fit="3"] .f3, body[data-tab="changes"] .mascot[data-fit="4"] .f4,
+  body[data-tab="changes"] .mascot[data-fit="5"] .f5, body[data-tab="changes"] .mascot[data-fit="6"] .f6 { display: block; animation: fitIn .45s cubic-bezier(.3,1.7,.5,1); }
+  @keyframes fitIn { from { opacity: 0; transform: translateY(-10px) scale(.5); } }
+  body[data-tab="changes"] .mascot[data-p] .poof { display: block; }
+  .mascot[data-p="a"] .poof { animation: poofA .7s ease-out both; } .mascot[data-p="b"] .poof { animation: poofB .7s ease-out both; }
+  @keyframes poofA { 0% { opacity: 0; transform: scale(.6); } 30% { opacity: 1; } 100% { opacity: 0; transform: scale(1.15) translateY(-6px); } }
+  @keyframes poofB { 0% { opacity: 0; transform: scale(.6); } 30% { opacity: 1; } 100% { opacity: 0; transform: scale(1.15) translateY(-6px); } }
+  .mascot .poof { transform-box: fill-box; transform-origin: 50% 50%; }
+  /* eyes follow your finger / mouse */
+  .mascot .gaze { transition: transform .18s ease-out; }
+  /* solo tricks: tap one chibi, the other one looks over */
+  .mascot .chibi.s-jump .bod { animation: jump .7s cubic-bezier(.3,1.6,.5,1); }
+  .mascot .chibi.s-wiggle .bod { animation: wiggle .5s ease-in-out 2; }
+  .mascot .chibi.s-spin .bod { animation: spin .8s cubic-bezier(.5,-.3,.4,1.3); transform-origin: 50% 50%; }
+  .mascot .chibi.s-squish .bod { animation: squish .45s ease-in-out 2; }
+  .mascot .chibi.look-l .pupils { animation: none; transform: translateX(-2.6px); }
+  .mascot .chibi.look-r .pupils { animation: none; transform: translateX(2.6px); }
+  /* Halloween duo tricks */
+  .mascot .boo { transform-box: fill-box; transform-origin: 50% 100%; }
+  .mascot.t-boo .boo { display: block; animation: boo 1.5s ease-out both; }
+  .mascot.t-bats .bats { display: block; } .mascot.t-bats .bat { animation: batfly 1.5s ease-out both; }
+  .mascot .bat:nth-child(2) { animation-delay: .1s; } .mascot .bat:nth-child(3) { animation-delay: .2s; } .mascot .bat:nth-child(4) { animation-delay: .3s; }
+  @keyframes boo { 0% { opacity: 0; transform: translateY(16px) scale(.8); } 22% { opacity: 1; transform: translateY(-5px) scale(1.05); } 75% { opacity: 1; transform: translateY(-2px) scale(1); } 100% { opacity: 0; transform: translateY(-16px); } }
+  @keyframes batfly { 0% { opacity: 0; transform: translate(0, 0) scale(.3); } 20% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--bx), var(--by)) scale(1.2); } }
+
+  /* ---------- Patterns: swipe-through hour chart ---------- */
+  .scrub { touch-action: pan-y; cursor: ew-resize; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+  .scrub .hours { height: 112px; padding: 16px 16px 4px; }
+  .hb { position: relative; height: 100%; }
+  .hb i { position: absolute; bottom: 0; left: 0; right: 0; border-radius: 3px 3px 0 0; }
+  .hb .ghost { background: rgba(177,140,255,.24); }
+  .hb .mine { left: 16%; right: 16%; background: var(--sky); }
+  .hb.sel::before { content: ""; position: absolute; inset: -8px -2px -3px; border-radius: 7px; background: rgba(255,255,255,.08); box-shadow: inset 0 0 0 1.5px rgba(255,194,122,.75); }
+  .hb.sel .ghost { background: rgba(255,170,90,.55); }
+  .hb.now::after { content: ""; position: absolute; left: 50%; bottom: -7px; width: 4px; height: 4px; margin-left: -2px; border-radius: 50%; background: var(--ok); }
+  .hdetail { padding: 4px 16px 14px; }
+  .hd-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+  .hd-top b { font-size: 17px; letter-spacing: -.01em; }
+  .hd-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  @media (min-width: 640px) { .hd-grid { grid-template-columns: repeat(4, 1fr); } }
+  .hd-grid > div { background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.08); border-radius: 14px; padding: 8px 10px; min-width: 0; }
+  .hd-grid small { display: block; color: var(--faint); font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .07em; }
+  .hd-grid b { display: block; font-size: 18px; font-variant-numeric: tabular-nums; }
+  .hd-grid span { display: block; color: var(--muted); font-size: 11.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .legend { display: flex; gap: 14px; padding: 0 16px 12px; color: var(--faint); font-size: 11.5px; }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+  .legend .lm { background: var(--sky); } .legend .lg { background: rgba(177,140,255,.4); }
+  .vcs { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .vc { display: inline-flex; align-items: center; gap: 3px; font-size: 11.5px; font-weight: 800; color: var(--muted); }
+  .vc .gb { width: 23px; height: 23px; font-size: 8.5px; }
+  .hot7 { color: #ffb066; font-weight: 800; }
+
   /* ---------- Desktop (mouse) only: keep the glass look but stop re-blurring every frame ---------- */
   @media (hover: hover) and (pointer: fine) {
     :root { --blur: blur(14px) saturate(150%); }
     body::after { animation: none; }          /* glows stay put, so the blur is drawn once */
     body::before { animation: none; opacity: .6; }   /* static stars behind the glass */
+    .sky .planet, .sky .batflock g, .sky .batflock path { animation: none; }   /* static sky */
+    .sky .shoot { display: none; }
   }
   /* Phones */
-  @media (max-width: 420px) { h1 { font-size: 23px; } .mascot { width: 100px; height: 66px; } .mrow { grid-template-columns: 112px 1fr; } .dots { display: none; } }
+  @media (max-width: 420px) { h1 { font-size: 23px; } .mascot { width: 100px; height: 80px; } .mrow { grid-template-columns: 112px 1fr; } .dots { display: none; } }
   /* Desktop: a bit more room */
-  @media (min-width: 900px) { body { padding-top: 28px; } h1 { font-size: 30px; } .mascot { width: 140px; height: 92px; } }
+  @media (min-width: 900px) { body { padding-top: 28px; } h1 { font-size: 30px; } .mascot { width: 140px; height: 112px; } }
   /* Save battery: pause everything when the app is in the background; respect reduced motion. */
   .paused *, .paused *::before, .paused *::after, .paused body::before { animation-play-state: paused !important; }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 </style>
 </head>
 <body data-tab="stock">
+<div class="sky" aria-hidden="true">
+  <svg class="moon" viewBox="0 0 100 100"><defs><radialGradient id="mglow"><stop offset=".35" stop-color="#ffe9b8" stop-opacity=".32"/><stop offset="1" stop-color="#ffe9b8" stop-opacity="0"/></radialGradient>
+    <mask id="cres"><rect width="100" height="100" fill="#fff"/><circle cx="63" cy="40" r="23" fill="#000"/></mask></defs>
+    <circle cx="50" cy="50" r="50" fill="url(#mglow)"/><circle cx="50" cy="50" r="27" fill="#ffefc2" mask="url(#cres)"/>
+    <circle cx="38" cy="60" r="3" fill="#f2d99a" mask="url(#cres)"/><circle cx="31" cy="46" r="2" fill="#f2d99a"/></svg>
+  <svg class="planet" viewBox="0 0 60 40"><path d="M5 24 Q30 12 55 24" fill="none" stroke="#c7a8ff" stroke-width="2" opacity=".55"/><circle cx="30" cy="20" r="11" fill="#8f6cff"/>
+    <path d="M22 16 q6 -3 14 0" stroke="#b9a2ff" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M5 24 Q30 34 55 24" fill="none" stroke="#c7a8ff" stroke-width="2"/></svg>
+  <i class="shoot"></i>
+  <svg class="batflock" viewBox="0 0 120 50" fill="#1d1538" stroke="#8d6bd6" stroke-width=".7"><g>
+    <path transform="translate(20 20)" d="M0 2 Q-3 -3 -6 -1 Q-9 -6 -14 -2 Q-10 0 -9 4 Q-6 2 -4 5 Q-2 2 0 4 Q2 2 4 5 Q6 2 9 4 Q10 0 14 -2 Q9 -6 6 -1 Q3 -3 0 2Z"/>
+    <path transform="translate(62 32) scale(.75)" d="M0 2 Q-3 -3 -6 -1 Q-9 -6 -14 -2 Q-10 0 -9 4 Q-6 2 -4 5 Q-2 2 0 4 Q2 2 4 5 Q6 2 9 4 Q10 0 14 -2 Q9 -6 6 -1 Q3 -3 0 2Z"/>
+    <path transform="translate(96 14) scale(.6)" d="M0 2 Q-3 -3 -6 -1 Q-9 -6 -14 -2 Q-10 0 -9 4 Q-6 2 -4 5 Q-2 2 0 4 Q2 2 4 5 Q6 2 9 4 Q10 0 14 -2 Q9 -6 6 -1 Q3 -3 0 2Z"/></g></svg>
+</div>
 <div class="ptr" id="ptr">Pull to refresh</div>
 <div class="wrap">
   <header class="top">
     <!-- Two chibis: Night Sky (left) and Star White (right). Tap them. -->
-    <svg class="mascot" id="mascot" viewBox="0 0 180 120" aria-hidden="true">
+    <svg class="mascot" id="mascot" viewBox="0 -24 180 144" aria-hidden="true">
       <defs>
         <linearGradient id="scrN" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22306b"/><stop offset="1" stop-color="#3b4fa8"/></linearGradient>
         <linearGradient id="scrW" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#e4e0d6"/></linearGradient>
+        <g id="ghostS"><path d="M16 106 Q12 -4 51 -4 Q90 -4 86 106 L78 98 L70 106 L62 98 L54 106 L46 98 L38 106 L30 98 L22 106Z" fill="#fbfaff" stroke="#d8d4ff" stroke-width="1.5"/>
+          <ellipse cx="40" cy="42" rx="5" ry="7" fill="#141933"/><ellipse cx="62" cy="42" rx="5" ry="7" fill="#141933"/><ellipse cx="51" cy="62" rx="5.5" ry="7" fill="#141933"/>
+          <ellipse cx="32" cy="54" rx="4" ry="2.4" fill="#ff9ec8" opacity=".7"/><ellipse cx="70" cy="54" rx="4" ry="2.4" fill="#ff9ec8" opacity=".7"/></g>
+        <path id="batS" d="M0 2 Q-3 -3 -6 -1 Q-9 -6 -14 -2 Q-10 0 -9 4 Q-6 2 -4 5 Q-2 2 0 4 Q2 2 4 5 Q6 2 9 4 Q10 0 14 -2 Q9 -6 6 -1 Q3 -3 0 2Z"/>
       </defs>
       <ellipse cx="90" cy="114" rx="62" ry="5" fill="rgba(0,0,0,.4)"/>
       <g class="spark" fill="#ffd98a"><path d="M8 22l3 7 7 3-7 3-3 7-3-7-7-3 7-3z"/><path d="M168 12l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/><path d="M90 6l2 4 4 2-4 2-2 4-2-4-4-2 4-2z"/></g>
@@ -327,14 +463,36 @@
           <circle cx="36" cy="25" r="2.2" fill="#070a16"/><circle cx="66" cy="25" r="2.2" fill="#070a16"/>
           <g transform="translate(51 52)" stroke="#fff">
             <g class="eyes"><ellipse cx="-11" cy="0" rx="5" ry="6.3" fill="#fff" stroke="none"/><ellipse class="eye-r" cx="11" cy="0" rx="5" ry="6.3" fill="#fff" stroke="none"/>
-              <g class="pupils" stroke="none"><circle cx="-10" cy="1.3" r="3.1" fill="#141933"/><circle class="eye-r" cx="12" cy="1.3" r="3.1" fill="#141933"/>
-                <circle cx="-8.6" cy="-.6" r="1.1" fill="#fff"/><circle class="eye-r" cx="13.4" cy="-.6" r="1.1" fill="#fff"/></g></g>
+              <g class="gaze"><g class="pupils" stroke="none"><circle cx="-10" cy="1.3" r="3.1" fill="#141933"/><circle class="eye-r" cx="12" cy="1.3" r="3.1" fill="#141933"/>
+                <circle cx="-8.6" cy="-.6" r="1.1" fill="#fff"/><circle class="eye-r" cx="13.4" cy="-.6" r="1.1" fill="#fff"/></g></g></g>
             <path class="wink" d="M6 1 q5 4 10 0" stroke-width="2.6" stroke-linecap="round" fill="none"/>
             <g class="shut" stroke-width="2.6" stroke-linecap="round" fill="none"><path d="M-16 1 q5 4 10 0"/><path d="M6 1 q5 4 10 0"/></g>
             <ellipse cx="-19" cy="10" rx="4.6" ry="2.7" fill="#ff9ec8" opacity=".75" stroke="none"/><ellipse cx="19" cy="10" rx="4.6" ry="2.7" fill="#ff9ec8" opacity=".75" stroke="none"/>
             <path class="smile" d="M-5 11 q5 5 10 0" stroke-width="2.6" fill="none" stroke-linecap="round"/>
             <ellipse class="oh" cx="0" cy="13" rx="4" ry="5" fill="#141933" stroke-width="1.6"/>
           </g>
+          <!-- Night Sky outfits -->
+          <g class="acc acc-stock"><ellipse cx="51" cy="13" rx="26" ry="4.5" fill="#2b1f4d" stroke="#b18cff" stroke-width="1.5"/>
+            <path d="M37 12 Q44 -6 52 -16 Q56 -21 64 -18 Q58 -14 59 -6 L65 12 Z" fill="#3a2a6b" stroke="#b18cff" stroke-width="1.5" stroke-linejoin="round"/>
+            <path d="M39 8 L63 8 L64 11 L38 11Z" fill="#ffa24c"/><path d="M50 -1l1.3 2.8 2.8 1.3-2.8 1.3-1.3 2.8-1.3-2.8-2.8-1.3 2.8-1.3z" fill="#ffd98a"/></g>
+          <g class="acc acc-det"><path d="M29 14 Q30 -6 51 -7 Q72 -6 73 14 Z" fill="#a8794c" stroke="#7a5532" stroke-width="1.5"/>
+            <path d="M33 4 H69 M31 9 H71 M42 -5 V14 M60 -5 V14" stroke="#7a5532" stroke-width="1" opacity=".6"/>
+            <ellipse cx="51" cy="14" rx="27" ry="3.5" fill="#8a6038"/><circle cx="51" cy="-7" r="2.5" fill="#7a5532"/></g>
+          <g class="acc acc-det"><g class="mag"><line x1="84" y1="76" x2="88.5" y2="65.5" stroke="#7a5532" stroke-width="3.4" stroke-linecap="round"/>
+            <circle cx="92" cy="58" r="8.5" fill="rgba(199,208,255,.28)" stroke="#ffd98a" stroke-width="2.6"/>
+            <path d="M88 54 q2 -3 5 -3" stroke="#fff" stroke-width="1.5" fill="none" stroke-linecap="round"/></g></g>
+          <g class="fit f1"><rect x="39" y="-14" width="24" height="26" rx="2" fill="#15172a" stroke="#6f8cff" stroke-width="1.4"/>
+            <rect x="39" y="4" width="24" height="5" fill="#ff6b8a"/><ellipse cx="51" cy="12" rx="19" ry="3.5" fill="#15172a" stroke="#6f8cff" stroke-width="1.4"/></g>
+          <g class="fit f2"><path d="M35 13 L37 -5 L45 5 L51 -9 L57 5 L65 -5 L67 13 Z" fill="#ffd98a" stroke="#e0a940" stroke-width="1.4" stroke-linejoin="round"/>
+            <circle cx="51" cy="4" r="2.2" fill="#ff6b8a"/><circle cx="41" cy="8" r="1.5" fill="#7fd4ff"/><circle cx="61" cy="8" r="1.5" fill="#7fd4ff"/></g>
+          <g class="fit f3"><rect x="31" y="45" width="18" height="13" rx="4.5" fill="#0b0d18"/><rect x="53" y="45" width="18" height="13" rx="4.5" fill="#0b0d18"/>
+            <path d="M49 50 h4" stroke="#0b0d18" stroke-width="2.6"/><path d="M34 48.5 h5" stroke="rgba(255,255,255,.55)" stroke-width="1.6" stroke-linecap="round"/><path d="M56 48.5 h5" stroke="rgba(255,255,255,.55)" stroke-width="1.6" stroke-linecap="round"/></g>
+          <g class="fit f4"><path d="M40 13 L51 -15 L62 13 Z" fill="#6ef2b1" stroke="#2fbf83" stroke-width="1.2" stroke-linejoin="round"/>
+            <path d="M43.5 5 L58.5 5 M46.5 -3 L55.5 -3" stroke="#fff" stroke-width="2.2"/><circle cx="51" cy="-16" r="3.6" fill="#ffd98a"/></g>
+          <g class="fit f5"><path d="M21 80 Q51 91 81 80 L81 89 Q51 100 21 89Z" fill="#ff6b6b"/><rect x="62" y="86" width="9" height="17" rx="3.5" fill="#ff6b6b"/>
+            <path d="M30 84 l3 6 M42 87 l3 6 M54 87 l3 6 M66 84 l3 6" stroke="#fff" stroke-width="1.4" opacity=".6"/></g>
+          <g class="fit f6"><path d="M21 66 L6 98 L30 84Z M81 66 L96 98 L72 84Z" fill="#7a1f3d" stroke="#b1305a" stroke-width="1.2" stroke-linejoin="round"/>
+            <path d="M47 63 l1.6 4.5 1.6 -4.5Z M52.8 63 l1.6 4.5 1.6 -4.5Z" fill="#fff"/></g>
         </g>
       </g>
       <g class="chibi b">
@@ -348,20 +506,49 @@
           <circle cx="114" cy="25" r="2.2" fill="#c9c2b1"/><circle cx="144" cy="25" r="2.2" fill="#c9c2b1"/>
           <g transform="translate(129 52)" stroke="#141933">
             <g class="eyes"><ellipse cx="-11" cy="0" rx="5" ry="6.3" fill="#1b2142" stroke="none"/><ellipse class="eye-r" cx="11" cy="0" rx="5" ry="6.3" fill="#1b2142" stroke="none"/>
-              <g class="pupils" stroke="none"><circle cx="-10" cy="1.3" r="3.1" fill="#1b2142"/><circle class="eye-r" cx="12" cy="1.3" r="3.1" fill="#1b2142"/>
-                <circle cx="-8.6" cy="-.6" r="1.1" fill="#fff"/><circle class="eye-r" cx="13.4" cy="-.6" r="1.1" fill="#fff"/></g></g>
+              <g class="gaze"><g class="pupils" stroke="none"><circle cx="-10" cy="1.3" r="3.1" fill="#1b2142"/><circle class="eye-r" cx="12" cy="1.3" r="3.1" fill="#1b2142"/>
+                <circle cx="-8.6" cy="-.6" r="1.1" fill="#fff"/><circle class="eye-r" cx="13.4" cy="-.6" r="1.1" fill="#fff"/></g></g></g>
             <path class="wink" d="M6 1 q5 4 10 0" stroke-width="2.6" stroke-linecap="round" fill="none"/>
             <g class="shut" stroke-width="2.6" stroke-linecap="round" fill="none"><path d="M-16 1 q5 4 10 0"/><path d="M6 1 q5 4 10 0"/></g>
             <ellipse cx="-19" cy="10" rx="4.6" ry="2.7" fill="#ff9ec8" opacity=".75" stroke="none"/><ellipse cx="19" cy="10" rx="4.6" ry="2.7" fill="#ff9ec8" opacity=".75" stroke="none"/>
             <path class="smile" d="M-5 11 q5 5 10 0" stroke-width="2.6" fill="none" stroke-linecap="round"/>
             <ellipse class="oh" cx="0" cy="13" rx="4" ry="5" fill="#141933" stroke-width="1.6"/>
           </g>
+          <!-- Star White outfits -->
+          <g class="acc acc-stock"><path d="M103 21 L104 -2 L121 13 Z" fill="#f4f1ea" stroke="#d9d3c5" stroke-width="2" stroke-linejoin="round"/><path d="M107 13 L107.5 4 L115 11Z" fill="#ff9ec8"/>
+            <path d="M155 21 L154 -2 L137 13 Z" fill="#f4f1ea" stroke="#d9d3c5" stroke-width="2" stroke-linejoin="round"/><path d="M151 13 L150.5 4 L143 11Z" fill="#ff9ec8"/>
+            <path d="M163 86 q0 -10 9 -10 q9 0 9 10 q0 8 -9 8 q-9 0 -9 -8z" fill="#ff9a3c" stroke="#d9711f" stroke-width="1.2"/><path d="M164 80 q8 -8 16 0" stroke="#3a2a6b" stroke-width="1.4" fill="none"/>
+            <path d="M168 84 l2 -2 2 2z M174 84 l2 -2 2 2z" fill="#3a2016"/><path d="M168 89 q4 3 8 0" stroke="#3a2016" stroke-width="1.3" fill="none"/></g>
+          <g class="acc acc-det"><path d="M113 13 Q113 -8 129 -8 Q145 -8 145 13 Z" fill="#59607a" stroke="#3b4057" stroke-width="1.5"/>
+            <path d="M121 -7 Q129 -2 137 -7" stroke="#3b4057" stroke-width="1.5" fill="none"/><rect x="113" y="6" width="32" height="5" fill="#2a2e40"/>
+            <ellipse cx="129" cy="13" rx="28" ry="3.8" fill="#4a5068"/></g>
+          <g class="acc acc-det"><g transform="rotate(8 168 71)"><rect x="160" y="60" width="17" height="22" rx="2" fill="#fff6dc" stroke="#c9b98f" stroke-width="1.2"/>
+            <path d="M163 66 h11 M163 70 h8 M163 74 h11 M163 78 h6" stroke="#9aa3c7" stroke-width="1.2"/></g>
+            <line class="pencil" x1="157" y1="82" x2="166" y2="69" stroke="#ffa24c" stroke-width="2.6" stroke-linecap="round"/></g>
+          <g class="fit f1"><path d="M120 82 L129 86.5 L120 91Z M138 82 L129 86.5 L138 91Z" fill="#ff6b8a"/><circle cx="129" cy="86.5" r="2.2" fill="#d94a6a"/>
+            <circle cx="140" cy="52" r="8.5" fill="none" stroke="#e0a940" stroke-width="2"/><path d="M148 55 q3 8 1 16" stroke="#e0a940" stroke-width="1" fill="none"/></g>
+          <g class="fit f2"><path d="M110 14 Q129 -8 148 14" fill="none" stroke="#c7d0ff" stroke-width="2.6"/><path d="M129 -4 l3.4 6 -3.4 5.5 -3.4 -5.5z" fill="#9fe0ff"/>
+            <circle cx="118" cy="5" r="1.8" fill="#ff9ec8"/><circle cx="140" cy="5" r="1.8" fill="#ff9ec8"/></g>
+          <g class="fit f3"><path d="M109 46 q0 -2 3 -2 h11 q3 0 3 3 q0 11 -8.5 11 q-8.5 0 -8.5 -12z M132 46 q0 -2 3 -2 h11 q3 0 3 3 q0 11 -8.5 11 q-8.5 0 -8.5 -12z" fill="#ff5fa8" stroke="#c43c80" stroke-width="1"/>
+            <path d="M126 49 h6" stroke="#c43c80" stroke-width="2.4"/><path d="M112 48.5 h4" stroke="rgba(255,255,255,.7)" stroke-width="1.6" stroke-linecap="round"/></g>
+          <g class="fit f4"><path d="M118 13 L129 -15 L140 13 Z" fill="#ff9ec8" stroke="#e0679f" stroke-width="1.2" stroke-linejoin="round"/>
+            <path d="M121.5 5 L136.5 5 M124.5 -3 L133.5 -3" stroke="#fff" stroke-width="2.2"/><circle cx="129" cy="-16" r="3.6" fill="#7fd4ff"/></g>
+          <g class="fit f5"><ellipse cx="146" cy="10" rx="8" ry="5.5" transform="rotate(-25 146 10)" fill="#ff9ec8"/><ellipse cx="160" cy="10" rx="8" ry="5.5" transform="rotate(25 160 10)" fill="#ff9ec8"/>
+            <circle cx="153" cy="11" r="3.4" fill="#ff6fae"/></g>
+          <g class="fit f6"><ellipse cx="129" cy="5" rx="17" ry="11.5" fill="#ff9a3c" stroke="#d9711f" stroke-width="1.4"/>
+            <path d="M129 -6 V16 M120.5 -4 Q116 5 120.5 15 M137.5 -4 Q142 5 137.5 15" stroke="#d9711f" stroke-width="1.2" fill="none"/>
+            <path d="M129 -6 q1 -6 6 -7" stroke="#4f8a3a" stroke-width="2.6" fill="none" stroke-linecap="round"/></g>
         </g>
       </g>
       <g class="hearts" fill="#ff9ec8"><path d="M82 30c0-4 5-6 7-2 2-4 7-2 7 2 0 5-7 8-7 8s-7-3-7-8z"/><path d="M4 40c0-3 4-5 6-2 2-3 6-1 6 2 0 4-6 7-6 7s-6-3-6-7z"/></g>
       <g class="stars" fill="#ffd98a"><path d="M30 8l2 5 5 1-4 3 1 5-4-3-4 3 1-5-4-3 5-1z"/><path d="M150 4l2 5 5 1-4 3 1 5-4-3-4 3 1-5-4-3 5-1z"/><path d="M90 0l2 4 4 1-3 3 1 4-4-2-4 2 1-4-3-3 4-1z"/></g>
       <g class="notes" fill="#c7d0ff"><path d="M4 46v-14l10-3v14"/><circle cx="2" cy="47" r="3.5"/><circle cx="12" cy="44" r="3.5"/><path d="M168 40v-12l8-2v12"/><circle cx="166" cy="41" r="3"/><circle cx="174" cy="39" r="3"/></g>
       <g class="zzz" fill="#c7d0ff" font-weight="800" font-family="ui-rounded, sans-serif"><text x="160" y="16" font-size="14">z</text><text x="170" y="5" font-size="10">z</text></g>
+      <g class="boo"><use href="#ghostS"/><use href="#ghostS" x="78"/></g>
+      <g class="bats" fill="#2a1f4d" stroke="#b18cff" stroke-width=".8">
+        <g transform="translate(90 40)"><use class="bat" href="#batS" style="--bx:-70px;--by:-40px"/><use class="bat" href="#batS" style="--bx:70px;--by:-46px"/><use class="bat" href="#batS" style="--bx:-30px;--by:-62px"/><use class="bat" href="#batS" style="--bx:40px;--by:-20px"/></g></g>
+      <g class="poof" fill="#ffd98a"><path d="M20 -4l2 5 5 1-4 3 1 5-4-3-4 3 1-5-4-3 5-1z"/><path d="M84 -14l1.6 4 4 .8-3.2 2.4.8 4-3.2-2.4-3.2 2.4.8-4-3.2-2.4 4-.8z"/>
+        <path d="M100 0l1.6 4 4 .8-3.2 2.4.8 4-3.2-2.4-3.2 2.4.8-4-3.2-2.4 4-.8z"/><path d="M164 -6l2 5 5 1-4 3 1 5-4-3-4 3 1-5-4-3 5-1z"/></g>
     </svg>
     <div class="title">
       <h1>Duo Watch</h1>
@@ -379,9 +566,9 @@
 
   <nav class="tabs" role="tablist" id="tabs">
     <span class="tab-ink" id="tabInk"></span>
-    <button class="tab" role="tab" data-tab="stock" aria-selected="true">🌙 Stock</button>
-    <button class="tab" role="tab" data-tab="changes" aria-selected="false">⭐ Changes</button>
-    <button class="tab" role="tab" data-tab="patterns" aria-selected="false">✨ Patterns</button>
+    <button class="tab" role="tab" data-tab="stock" aria-selected="true" id="tabStock">🌙 Stock</button>
+    <button class="tab" role="tab" data-tab="changes" aria-selected="false">👗 Changes</button>
+    <button class="tab" role="tab" data-tab="patterns" aria-selected="false">🕵️ Patterns</button>
   </nav>
 
   <div id="banner"></div>
@@ -405,7 +592,7 @@
     <div class="note" id="tokenNote">Fine-grained token for this repo only with <b>Actions: Read and write</b>. Stored on this device only.</div>
   </details>
 </div>
-<div class="foot">🌙 <b>Duo Watch</b> ⭐ two little phones keeping watch for you</div>
+<div class="foot" id="foot">🌙 <b>Duo Watch</b> ⭐ two little phones keeping watch for you</div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -488,6 +675,24 @@
 
   let STATUS = null, HISTORY = { events: [] }, FORECAST = null;
 
+  // Halloween look from Oct 1 to Nov 2 (or force with ?spooky=1 / ?spooky=0).
+  const SPOOKY = QS.has("spooky") ? QS.get("spooky") === "1"
+    : (() => { const d = new Date(); return d.getMonth() === 9 || (d.getMonth() === 10 && d.getDate() <= 2); })();
+  document.documentElement.classList.toggle("spooky", SPOOKY);
+  if (SPOOKY) {
+    document.getElementById("tabStock").textContent = "🎃 Stock";
+    document.getElementById("foot").innerHTML = "🎃 <b>Duo Watch</b> 👻 two little phones keeping watch (in costume)";
+  }
+
+  // Storage badge: Night Sky = blue circle / white text, Star White = white circle / blue text.
+  const gbOf = (x) => ((String(x || "").match(/(\d{3,4})\s*(GB|TB)?\b/i) || [])[1]) || "";
+  function badge(color, storage, state) {
+    const c = /white/i.test(color || "") ? "w" : "n";
+    return `<i class="gb ${c}${state ? " " + state : ""}" title="${esc((gbOf(storage) ? gbOf(storage) + "GB " : "") + (color || ""))}">${esc(gbOf(storage) || "•")}</i>`;
+  }
+  const evColor = (e) => e.color || String(e.label || "").replace(/.*\d+\s*(GB|TB)\s*/i, "");
+  const evStorage = (e) => e.storage || gbOf(e.label);
+
   // ---------- derived ----------
   const DEMO = QS.get("demo") === "1";
   function applyDemo(status) {
@@ -507,8 +712,9 @@
         map.get(s.id).colors.push({ color: m.color || m.label.replace(/.*\d+(GB|TB)\s*/, ""), storage, url: m.url, available: s.available, quote: s.quote });
       }
     }
+    const vkey = (c) => (parseInt(gbOf(c.storage)) || 0) * 10 + (/white/i.test(c.color) ? 1 : 0);
     return [...map.values()]
-      .map((s) => ({ ...s, any: s.colors.some((c) => c.available) }))
+      .map((s) => ({ ...s, colors: s.colors.sort((a, b) => vkey(a) - vkey(b)), any: s.colors.some((c) => c.available) }))
       .sort((a, b) => (b.any - a.any) || ((a.miles ?? 999) - (b.miles ?? 999)));
   }
   function restocks() { return (HISTORY.events || []).filter((e) => e.kind === "in"); }
@@ -530,7 +736,7 @@
     }
     if (hot.length) {
       const s = hot[0], c = s.colors.find((x) => x.available);
-      html += `<div class="banner hot"><div><b>🎉 ${esc((c.storage ? c.storage + " " : "") + c.color)} at ${esc(s.name)}${hot.length > 1 ? ` + ${hot.length - 1} more` : ""}</b>
+      html += `<div class="banner hot"><div><b>🎉 ${badge(c.color, c.storage, "on")} ${esc(c.color)} at ${esc(s.name)}${hot.length > 1 ? ` + ${hot.length - 1} more` : ""}</b>
         <small>${s.zip ? `Pickup ZIP <b style="display:inline;color:var(--text)">${esc(s.zip)}</b> · ` : ""}${esc(c.quote || "Available for pickup")} · go go go!</small></div>
         <div class="ctas">${s.zip ? `<button class="cta ghost copyzip" data-zip="${esc(s.zip)}">📋 ${esc(s.zip)}</button>` : ""}<a class="cta ok" href="${esc(c.url)}" target="_blank" rel="noopener">Buy now →</a></div></div>`;
     } else {
@@ -538,9 +744,15 @@
       const usual = typicalHour(last ? r.filter((e) => e.store_id === last.store_id) : []);
       const lastLine = last ? `Last: ${esc(last.store)} ${esc(when(last.t))} (${esc(last.color || last.label)})` : "No restocks seen yet";
       const f = forecastNow();
-      const detail = f
-        ? `<b>🔮 Next likely: ${esc(f.when)}</b><small>Watch ${esc(f.stores)} · ${esc(f.colour)}<br>${esc(f.odds)} · ${lastLine}<br><span class="fc-acc">${esc(f.accuracy)}</span></small>`
-        : last
+      if (f) {
+        const spell = SPELLS[Math.floor(Date.now() / 90000) % SPELLS.length];
+        html += `<div class="banner calm conjure">${CAULDRON}<div class="cj-text"><span class="spell">${esc(spell)}</span>
+          <b>🔮 The cauldron says: ${esc(f.when)}</b><small>Brewing at ${esc(f.stores)} · ${esc(f.colour)}<br>${esc(f.odds)} · ${lastLine}<br><span class="fc-acc">${esc(f.accuracy)}</span></small></div>
+          <a class="cta star" href="${esc((STATUS.models[0] || {}).url || "https://www.apple.com/shop/buy-iphone")}" target="_blank" rel="noopener">Apple Store ↗</a></div>`;
+        $("banner").innerHTML = html;
+        return;
+      }
+      const detail = last
         ? `<b>🌙 ${esc(last.store)} last restocked ${esc(when(last.t))}</b><small>${esc(last.color || last.label)}${usual !== null ? ` · usually around ${hourLabel(usual)}` : ""} · you'll get a push the second it's back</small>`
         : `<b>🌙 Nothing nearby yet… we're on it</b><small>The second a Duo lands at one of these stores, your phone rings.</small>`;
       html += `<div class="banner calm"><div>${detail}</div>
@@ -548,6 +760,39 @@
     }
     $("banner").innerHTML = html;
   }
+
+  const SPELLS = [
+    "Double, double, restock trouble… 🫧", "Eye of newt and wing of bat, where's a Duo? Tell us that 🦇",
+    "Bubble bubble, 256 or 512? 🫧", "Abra-cad-Apple-Pay ✨", "By the light of the Night Sky moon… 🌙",
+    "Hocus pocus, restock focus 🔮", "Stir clockwise for Star White, counter for Night Sky 🥄",
+    SPOOKY ? "Trick or restock?? 🎃" : "Sim sala bim, pickup today please ✨",
+  ];
+  // Two mini Duos stirring a cauldron for the forecast banner.
+  const CAULDRON = `<svg class="cauldron" viewBox="0 0 130 86" aria-hidden="true">
+    <g class="flames"><path d="M48 84 q4 -10 7 -2 q2 -8 6 -1 q3 -9 7 0 q3 -7 6 1 q3 -6 6 2z" fill="#ff9a3c"/><path d="M55 84 q3 -6 5 -1 q2 -5 5 0 q2 -5 4 0 q2 -3 4 1z" fill="#ffd98a"/></g>
+    <path d="M45 74 l-4 7 M85 74 l4 7" stroke="#3a2f5c" stroke-width="3" stroke-linecap="round"/>
+    <path d="M35 44 Q33 79 65 79 Q97 79 95 44 Z" fill="#1b1530" stroke="#4a3d78" stroke-width="1.5"/>
+    <path d="M43 56 Q45 70 57 74" stroke="rgba(255,255,255,.13)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <ellipse cx="65" cy="44" rx="31" ry="6.5" fill="#2a2148" stroke="#5c4c94" stroke-width="1.5"/>
+    <ellipse class="brew" cx="65" cy="43.5" rx="26" ry="4.2" fill="#7dffb0"/>
+    <g fill="#b5ffd3"><circle class="bub" cx="56" cy="42" r="3"/><circle class="bub b2" cx="69" cy="41" r="2.4"/><circle class="bub b3" cx="77" cy="42" r="2"/><circle class="bub b4" cx="62" cy="41" r="1.7"/></g>
+    <g fill="#ffd98a"><path class="sp" d="M65 18l1.6 3.6 3.6 1.6-3.6 1.6-1.6 3.6-1.6-3.6-3.6-1.6 3.6-1.6z"/><path class="sp s2" d="M53 9l1.2 2.6 2.6 1.2-2.6 1.2-1.2 2.6-1.2-2.6-2.6-1.2 2.6-1.2z"/><path class="sp s3" d="M79 7l1.2 2.6 2.6 1.2-2.6 1.2-1.2 2.6-1.2-2.6-2.6-1.2 2.6-1.2z"/></g>
+    <g class="mc ma">
+      <rect x="4" y="34" width="24" height="38" rx="8" fill="#121a3d" stroke="#6f8cff" stroke-width="1.6"/><rect x="7" y="37" width="18" height="32" rx="5.5" fill="#2b3d8f"/>
+      <circle cx="12" cy="50" r="2.1" fill="#fff"/><circle cx="20" cy="50" r="2.1" fill="#fff"/><path d="M13.5 55 q2.5 2.5 5 0" stroke="#fff" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      <ellipse cx="9" cy="54" rx="2" ry="1.2" fill="#ff9ec8" opacity=".8"/><ellipse cx="23" cy="54" rx="2" ry="1.2" fill="#ff9ec8" opacity=".8"/>
+      <ellipse cx="16" cy="35" rx="15" ry="3" fill="#2b1f4d" stroke="#b18cff" stroke-width="1.2"/>
+      <path d="M8 34 Q12 22 17 14 Q19 10 24 12 Q20 15 21 21 L25 34Z" fill="#3a2a6b" stroke="#b18cff" stroke-width="1.2" stroke-linejoin="round"/><path d="M9 31 h15" stroke="#ffa24c" stroke-width="2.4"/>
+      <g class="wand wa"><line x1="27" y1="56" x2="44" y2="34" stroke="#c9a46a" stroke-width="2.2" stroke-linecap="round"/><path d="M45 28l1.4 3 3 1.4-3 1.4-1.4 3-1.4-3-3-1.4 3-1.4z" fill="#ffd98a"/></g>
+    </g>
+    <g class="mc mb">
+      <rect x="102" y="34" width="24" height="38" rx="8" fill="#f4f1ea" stroke="#d9d3c5" stroke-width="1.6"/><rect x="105" y="37" width="18" height="32" rx="5.5" fill="#ffffff"/>
+      <circle cx="110" cy="50" r="2.1" fill="#1b2142"/><circle cx="118" cy="50" r="2.1" fill="#1b2142"/><path d="M111.5 55 q2.5 2.5 5 0" stroke="#1b2142" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      <ellipse cx="107" cy="54" rx="2" ry="1.2" fill="#ff9ec8" opacity=".8"/><ellipse cx="121" cy="54" rx="2" ry="1.2" fill="#ff9ec8" opacity=".8"/>
+      <ellipse cx="114" cy="35" rx="15" ry="3" fill="#4a2a12" stroke="#ffa24c" stroke-width="1.2"/>
+      <path d="M122 34 Q118 22 113 14 Q111 10 106 12 Q110 15 109 21 L105 34Z" fill="#ff9a3c" stroke="#d9711f" stroke-width="1.2" stroke-linejoin="round"/><path d="M106 31 h15" stroke="#3a2a6b" stroke-width="2.4"/>
+      <g class="wand wb"><line x1="103" y1="56" x2="86" y2="34" stroke="#c9a46a" stroke-width="2.2" stroke-linecap="round"/><path d="M85 28l1.4 3 3 1.4-3 1.4-1.4 3-1.4-3-3-1.4 3-1.4z" fill="#ffd98a"/></g>
+    </g></svg>`;
 
   // Big card for a store that has stock right now.
   function storeCard(s) {
@@ -563,7 +808,7 @@
         <div class="models">
           ${s.colors.slice().sort((a, b) => (b.available - a.available)).map((c) => `
             <div class="mrow">
-              <span class="sw ${sw(c.color)}">${c.storage ? esc(gb(c.storage)) + " · " : ""}${esc(c.color)}</span>
+              <span class="sw ${sw(c.color)}">${badge(c.color, c.storage, c.available ? "on" : "")}${esc(c.color)}</span>
               ${c.available
                 ? `<a class="st yes" href="${esc(c.url)}" target="_blank" rel="noopener">Buy · ${esc(c.quote || "Available")} →</a>`
                 : `<span class="st no">sold out</span>`}
@@ -626,8 +871,8 @@
     return `
       <div class="wrow" ${delay}>
         <span class="rank">${s.rank}</span>
-        <a class="wmain" href="${esc(buy)}" target="_blank" rel="noopener"><b>${esc(s.name)}</b><small>${where}</small>${lr ? `<small><em>${weekCount(s.id) ? `🔥 ${weekCount(s.id)}× this week · ` : "✨ restocked "}${esc(shortAgo(lr.t))}</em></small>` : ""}</a>
-        <span class="dots" aria-hidden="true">${s.colors.map((c) => `<i class="${sw(c.color)}"></i>`).join("")}</span>
+        <a class="wmain" href="${esc(buy)}" target="_blank" rel="noopener"><b>${esc(s.name)}</b><small>${where}</small>
+          <span class="gbs">${s.colors.map((c) => badge(c.color, c.storage)).join("")}${lr ? `<em>✨ restocked ${esc(shortAgo(lr.t))}</em>` : ""}</span></a>
         ${s.zip ? `<button class="copyzip" data-zip="${esc(s.zip)}" aria-label="Copy ZIP ${esc(s.zip)}">📋<span>ZIP</span></button>` : ""}
         <button class="rbtn${spinningStore === s.id ? " spin" : ""}" data-store="${esc(s.id)}" aria-label="Re-check ${esc(s.name)}"><span>↻</span></button>
       </div>`;
@@ -665,7 +910,7 @@
     const ev = (HISTORY.events || []).slice().reverse().slice(0, 100);
     $("changes").innerHTML = ev.length ? ev.map((e) => `
       <div class="row">
-        <div><b>${esc(e.store)}</b><br><span class="when">${esc(e.color || e.label)} · ${esc(when(e.t))}</span></div>
+        <div class="evl">${badge(evColor(e), evStorage(e), e.kind === "in" ? "" : "off")}<div><b>${esc(e.store)}</b><br><span class="when">${evStorage(e) ? esc(evStorage(e)) + "GB " : ""}${esc(evColor(e))} · ${esc(when(e.t))}</span></div></div>
         <span class="tag ${e.kind}">${e.kind === "in" ? "Restocked" : "Sold out"}</span>
       </div>`).join("")
       : `<div class="empty">No restocks seen yet. Every restock and sell-out at these stores will be logged here.</div>`;
@@ -707,38 +952,104 @@
       <div class="panel">${items}</div>`;
   }
 
-  const OTHER_TRACKERS = `
-      <h2>History from other trackers</h2>
-      <div class="panel">
-        <a class="row" href="https://manzanatracker.com/stock/iphone-duo" target="_blank" rel="noopener"><div><b>Manzana Tracker</b><br><span class="when">Restock history and typical restock times since launch</span></div><span class="tag out">Open ↗</span></a>
-        <a class="row" href="https://appleinventorycheck.com/iphone-duo/usa" target="_blank" rel="noopener"><div><b>Apple Inventory Check</b><br><span class="when">Store-by-store activity for the last 7 days</span></div><span class="tag out">Open ↗</span></a>
-        <a class="row" href="https://iphonestockchecker.com" target="_blank" rel="noopener"><div><b>iPhone Stock Checker</b><br><span class="when">Recent changes and Patterns tabs per store</span></div><span class="tag out">Open ↗</span></a>
-      </div>`;
 
+  // ---------- Patterns: detective board with a swipe-through hour chart ----------
+  let selHour = null, scrubbing = false, patternsDirty = false, PAT_R = [], PAT_F = null;
+  const inPeak = (h) => h === 9 || h === 13;
+  function paceFor(h) {
+    if (h === 8) return ["60s", "from 8:30 peak"]; if (h === 10) return ["60s", "until 10:30, then 75s"];
+    if (h === 12) return ["60s", "from 12:30 peak"]; if (h === 14) return ["60s", "until 2:30, then 75s"];
+    if (inPeak(h)) return ["60s", "peak window"];
+    if (h >= 23 || h < 7) return ["90s", "quiet overnight"];
+    return ["75s", "steady"];
+  }
+  function watchedEvents() {
+    const ids = new Set(STATUS ? storesFrom(STATUS).map((x) => String(x.id)) : []);
+    return restocks().filter((e) => !ids.size || ids.has(String(e.store_id)));
+  }
+  function variantCounts(ev) {
+    const m = new Map();
+    ev.forEach((e) => { const k = `${evStorage(e)}|${/white/i.test(evColor(e)) ? "Star White" : "Night Sky"}`; m.set(k, (m.get(k) || 0) + 1); });
+    return [...m.entries()].sort().map(([k, n]) => { const [st, c] = k.split("|"); return `<span class="vc">${badge(c, st)}×${n}</span>`; }).join("");
+  }
+  function hourDetail(h) {
+    const ev = PAT_R.filter((e) => new Date(e.t).getHours() === h), F = PAT_F;
+    const by = new Map(); ev.forEach((e) => by.set(e.store, (by.get(e.store) || 0) + 1));
+    const top = [...by.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3).map(([n, c]) => `${n}${c > 1 ? ` ×${c}` : ""}`).join(", ");
+    const share = F ? F.hours_et[h] : null, chance = F ? 1 - Math.exp(-(F.rate_per_day || 1) * F.hours_et[h]) : null;
+    const busiest = F && F.hours_et.indexOf(Math.max(...F.hours_et)) === h;
+    const [pace, paceNote] = paceFor(h);
+    const pct = (x) => x < 0.01 ? "<1%" : Math.round(x * 100) + "%";
+    return `<div class="hd-top"><b>${hourLabel(h)} – ${hourLabel((h + 1) % 24)}</b>${busiest ? `<span class="tag in">🔥 busiest hour</span>` : h === new Date().getHours() ? `<span class="tag out">now</span>` : ""}</div>
+      <div class="hd-grid">
+        <div><small>🕵️ Your tracker</small><b>${ev.length}</b><span>${ev.length ? esc(top) : "no restocks seen yet"}</span></div>
+        <div><small>📊 Share</small><b>${share !== null ? pct(share) : "—"}</b><span>of restocks land here</span></div>
+        <div><small>🔮 Daily odds</small><b>${chance !== null ? pct(chance) : "—"}</b><span>of a restock in this hour</span></div>
+        <div><small>🖥️ PC checks</small><b>${pace}</b><span>${paceNote}</span></div>
+      </div>${ev.length ? `<div class="vcs">${variantCounts(ev)}</div>` : ""}`;
+  }
+  function setHour(h, talk = true) {
+    if (h === selHour) return;
+    selHour = h;
+    document.querySelectorAll("#scrub .hb").forEach((b) => b.classList.toggle("sel", +b.dataset.h === h));
+    const d = $("hdetail"); if (d) d.innerHTML = hourDetail(h);
+    try { navigator.vibrate && navigator.vibrate(4); } catch {}
+    if (talk) {
+      const n = PAT_R.filter((e) => new Date(e.t).getHours() === h).length;
+      say(n ? `🕵️ ${hourLabel(h)}: ${n} clue${n > 1 ? "s" : ""} found!` : `🔍 ${hourLabel(h)}… no clues here`, 2200);
+    }
+  }
   function renderPatterns() {
-    const r = restocks();
-    if (!r.length) {
-      $("patterns").innerHTML = `${planHTML()}<div class="panel"><div class="empty">Your own patterns build up as your tracker sees restocks: which stores restock most and at what time of day.</div></div>${newsHTML()}${OTHER_TRACKERS}`;
+    if (scrubbing) { patternsDirty = true; return; }
+    const r = watchedEvents();
+    const F = FORECAST && Array.isArray(FORECAST.hours_et) && FORECAST.hours_et.length === 24 ? FORECAST : null;
+    PAT_R = r; PAT_F = F;
+    if (!r.length && !F) {
+      $("patterns").innerHTML = `${planHTML()}<div class="panel"><div class="empty"><span class="big">🕵️</span>The detectives need clues: patterns build up as your tracker sees restocks.</div></div>${newsHTML()}`;
       return;
     }
+    if (selHour === null) selHour = new Date().getHours();
     const hours = new Array(24).fill(0);
     r.forEach((e) => hours[new Date(e.t).getHours()]++);
-    const max = Math.max(...hours);
+    const maxL = Math.max(1, ...hours), maxF = F ? Math.max(...F.hours_et) || 1 : 1, nowH = new Date().getHours();
     const byStore = new Map();
     r.forEach((e) => { const x = byStore.get(e.store) || []; x.push(e); byStore.set(e.store, x); });
-    const rows = [...byStore.entries()].sort((a, b) => b[1].length - a[1].length);
+    const rows = [...byStore.entries()].map(([name, ev]) => [name, ev, weekCount(ev[0].store_id)])
+      .sort((a, b) => (b[2] - a[2]) || (b[1].length - a[1].length));
     $("patterns").innerHTML = `${planHTML()}
-      <h2${PLAN ? "" : ' style="margin-top:0"'}>Restocks by hour</h2>
+      <h2${PLAN ? "" : ' style="margin-top:0"'}>🕵️ Restock clues by hour · swipe the chart</h2>
       <div class="panel">
-        <div class="hours">${hours.map((n) => `<div class="${n ? "" : "zero"}" style="height:${n ? Math.max(8, (n / max) * 100) : 2}%" title="${n} restocks"></div>`).join("")}</div>
-        <div class="hour-labels">${hours.map((_, h) => `<span>${h % 6 === 0 ? hourLabel(h) : ""}</span>`).join("")}</div>
+        <div class="scrub" id="scrub">
+          <div class="hours">${hours.map((n, h) => `<div class="hb${h === selHour ? " sel" : ""}${h === nowH ? " now" : ""}" data-h="${h}">
+            ${F ? `<i class="ghost" style="height:${Math.max(3, (F.hours_et[h] / maxF) * 100)}%"></i>` : ""}
+            ${n ? `<i class="mine" style="height:${Math.max(10, (n / maxL) * 100)}%"></i>` : ""}</div>`).join("")}</div>
+          <div class="hour-labels">${hours.map((_, h) => `<span>${h % 6 === 0 ? hourLabel(h) : ""}</span>`).join("")}</div>
+        </div>
+        <div class="legend"><span><i class="lm"></i>your tracker (NJ)</span>${F ? `<span><i class="lg"></i>typical pattern</span>` : ""}</div>
+        <div class="hdetail" id="hdetail">${hourDetail(selHour)}</div>
       </div>
-      <h2>By store</h2>
-      <div class="panel">${rows.map(([name, ev]) => `
-        <div class="row"><div><b>${esc(name)}</b><br><span style="color:var(--muted);font-size:12.5px">usually around ${hourLabel(typicalHour(ev))} · last ${esc(when(ev[ev.length - 1].t))}</span></div>
+      ${rows.length ? `<h2>🔥 Hot stores · restocks by store</h2>
+      <div class="panel">${rows.map(([name, ev, wk]) => `
+        <div class="row"><div><b>${esc(name)}</b><br><span style="color:var(--muted);font-size:12.5px">${wk ? `<span class="hot7">🔥 ${wk}× this week</span> · ` : ""}usually around ${hourLabel(typicalHour(ev))} · last ${esc(when(ev[ev.length - 1].t))}</span>
+          <div class="vcs">${variantCounts(ev)}</div></div>
         <span class="tag in">${ev.length} restock${ev.length > 1 ? "s" : ""}</span></div>`).join("")}
-      </div>${newsHTML()}${OTHER_TRACKERS}`;
+      </div>` : ""}${newsHTML()}`;
   }
+  (() => {
+    const pat = $("patterns");
+    const hourAt = (e) => {
+      const hs = pat.querySelector("#scrub .hours"); if (!hs) return;
+      const r = hs.getBoundingClientRect(), pad = 16;
+      setHour(Math.max(0, Math.min(23, Math.floor(((e.clientX - r.left - pad) / (r.width - 2 * pad)) * 24))));
+    };
+    pat.addEventListener("pointerdown", (e) => {
+      const sc = e.target.closest("#scrub"); if (!sc) return;
+      scrubbing = true; try { sc.setPointerCapture(e.pointerId); } catch {} hourAt(e);
+    });
+    pat.addEventListener("pointermove", (e) => { if (scrubbing || (e.pointerType === "mouse" && e.target.closest("#scrub"))) hourAt(e); });
+    const end = () => { if (!scrubbing) return; scrubbing = false; if (patternsDirty) { patternsDirty = false; renderPatterns(); } };
+    pat.addEventListener("pointerup", end); pat.addEventListener("pointercancel", end); pat.addEventListener("lostpointercapture", end);
+  })();
 
   function secondsAgo(iso) { return Math.max(0, Math.round((Date.now() - new Date(iso)) / 1000)); }
   function ago(sec) {
@@ -766,7 +1077,15 @@
   }
   // The Duo chibis talk: mood lines first, then a rotating quip every ~14s while watching.
   function idleQuips(stores) {
-    const h = new Date().getHours();
+    const h = new Date().getHours(), tab = document.body.dataset.tab;
+    if (tab === "patterns") {
+      const r = watchedEvents(), by = new Map();
+      r.forEach((e) => by.set(e.store, (by.get(e.store) || 0) + 1));
+      const sus = [...by.entries()].sort((a, b) => b[1] - a[1])[0];
+      return ["🕵️ Swipe the chart, we'll read the clues", "Elementary, my dear Hassan 🔍", `Case file: ${r.length} NJ restock${r.length === 1 ? "" : "s"} so far 📒`,
+              sus ? `Prime suspect: ${sus[0]} (${sus[1]}×) 🕵️` : "No suspects yet… 🔍", "The clues point to mornings ☕🔍", "Taking notes… ✍️ hmm, very suspicious"];
+    }
+    if (tab === "changes") return FITS.map((f) => f[1]);
     const r = restocks(), usual = typicalHour(r);
     const lines = [
       `Watching ${stores.length} stores for you ✨`,
@@ -780,19 +1099,26 @@
       "Two phones, one mission 🫡",
     ];
     if (usual !== null) lines.push(`Restocks here usually land around ${hourLabel(usual)} ⏰`);
+    if (SPOOKY) lines.push("Trick or restock? 🎃", "We dressed up but we're still watching 👀🎃", "Boo! …no Duos yet 👻", "Tap us for a spooky trick 🦇");
     if (h >= 6 && h < 12) lines.push("Good morning ☀️ mornings are prime restock time");
     else if (h >= 12 && h < 18) lines.push("Afternoon shift 🍵 still watching");
     else if (h >= 18 && h < 23) lines.push("Evening watch 🌆 stores close soon, eyes open");
     else lines.push("Night shift 🌙 you sleep, we watch");
     return lines;
   }
-  let quipIdx = 0, quipAt = 0;
+  let quipIdx = 0, quipAt = 0, holdUntil = 0;
+  // Show a line in the speech bubble and keep it there for `ms` (quips wait).
+  function say(text, ms = 2600) {
+    const b = $("bubble"); if (!b) return;
+    holdUntil = Date.now() + ms; lastMood = text;
+    b.textContent = text; b.classList.remove("say"); void b.offsetWidth; b.classList.add("say");
+  }
   function renderMascot(cls) {
     const stores = STATUS ? storesFrom(STATUS) : [];
     const hot = stores.filter((x) => x.any);
     const mood = hot.length ? "happy" : (cls === "stale" || (STATUS && STATUS.error)) ? "sleepy" : "watching";
     const m = $("mascot"); if (m && !trickBusy) m.setAttribute("class", "mascot " + mood);
-    if (trickBusy) return;
+    if (trickBusy || (!hot.length && Date.now() < holdUntil)) return;
     let text;
     if (hot.length) text = `IT'S HERE!! ${hot[0].name}, go go go! 🎉📱`;
     else if (mood === "sleepy") text = STATUS && STATUS.error ? "Apple's ignoring us rn… retrying 💤" : "Zzz… the PC stopped checking 💤";
@@ -946,27 +1272,89 @@
   });
 
   // ---------- chibi tap tricks ----------
+  // Tap one chibi: it does a little trick and the other one looks over. Every 3rd tap both do a duo trick.
   const TRICKS = [
     ["t-spin", "Wheee! 🌀🌀"], ["t-flip", "Ta-da! Twice the cute ✨"], ["t-wiggle", "Hehe that tickles 🤭"],
     ["t-jump", "Boing boing! 🐰🐰"], ["t-love", "Besties forever 💖"], ["t-dance", "Restock dance! 💃🕺 manifesting…"],
     ["t-wink", "We got you 😉"], ["t-squish", "Squish! 🍡"], ["t-star", "Wish upon a Star White ⭐"],
     ["t-swap", "Switcheroo! 🔄 Night Sky ⇄ Star White"],
   ];
+  if (SPOOKY) TRICKS.push(["t-boo", "BOO! 👻 …did we scare you?"], ["t-boo", "We're ghosts now 👻 spooky Duos"], ["t-bats", "Bat squad, go find Duos! 🦇🦇"]);
+  const SOLO = {
+    a: ["Hey! That tickles 🤭", "Night Sky reporting for duty 🫡", "Boop received 🌙", "I'm the dark-mode one 😎", "Stop it, I'm watching Apple 👀"],
+    b: ["Eek! 🙈", "Star White at your service ⭐", "Boop! ✨", "I'm the shiny one 💫", "Hehe, again again!"],
+  };
+  const SOLO_MOVES = ["s-jump", "s-wiggle", "s-spin", "s-squish"];
   let trickBusy = false, lastTrick = -1, taps = 0, tapReset = null;
-  $("mascot").addEventListener("click", () => {
+  const pick = (a) => a[Math.floor(Math.random() * a.length)];
+  function soloTrick(ch, talk = true) {
+    const m = $("mascot"), isA = ch.classList.contains("a");
+    const other = m.querySelector(isA ? ".chibi.b" : ".chibi.a"), move = pick(SOLO_MOVES);
+    trickBusy = true;
+    ch.classList.add(move); other.classList.add(isA ? "look-l" : "look-r");
+    if (talk) say(pick(SOLO[isA ? "a" : "b"]), 2400);
+    setTimeout(() => { ch.classList.remove(move); other.classList.remove("look-l", "look-r"); trickBusy = false; }, 1000);
+  }
+  $("mascot").addEventListener("click", (e) => {
     if (trickBusy) return;
     taps++; clearTimeout(tapReset); tapReset = setTimeout(() => (taps = 0), 2500);
+    try { navigator.vibrate && navigator.vibrate(15); } catch {}
+    const who = e.target.closest(".chibi");
+    if (who && taps % 3 !== 0 && taps < 7) { soloTrick(who); return; }
     let i; do { i = Math.floor(Math.random() * TRICKS.length); } while (i === lastTrick);
     lastTrick = i;
     const [cls, line] = taps >= 7 ? ["t-spin", "Okay okay we're dizzy 😵‍💫 go check the Apple Store!"] : TRICKS[i];
     const m = $("mascot"), base = m.getAttribute("class");
     trickBusy = true;
     m.setAttribute("class", base + " " + cls);
-    const b = $("bubble"); b.textContent = line; b.classList.remove("say"); void b.offsetWidth; b.classList.add("say");
-    try { navigator.vibrate && navigator.vibrate(15); } catch {}
-    setTimeout(() => { m.setAttribute("class", base); trickBusy = false; }, 1500);
-    setTimeout(() => { lastMood = ""; renderHeader(); }, 3200);
+    say(line, 3000);
+    setTimeout(() => { m.setAttribute("class", base); trickBusy = false; }, 1550);
   });
+  // Every so often one of them does a little move on its own (no talking).
+  setInterval(() => {
+    if (trickBusy || document.documentElement.classList.contains("paused") || document.body.dataset.tab === "changes") return;
+    if (Math.random() < 0.5) soloTrick(pick([...$("mascot").querySelectorAll(".chibi")]), false);
+  }, 22000);
+
+  // Changes tab: the Duos try on outfits, one look every ~2.8s.
+  const FITS = [
+    [1, "Fancy night out 🎩 does this hat make me look in stock?"], [2, "Royalty 👑 Apple, bring the Duo to the queen"],
+    [3, "Too cool for sold out 😎"], [4, "Party mode 🎉 dressed for a restock"], [5, "Cozy fit 🧣 for long pickup lines"],
+  ];
+  if (SPOOKY) FITS.push([6, "Spooky fit 🧛🎃 trick or restock?"]);
+  let fitTimer = null, fitIdx = -1;
+  function nextFit() {
+    if (document.documentElement.classList.contains("paused")) return;
+    const m = $("mascot"); fitIdx = (fitIdx + 1) % FITS.length;
+    m.dataset.fit = FITS[fitIdx][0]; m.dataset.p = m.dataset.p === "a" ? "b" : "a";
+    say(FITS[fitIdx][1], 2600);
+  }
+  function syncTabChibi() {
+    const tab = document.body.dataset.tab, m = $("mascot");
+    clearInterval(fitTimer); fitTimer = null;
+    if (tab === "changes") { nextFit(); fitTimer = setInterval(nextFit, 2800); }
+    else { delete m.dataset.fit; delete m.dataset.p; }
+    if (tab === "patterns") say(pick(["🕵️ Detective mode on. Swipe the chart for clues!", "🔍 Let's crack the case of the missing Duos", "📒 Notebook out. What do the clues say?"]), 3200);
+    if (tab === "stock") { holdUntil = 0; lastMood = ""; renderHeader(); }
+  }
+
+  // Their eyes follow your finger or mouse.
+  (() => {
+    const m = $("mascot"); let raf = 0, px = 0, py = 0, idle = null;
+    const apply = () => {
+      raf = 0;
+      const r = m.getBoundingClientRect(), k = r.width / 180;
+      for (const [cx, sel] of [[51, ".chibi.a .gaze"], [129, ".chibi.b .gaze"]]) {
+        const g = m.querySelector(sel); if (!g) continue;
+        const dx = px - (r.left + cx * k), dy = py - (r.top + (52 + 24) * k), d = Math.hypot(dx, dy) || 1, f = Math.min(2.6, d / 40) / d;
+        g.style.transform = `translate(${(dx * f).toFixed(2)}px, ${(dy * f * 0.8).toFixed(2)}px)`;
+      }
+    };
+    addEventListener("pointermove", (e) => {
+      px = e.clientX; py = e.clientY; if (!raf) raf = requestAnimationFrame(apply);
+      clearTimeout(idle); idle = setTimeout(() => m.querySelectorAll(".gaze").forEach((g) => (g.style.transform = "")), 2500);
+    }, { passive: true });
+  })();
   // Pause all animation while the app is in the background (saves battery on iPhone).
   // On desktop also pause while the window isn't the one you're using (iPhone unchanged).
   const DESKTOP = matchMedia("(hover: hover) and (pointer: fine)").matches;
@@ -989,7 +1377,7 @@
       if (show) { sec.classList.remove("enter"); void sec.offsetWidth; sec.classList.add("enter"); }
     });
     document.body.dataset.tab = t.dataset.tab;
-    moveInk();
+    moveInk(); syncTabChibi();
   }));
   addEventListener("resize", moveInk);
   requestAnimationFrame(moveInk);

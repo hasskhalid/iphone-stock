@@ -40,7 +40,7 @@ home-screen dashboard. Keep it free to run and dependency-light.
   publishes status/history to the `status` branch through the GitHub Git Data API
   (tree → orphan commit → force ref; no git needed) on availability change or every
   `heartbeat_seconds` (60, i.e. every check, so the app shows each check). Private files: `config.local.json` (zip, ntfy_topic,
-  overrides; models merge by part) and `.env.local` (GITHUB_TOKEN, GITHUB_REPO).
+  overrides; models merge by part: repo models are always tracked, local entries override fields) and `.env.local` (GITHUB_TOKEN, GITHUB_REPO).
   Local state: `prev_status.json`, `history.local.json`. All gitignored.
 - Pacing (measured Oct 27; the old Pace ladder is kept only for state compatibility): 75s ran all
   day with no blocks; 60s was blocked after 2h49m and again after 2h42m; blocks lasted 17-32 min.
@@ -97,10 +97,22 @@ home-screen dashboard. Keep it free to run and dependency-light.
   `force: true` (skips --defer-to-pc) when the last check is > 45s old, so a tap always means
   a real Apple check. Then it syncs every 8s until a fresh check lands.
   Duo chibi mascots in the header (moods: watching / happy when in stock / sleepy when stale; rotating quips every ~14s; tap for random tricks). Live scan bar (fills toward the next check, "checks again in ~Xs"), shimmer across rows when a fresh check lands, sliding tab underline, 0.18s tab fade, staggered entrance on first load, stat pop on change, ↻ buttons spin continuously (fast while checking) and flip to a green ✓ wave top-to-bottom when a fresh check lands; twinkling star background, footer; per-store ↻ buttons (kick the same forced check; all stores are checked together). Stats strip (in stock / last seen / restocks), per-store "restocked Xm ago" from history,
-  green page glow while anything is in stock. "Patterns & news" tab renders `docs/news.json`
+  green page glow while anything is in stock.
+  Oct 27 redesign: galaxy sky (tiled stars, violet nebula, crescent moon, ringed planet, shooting star;
+  static on desktop), Halloween mode Oct 1-Nov 2 or `?spooky=1/0` (orange/purple palette, witch hat +
+  cat ears, bats, boo/bats tap tricks). Chibis act per tab: Stock = watching (spooky costumes), Changes =
+  trying on outfits every 2.8s (`data-fit` 1-6), Patterns = detectives (deerstalker, magnifier, notepad).
+  Tap one chibi = solo trick (other looks over), every 3rd tap = duo trick; eyes follow finger/mouse;
+  `say(text, ms)` holds the bubble. Forecast banner = the Duos stirring a cauldron with a rotating spell.
+  Storage badges everywhere (`badge()`): Night Sky = blue circle/white text, Star White = white circle/
+  blue text, "256"/"512". Watching rows show badges + last restock only (weekly "🔥 N× this week"
+  lives in Patterns → Hot stores with per-variant counts). Patterns hour chart is swipeable
+  (pointer events, touch-action pan-y; your NJ restocks + forecast hours_et ghost bars) with an hour
+  detail card (count, share, daily odds, PC pace). No "other trackers" section any more.
+  "Patterns & news" tab renders `docs/news.json`
   ({updated_at, summary, items:[{title, summary, source, url, date}]}), refreshed daily at 7:47 AM ET
-  by a scheduled Claude task (paraphrased summaries with links, never copied text) and links out to other trackers (Manzana, Apple Inventory Check, iPhone Stock
-  Checker); their data is not scraped or imported.
+  by a scheduled Claude task (paraphrased summaries with links, never copied text). Other trackers'
+  data is never scraped or imported (owner asked Oct 27 to pull their status as a backup: declined).
 - Forecast: `tools/forecast.py` (stdlib) = smoothed probability model, not ML: hour-of-day profile
   (national counts in `docs/priors.json`, read off iPhone Stock Checker's Patterns page as shared by
   the owner, never scraped; blended with local restocks), store weights (local restocks, 3-day
