@@ -285,16 +285,23 @@ class Pace:
         return {"v": PACE_VERSION, "rungs": self.rungs, "idx": self.idx, "cooldown": self.cooldown, "clean": round(self.clean)}
 
 
-def pick_poll(now: time.struct_time, no_peak_day: str | None = None, slow_day: str | None = None) -> int:
+def pick_poll(now: time.struct_time, no_peak_day: str | None = None, slow_day: str | None = None,
+              push_day: str | None = None) -> int:
     """Seconds until the next check, from today's record (dates are YYYY-MM-DD, saved across restarts):
     - blocked today while already at 75s -> 90s for the rest of the day
     - blocked today at all               -> 75s for the rest of the day (no 60s windows)
+    - push_day == today (owner's one-day override, cleared by the first block) -> 60s all day except
+                                            overnight QUIET_HOURS
     - otherwise                          -> 60s inside PEAK_WINDOWS, 120s in QUIET_HOURS (11 PM-7 AM),
                                             75s the rest of the time."""
     today = time.strftime("%Y-%m-%d", now)
     if slow_day == today:
         return SLOW_POLL
     minutes = now.tm_hour * 60 + now.tm_min
+    (qh1, qm1), (qh2, qm2) = QUIET_HOURS
+    quiet = minutes >= qh1 * 60 + qm1 or minutes < qh2 * 60 + qm2
+    if push_day == today and no_peak_day != today and not quiet:
+        return PEAK_POLL
     if no_peak_day != today and any(h1 * 60 + m1 <= minutes < h2 * 60 + m2 for (h1, m1), (h2, m2) in PEAK_WINDOWS):
         return PEAK_POLL
     (qh1, qm1), (qh2, qm2) = QUIET_HOURS
@@ -444,12 +451,13 @@ def main(argv: list[str] | None = None) -> int:
     pace = Pace(int(config["poll_seconds"]), state)
     # Days on which Apple blocked us (saved, so a restart doesn't forget and get blocked again).
     no_peak_day, slow_day = state.get("no_peak_day"), state.get("slow_day")
+    push_day = state.get("push_day")   # set by hand for one day: 60s until the first Apple block
     # pace_mode "burst" (config.json, an experiment): 60s for BURST_MINUTES from the first check of
     # the day, then 75s; "flip": alternate 60s/75s all day. A block ends the experiment for that day
     # (75s after). Its start/block times are published so the result can be reviewed.
     pace_mode = str(config.get("pace_mode") or "windows")
     flip = dict(state.get("flip") or {})
-    poll = pick_poll(time.localtime(), no_peak_day, slow_day)
+    poll = pick_poll(time.localtime(), no_peak_day, slow_day, push_day)
     blocked_until = float(state.get("blocked_until") or 0)
     heartbeat = max(30, int(config["heartbeat_seconds"]))
 
@@ -520,7 +528,7 @@ def main(argv: list[str] | None = None) -> int:
                 settings, prev, history, source="pc",
                 log=lambda m: print(f"[{time.strftime('%H:%M:%S')}] !!! {m}") if m.startswith("WARN") else None)
             checks += 1
-            poll = pick_poll(time.localtime(), no_peak_day, slow_day)
+            poll = pick_poll(time.localtime(), no_peak_day, slow_day, push_day)
             if pace_mode == "flip":
                 today = time.strftime("%Y-%m-%d")
                 if flip.get("day") != today:
@@ -643,7 +651,8 @@ def main(argv: list[str] | None = None) -> int:
                     elif poll >= STEADY_POLL:
                         slow_day = today            # even 75s was too fast today
                     no_peak_day = today
-                    poll = pick_poll(time.localtime(), no_peak_day, slow_day)
+                    push_day = None                 # the 60s-until-block override ends at the first block
+                    poll = pick_poll(time.localtime(), no_peak_day, slow_day, push_day)
                     status["poll_seconds"] = poll
                     print(f"           Apple rate limit hit; checking every {poll}s once it clears (for the rest of today)")
             save_json("prev_status.json", prev if prev else status)
@@ -658,7 +667,7 @@ def main(argv: list[str] | None = None) -> int:
             else:
                 wait = min(MAX_BACKOFF, poll * 2 ** errors_in_row)
             try:
-                save_json("runner_state.json", {"pace": pace.to_state(), "no_peak_day": no_peak_day, "slow_day": slow_day, "flip": flip,
+                save_json("runner_state.json", {"pace": pace.to_state(), "no_peak_day": no_peak_day, "slow_day": slow_day, "push_day": push_day, "flip": flip,
                                                 "block_open": block_open, "blocks_today": blocks_today[-20:],
                                                 "blocked_until": (time.time() + wait) if errors_in_row else 0})
             except OSError:

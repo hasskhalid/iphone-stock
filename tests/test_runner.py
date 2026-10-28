@@ -324,3 +324,12 @@ class ResumeBlockTests(unittest.TestCase):
         n = lr.resume_errors({"start": "2026-10-28T12:53:07+00:00"})
         self.assertEqual(n, 1)
         self.assertEqual(lr.block_wait(n + 1), lr.BLOCK_PROBE)     # next failure waits 5 min, not 15
+
+
+class PushDayTests(unittest.TestCase):
+    def test_push_day_is_60s_all_day_until_blocked(self):
+        at = lambda h, m: time.strptime(f"2026-10-28 {h:02d}:{m:02d}", "%Y-%m-%d %H:%M")
+        self.assertEqual(lr.pick_poll(at(15, 0), push_day="2026-10-28"), lr.PEAK_POLL)        # afternoon, normally 75
+        self.assertEqual(lr.pick_poll(at(23, 30), push_day="2026-10-28"), lr.QUIET_POLL)      # night stays 120
+        self.assertEqual(lr.pick_poll(at(15, 0), "2026-10-28", None, "2026-10-28"), lr.STEADY_POLL)  # blocked -> 75
+        self.assertEqual(lr.pick_poll(at(15, 0), push_day="2026-10-27"), lr.STEADY_POLL)      # only that day
