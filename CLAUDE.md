@@ -45,8 +45,8 @@ home-screen dashboard. Keep it free to run and dependency-light.
 - Pacing (measured Oct 27; the old Pace ladder is kept only for state compatibility): 75s ran all
   day with no blocks; 60s was blocked after 2h49m and again after 2h42m; blocks lasted 17-32 min.
   `pick_poll(now, no_peak_day, slow_day)`: 60s inside `PEAK_WINDOWS` (8:30-10:30 AM and
-  12:30-2:30 PM PC-local Eastern time; owner's request), 90s in `QUIET_HOURS` (11 PM-7 AM, owner's
-  choice Oct 27), 75s otherwise. Any block
+  12:30-2:30 PM PC-local Eastern time; owner's request), 120s in `QUIET_HOURS` (11 PM-7 AM; 90s Oct 27, raised to
+  `QUIET_POLL` 120 Oct 28 after a 90s night then 60s at 8:30 was blocked at 8:53), 75s otherwise. Any block
   sets `no_peak_day` = today (75s for the rest of the day); a block while already at 75s+ also sets
   `slow_day` (90s rest of day). Both are saved in runner_state.json so a restart can't forget a block
   (a restart right after a block used to go straight back to 60s and get blocked again). Next day

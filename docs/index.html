@@ -1297,7 +1297,7 @@
     if (h === 8) return ["60s", "from 8:30 peak"]; if (h === 10) return ["60s", "until 10:30, then 75s"];
     if (h === 12) return ["60s", "from 12:30 peak"]; if (h === 14) return ["60s", "until 2:30, then 75s"];
     if (inPeak(h)) return ["60s", "peak window"];
-    if (h >= 23 || h < 7) return ["90s", "quiet overnight"];
+    if (h >= 23 || h < 7) return ["120s", "quiet overnight"];
     return ["75s", "steady"];
   }
   function watchedEvents() {

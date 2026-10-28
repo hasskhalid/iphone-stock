@@ -56,6 +56,7 @@ PEAK_WINDOWS = (((8, 30), (10, 30)), ((12, 30), (14, 30)))
 # Overnight 90s: restocks are rare then, and Apple seems to count requests over a long stretch,
 # so checking less overnight leaves more room for the 60s windows the next morning.
 QUIET_HOURS = ((23, 0), (7, 0))
+QUIET_POLL = 120   # owner's choice Oct 28: a 90s night still left too little room for the 8:30 60s window
 BURST_MINUTES = 120                    # "burst" test: 60s this long (under the ~2h45m seen before a block)
 SLOW_POLL = 90                         # only if Apple blocks even 75s on a given day
 BLOCK_FIRST_WAIT = 900
@@ -288,7 +289,7 @@ def pick_poll(now: time.struct_time, no_peak_day: str | None = None, slow_day: s
     """Seconds until the next check, from today's record (dates are YYYY-MM-DD, saved across restarts):
     - blocked today while already at 75s -> 90s for the rest of the day
     - blocked today at all               -> 75s for the rest of the day (no 60s windows)
-    - otherwise                          -> 60s inside PEAK_WINDOWS, 90s in QUIET_HOURS (11 PM-7 AM),
+    - otherwise                          -> 60s inside PEAK_WINDOWS, 120s in QUIET_HOURS (11 PM-7 AM),
                                             75s the rest of the time."""
     today = time.strftime("%Y-%m-%d", now)
     if slow_day == today:
@@ -298,7 +299,7 @@ def pick_poll(now: time.struct_time, no_peak_day: str | None = None, slow_day: s
         return PEAK_POLL
     (qh1, qm1), (qh2, qm2) = QUIET_HOURS
     if minutes >= qh1 * 60 + qm1 or minutes < qh2 * 60 + qm2:
-        return SLOW_POLL
+        return max(QUIET_POLL, SLOW_POLL)
     return STEADY_POLL
 
 
