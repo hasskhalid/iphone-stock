@@ -114,7 +114,11 @@ home-screen dashboard. Keep it free to run and dependency-light.
   detail card (count, share, daily odds, PC pace); starts on a whole-day card, double-tap returns to it.
   Changes / stats / Patterns show only history for watched stores + tracked parts (`watchedHistory()`);
   forecast.py and update_plan.py likewise ignore old NY / 512GB events. Plan summary is a one-line
-  "short memory". Halloween scan bar = toxic green fizzing cauldron. No "other trackers" section any more.
+  "short memory". Halloween scan bar = toxic green fizzing cauldron. Halloween Stock tab: every 10s a POOF cloud
+  (`data-pc` a/b restarts it) swaps monster costumes (`data-cos` 0-4: witch & cat, Frankenstein & mummy,
+  skeleton & Dracula, werewolf & pumpkin, zombie & ghost). Hide-and-seek ghost (`.hideghost`): random spot
+  from SPOTS each page load (never the same twice), tap = found count in localStorage, re-hides after 45s.
+  Sky decor: witch flying past the moon, pumpkins, skull pile, dangling spider (static on desktop). No "other trackers" section any more.
   "Patterns & news" tab renders `docs/news.json`
   ({updated_at, summary, items:[{title, summary, source, url, date}]}), refreshed daily at 7:47 AM ET
   by a scheduled Claude task (paraphrased summaries with links, never copied text). Other trackers'
