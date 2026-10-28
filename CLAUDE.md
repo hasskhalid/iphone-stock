@@ -51,7 +51,8 @@ home-screen dashboard. Keep it free to run and dependency-light.
   `slow_day` (90s rest of day). Both are saved in runner_state.json so a restart can't forget a block
   (a restart right after a block used to go straight back to 60s and get blocked again). Next day
   starts fresh. On HTTP 541, `block_wait()`: 15 min before the first retry, then every 5 min.
-  Non-541 errors keep exponential backoff (max 900s).
+  Non-541 errors keep exponential backoff (max 900s). A restart mid-block resumes it (`resume_errors()`:
+  same start, 5-min retries, not a new block).
   Owner chose (Oct 27 night) `pace_mode: "windows"` (both 60s windows). Experiments (config.json `pace_mode`; default "windows" = PEAK_WINDOWS schedule): "burst" (Oct 27
   test, owner's request) = 60s for BURST_MINUTES (120) from the first check of the day, then 75s;
   "flip" = alternate 60s/75s every check. A block ends the experiment for that day (75s after).

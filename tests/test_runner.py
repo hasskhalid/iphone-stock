@@ -316,3 +316,11 @@ class BlockInfoTests(unittest.TestCase):
         later = lr.block_info({"error": "HTTP 541"}, {"start": "2026-10-28T11:40:00+00:00"}, 3, now)
         self.assertEqual(later["block_since"], "2026-10-28T11:40:00+00:00")
         self.assertEqual(later["retry_at"], "2026-10-28T12:05:00+00:00")       # then every 5 min
+
+
+class ResumeBlockTests(unittest.TestCase):
+    def test_restart_mid_block_continues_it(self):
+        self.assertEqual(lr.resume_errors(None), 0)
+        n = lr.resume_errors({"start": "2026-10-28T12:53:07+00:00"})
+        self.assertEqual(n, 1)
+        self.assertEqual(lr.block_wait(n + 1), lr.BLOCK_PROBE)     # next failure waits 5 min, not 15

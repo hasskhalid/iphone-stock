@@ -340,6 +340,13 @@ def block_info(status: dict, block_open: dict | None, errors_in_row: int, now: d
             "retry_at": retry.isoformat(timespec="seconds")}
 
 
+def resume_errors(block_open: dict | None) -> int:
+    """After a restart in the middle of an Apple block, carry on with the same block: keep its start
+    time, keep 5-min retries, and don't count it as a NEW block (Oct 28: a restart mid-block was
+    treated as a second block and dropped the day to 90s)."""
+    return 1 if block_open else 0
+
+
 def block_wait(errors_in_row: int) -> int:
     """Apple 541 block: one long wait, then light probes (fewer requests while blocked)."""
     return BLOCK_FIRST_WAIT if errors_in_row <= 1 else BLOCK_PROBE
@@ -492,6 +499,7 @@ def main(argv: list[str] | None = None) -> int:
         time.sleep(wait0)
     plan_checked = time.time()
     block_open = state.get("block_open")          # an Apple block still in progress (survives restarts)
+    errors_in_row = resume_errors(block_open)
     blocks_today = [b for b in (state.get("blocks_today") or []) if b.get("start", "")[:10] == time.strftime("%Y-%m-%d")]
     fc_json, fc_events, fc_at = None, -1, 0.0
     try:
