@@ -35,7 +35,7 @@ import sys
 import time
 import urllib.error
 import urllib.request
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "checker"))
@@ -329,6 +329,16 @@ def close_block(block: dict, cleared_at: str) -> dict:
     return done
 
 
+def block_info(status: dict, block_open: dict | None, errors_in_row: int, now: datetime) -> dict:
+    """While Apple blocks us (HTTP 541): when it started and when the next retry is, for the app's
+    lockout screen. errors_in_row is the count BEFORE this failed check."""
+    if "541" not in (status.get("error") or ""):
+        return {}
+    retry = now + timedelta(seconds=block_wait(errors_in_row + 1))
+    return {"block_since": (block_open or {}).get("start") or status.get("checked_at"),
+            "retry_at": retry.isoformat(timespec="seconds")}
+
+
 def block_wait(errors_in_row: int) -> int:
     """Apple 541 block: one long wait, then light probes (fewer requests while blocked)."""
     return BLOCK_FIRST_WAIT if errors_in_row <= 1 else BLOCK_PROBE
@@ -527,7 +537,8 @@ def main(argv: list[str] | None = None) -> int:
                                 "blocks_today": [b for b in blocks_today if b["start"][:10] == datetime.now(timezone.utc).strftime("%Y-%m-%d")]}
             if pace_mode in ("flip", "burst"):
                 status["runner"]["test"] = flip
-            pc_hb = {"checked_at": status["checked_at"], "error": status.get("error"), "poll_seconds": poll, "warned": False}
+            pc_hb = {"checked_at": status["checked_at"], "error": status.get("error"), "poll_seconds": poll, "warned": False,
+                     **block_info(status, block_open, errors_in_row, datetime.now(timezone.utc))}
             status["pc"] = pc_hb
 
             for title, message, _ in alerts:

@@ -332,14 +332,27 @@
   html.harvest .tab-ink { background: linear-gradient(180deg, #fff4e4, #ffd6a6); }
   html.snowy { --sky: linear-gradient(90deg, #ff7a8a, #f4f1ea 50%, #7ee0a6); }
   html.snowy .tab-ink { background: linear-gradient(180deg, #ffffff, #e6f3ff); }
-  html.harvest body[data-tab="stock"] .mascot .acc-harvest, html.snowy body[data-tab="stock"] .mascot .acc-snow { display: block; }
+
   body[data-tab="changes"] .mascot[data-fit="7"] .f7, body[data-tab="changes"] .mascot[data-fit="8"] .f8 { display: block; animation: fitIn .45s cubic-bezier(.3,1.7,.5,1); }
 
 
   /* ---------- Halloween monsters: costume swaps in a poof (Stock tab) ---------- */
-  html.spooky body[data-tab="stock"] .mascot[data-cos="0"] .cos0, html.spooky body[data-tab="stock"] .mascot[data-cos="1"] .cos1,
-  html.spooky body[data-tab="stock"] .mascot[data-cos="2"] .cos2, html.spooky body[data-tab="stock"] .mascot[data-cos="3"] .cos3,
-  html.spooky body[data-tab="stock"] .mascot[data-cos="4"] .cos4 { display: block; }
+  body[data-tab="stock"] .mascot[data-cos="0"] .cos0,
+  body[data-tab="stock"] .mascot[data-cos="1"] .cos1,
+  body[data-tab="stock"] .mascot[data-cos="2"] .cos2,
+  body[data-tab="stock"] .mascot[data-cos="3"] .cos3,
+  body[data-tab="stock"] .mascot[data-cos="4"] .cos4,
+  body[data-tab="stock"] .mascot[data-cos="5"] .cos5,
+  body[data-tab="stock"] .mascot[data-cos="6"] .cos6,
+  body[data-tab="stock"] .mascot[data-cos="7"] .cos7,
+  body[data-tab="stock"] .mascot[data-cos="8"] .cos8,
+  body[data-tab="stock"] .mascot[data-cos="9"] .cos9,
+  body[data-tab="stock"] .mascot[data-cos="10"] .cos10,
+  body[data-tab="stock"] .mascot[data-cos="11"] .cos11,
+  body[data-tab="stock"] .mascot[data-cos="12"] .cos12,
+  body[data-tab="stock"] .mascot[data-cos="13"] .cos13,
+  body[data-tab="stock"] .mascot[data-cos="14"] .cos14,
+  body[data-tab="stock"] .mascot[data-cos="15"] .cos15 { display: block; }
   .mascot .cloud { display: none; transform-box: fill-box; transform-origin: 50% 50%; }
   .mascot[data-pc="a"] .cloud { display: block; animation: cloudA 1s ease-out both; }
   .mascot[data-pc="b"] .cloud { display: block; animation: cloudB 1s ease-out both; }
@@ -361,13 +374,75 @@
   @keyframes ghostAway { 0% { transform: translateY(3px); } 25% { transform: translateY(-6px) rotate(-15deg) scale(1.15); } 100% { transform: translateY(-90px) rotate(30deg) scale(.6); opacity: 0; } }
 
   /* ---------- Halloween sky decorations ---------- */
-  .sky .halloween { display: none; } html.spooky .sky .halloween { display: block; }
-  .sky .witchfly { position: absolute; top: max(80px, 10vh); left: 0; width: 86px; opacity: .9; animation: witchfly 26s linear 2s infinite; }
+  .sky .th { display: none; }
+  html.spooky .sky .t-h, html.harvest .sky .t-v, html.snowy .sky .t-s, html.galaxy .sky .t-g { display: block; }
+  .sky .flyer { position: absolute; top: max(80px, 10vh); left: 0; width: 86px; opacity: .9; animation: witchfly 26s linear 2s infinite; }
+  .sky .santafly { width: 150px; animation-duration: 30s; } .sky .geese { width: 110px; top: 22vh; opacity: .7; animation-duration: 34s; }
+  .sky .ufo { width: 74px; top: 30vh; animation: ufofly 22s linear 3s infinite; }
+  @keyframes ufofly { 0% { transform: translate(110vw, 0); } 8% { transform: translate(70vw, -20px); } 12% { transform: translate(64vw, -20px); } 22% { transform: translate(-30vw, 30px); } 100% { transform: translate(-30vw, 30px); } }
+  .sky .astro { position: absolute; top: 46vh; right: 3%; width: 54px; opacity: .8; animation: spinfloat 18s ease-in-out infinite; }
+  @keyframes spinfloat { 0%,100% { transform: translateY(0) rotate(-12deg); } 50% { transform: translateY(-24px) rotate(16deg); } }
+  .sky .presents { position: absolute; bottom: 0; right: 2%; width: 110px; opacity: .85; }
+  .sky .pies { position: absolute; bottom: 0; left: 3%; width: 90px; opacity: .8; }
   @keyframes witchfly { 0% { transform: translate(110vw, 0) rotate(-6deg); } 22% { transform: translate(-30vw, 40px) rotate(-6deg); } 100% { transform: translate(-30vw, 40px) rotate(-6deg); } }
   .sky .pumpkins { position: absolute; bottom: 0; right: 2%; width: 120px; opacity: .8; }
   .sky .skullpile { position: absolute; bottom: 0; left: 3%; width: 84px; opacity: .75; }
   .sky .spider { position: absolute; top: 34vh; right: 1.5%; width: 26px; transform-origin: 50% 0; animation: dangle 5s ease-in-out infinite; }
   @keyframes dangle { 0%,100% { transform: translateY(-14px) rotate(4deg); } 50% { transform: translateY(10px) rotate(-4deg); } }
+
+
+  /* ---------- Title fonts per theme ---------- */
+  html.spooky h1 { font-family: "Creepster", ui-rounded, sans-serif; font-weight: 400; letter-spacing: .05em; font-size: 31px; }
+  html.harvest h1 { font-family: "Pacifico", cursive; font-weight: 400; font-size: 26px; letter-spacing: 0; line-height: 1.3; }
+  html.snowy h1 { font-family: "Mountains of Christmas", cursive; font-weight: 700; font-size: 33px; letter-spacing: .01em; }
+  html.galaxy h1 { font-family: "Orbitron", ui-rounded, sans-serif; font-weight: 700; font-size: 23px; letter-spacing: .06em; }
+  html.galaxy { --sky: linear-gradient(90deg, #7fe3ff, #b18cff 55%, #f4f1ea); }
+
+  /* ---------- Scan bar per theme (spooky = toxic cauldron, above) ---------- */
+  html.harvest .scan i, html.snowy .scan i, html.galaxy .scan i { overflow: hidden; }
+  html.harvest .scan { height: 8px; } html.harvest .scan i { background: linear-gradient(90deg, #c8553d, #f28f3b 55%, #ffd166); box-shadow: 0 0 12px rgba(242,143,59,.6); }
+  html.harvest .scan i::after { content: ""; position: absolute; top: 0; bottom: 0; left: -16px; right: 0; animation: fizz 1.4s linear infinite;
+    background: radial-gradient(ellipse 3px 2px, rgba(255,240,200,.95) 60%, transparent 70%) 0 50% / 16px 100% repeat-x; }
+  html.snowy .scan { height: 8px; } html.snowy .scan i { background: #fff; box-shadow: 0 0 12px rgba(255,140,160,.55); }
+  html.snowy .scan i::after { content: ""; position: absolute; top: 0; bottom: 0; left: -17px; right: 0; animation: stripes .7s linear infinite;
+    background: repeating-linear-gradient(-45deg, #fff 0 6px, #e8394d 6px 12px); }
+  @keyframes stripes { to { transform: translateX(16.97px); } }
+  html.galaxy .scan i { background: linear-gradient(90deg, #6f8cff, #b18cff 50%, #7fe3ff); box-shadow: 0 0 12px rgba(127,227,255,.55); }
+  html.galaxy .scan i::after { content: ""; position: absolute; top: 0; bottom: 0; left: -16px; right: 0; animation: fizz .6s linear infinite;
+    background: radial-gradient(circle, #fff 0 1px, transparent 1.6px) 0 40% / 16px 100% repeat-x; }
+
+  /* ---------- Forecast pot per theme: cider, hot cocoa, stardust ---------- */
+  .cauldron .cjh { display: none; } html.spooky .cauldron .cjh-h, html.snowy .cauldron .cjh-s, html.harvest .cauldron .cjh-v, html.galaxy .cauldron .cjh-g { display: block; }
+  html.harvest .cauldron .brew { fill: #e8973a; } html.harvest .cauldron .bub { fill: #ffd9a0; }
+  html.snowy .cauldron .brew { fill: #9a5b34; } html.snowy .cauldron .bub { fill: #fff; }
+  html.galaxy .cauldron .brew { fill: #b18cff; } html.galaxy .cauldron .bub { fill: #e8dcff; }
+
+  /* ---------- Lockout (Apple blocked the PC) + backup mode ---------- */
+  .mascot .frown, .mascot .jail, .mascot .backupc, .mascot .fx-snow, .mascot .fx-leaves, .mascot .fx-beam { display: none; }
+  .mascot.locked .jail { display: block; } .mascot.locked .smile { display: none; } .mascot.locked .frown { display: block; }
+  .mascot.locked .bod { animation: shiver .18s ease-in-out infinite alternate; }
+  .mascot .lockwig { transform-box: fill-box; transform-origin: 50% 0; animation: wig 1.4s ease-in-out infinite; }
+  .mascot .sweat { animation: drip 1.6s ease-in infinite; } .mascot .sweat.s2 { animation-delay: .8s; }
+  @keyframes shiver { from { transform: translateX(-.6px); } to { transform: translateX(.6px); } }
+  @keyframes wig { 0%,100% { transform: rotate(-9deg); } 50% { transform: rotate(9deg); } }
+  @keyframes drip { 0% { opacity: 0; transform: translateY(0); } 25% { opacity: 1; } 100% { opacity: 0; transform: translateY(12px); } }
+  .mascot.backup .backupc { display: block; } .mascot.backup .bod { animation: floaty 3s ease-in-out infinite; }
+  .mascot .bcloud { animation: floaty 3s ease-in-out infinite; }
+  @keyframes floaty { 50% { transform: translateY(-5px); } }
+  .banner.lock { background: linear-gradient(140deg, rgba(255,201,74,.13), rgba(255,255,255,.04)); border: 1px solid rgba(255,201,74,.45); align-items: center; }
+  .banner.backupb { background: linear-gradient(140deg, rgba(159,176,255,.14), rgba(255,255,255,.04)); border: 1px solid rgba(159,176,255,.4); align-items: center; }
+  .banner.lock, .banner.backupb { flex-wrap: nowrap; align-items: flex-start; }
+  .lockart { flex: none; width: 54px; height: 54px; transform-origin: 50% 20%; animation: wig 1.4s ease-in-out infinite; }
+  .cloudart { flex: none; width: 60px; height: 44px; animation: floaty 3s ease-in-out infinite; }
+  .lkbar { height: 6px; border-radius: 99px; background: rgba(255,255,255,.08); overflow: hidden; margin-top: 8px; }
+  .lkbar i { display: block; height: 100%; width: 100%; border-radius: 99px; transform-origin: 0 50%; transform: scaleX(0); transition: transform 1s linear;
+             background: linear-gradient(90deg, #ffc94a, #ffe9a8); }
+  /* theme duo tricks */
+  .mascot.t-snow .fx-snow { display: block; animation: floatup 1.5s ease-out; }
+  .mascot.t-leaves .fx-leaves { display: block; animation: floatup 1.5s ease-out; }
+  .mascot.t-beam .fx-beam { display: block; animation: beam 1.6s ease-in-out both; } .mascot.t-beam .bod { animation: jump 1s ease-in-out; }
+  @keyframes beam { 0%,100% { opacity: 0; } 20%,80% { opacity: 1; } }
+  .mascot .flame { transform-box: fill-box; transform-origin: 50% 0; animation: flick .25s ease-in-out infinite alternate; }
 
   /* ---------- Halloween: toxic green cauldron scan bar ---------- */
   html.spooky .scan { height: 8px; background: rgba(60,255,140,.07); box-shadow: inset 0 0 0 1px rgba(125,255,176,.18); }
@@ -484,7 +559,8 @@
     body::after { animation: none; }          /* glows stay put, so the blur is drawn once */
     body::before { animation: none; opacity: .6; }   /* static stars behind the glass */
     .sky .planet, .sky .batflock g, .sky .batflock path { animation: none; }   /* static sky */
-    .sky .shoot, .sky .fall, .sky .witchfly { display: none !important; }
+    .sky .shoot, .sky .fall, .sky .flyer, .sky .ufo { display: none !important; }
+    .sky .astro { animation: none; }
     .sky .spider { animation: none; }
   }
   /* Phones */
@@ -505,17 +581,29 @@
   <svg class="planet" viewBox="0 0 60 40"><path d="M5 24 Q30 12 55 24" fill="none" stroke="#c7a8ff" stroke-width="2" opacity=".55"/><circle cx="30" cy="20" r="11" fill="#8f6cff"/>
     <path d="M22 16 q6 -3 14 0" stroke="#b9a2ff" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M5 24 Q30 34 55 24" fill="none" stroke="#c7a8ff" stroke-width="2"/></svg>
   <i class="shoot"></i>
-  <svg class="halloween witchfly" viewBox="0 0 120 70" fill="#120d24"><path d="M6 44 L80 36 L84 40 L8 48Z"/><path d="M80 34 l30 -8 -4 8 8 4 -10 2 6 8 -30 -10z"/>
+  <svg class="th t-s flyer santafly" viewBox="0 0 200 60" fill="#120d24"><path d="M120 40 h50 q10 0 14 -10 l4 2 q-4 16 -18 16 h-52z"/><path d="M128 38 q-4 -16 12 -16 h18 v16z"/><circle cx="150" cy="16" r="6"/><path d="M146 12 l10 -6 2 6z" fill="#e8394d"/>
+    <g><path d="M20 30 q6 -4 14 0 l4 10 h-4 l-2 -6 -8 0 -2 6 h-4z"/><path d="M34 26 l4 -8 M36 26 l6 -6"/><circle cx="36" cy="27" r="3"/></g><g transform="translate(46 0)"><path d="M20 30 q6 -4 14 0 l4 10 h-4 l-2 -6 -8 0 -2 6 h-4z"/><circle cx="36" cy="27" r="3"/></g>
+    <g transform="translate(92 0)"><path d="M0 30 q6 -4 14 0 l4 10 h-4 l-2 -6 -8 0 -2 6 h-4z"/></g><circle cx="38" cy="26" r="1.8" fill="#ff3b4a"/><path d="M38 30 L120 40" stroke="#120d24" stroke-width="1"/></svg>
+  <svg class="th t-s presents" viewBox="0 0 110 56"><rect x="6" y="22" width="40" height="34" rx="3" fill="#e8394d"/><rect x="22" y="22" width="8" height="34" fill="#ffd98a"/><path d="M26 22 q-12 -16 -16 -4 q2 6 16 4z M26 22 q12 -16 16 -4 q-2 6 -16 4z" fill="#ffd98a"/>
+    <rect x="50" y="30" width="30" height="26" rx="3" fill="#2f9e5b"/><rect x="62" y="30" width="6" height="26" fill="#fff"/><rect x="82" y="38" width="22" height="18" rx="2" fill="#6f8cff"/><rect x="91" y="38" width="4" height="18" fill="#fff"/></svg>
+  <svg class="th t-v flyer geese" viewBox="0 0 120 50" fill="none" stroke="#2a1d14" stroke-width="2.2" stroke-linecap="round"><path d="M10 20 l6 -5 6 5"/><path d="M28 28 l6 -5 6 5"/><path d="M46 36 l6 -5 6 5"/><path d="M28 12 l6 -5 6 5"/><path d="M46 4 l6 -5 6 5"/></svg>
+  <svg class="th t-v pies" viewBox="0 0 90 40"><ellipse cx="45" cy="30" rx="40" ry="9" fill="#c97d3b"/><ellipse cx="45" cy="26" rx="36" ry="8" fill="#e8a25a"/><path d="M20 26 l8 -4 M34 26 l8 -4 M48 26 l8 -4 M62 26 l8 -4" stroke="#9b5a22" stroke-width="2"/>
+    <path d="M40 18 q-4 -8 2 -14 M48 18 q4 -8 -2 -14" stroke="#fff" stroke-width="1.5" fill="none" opacity=".5"/></svg>
+  <svg class="th t-g ufo" viewBox="0 0 80 50"><path d="M24 30 L56 30 L72 50 L8 50Z" fill="#9dffcf" opacity=".18"/><ellipse cx="40" cy="26" rx="34" ry="8" fill="#c7d0ff" stroke="#8d96c7"/><ellipse cx="40" cy="20" rx="14" ry="10" fill="#9fe0ff" opacity=".9"/>
+    <circle cx="40" cy="18" r="5" fill="#7dffb0"/><circle cx="38" cy="17" r="1" fill="#000"/><circle cx="42" cy="17" r="1" fill="#000"/><circle cx="18" cy="27" r="2" fill="#ffd98a"/><circle cx="40" cy="31" r="2" fill="#ff9ec8"/><circle cx="62" cy="27" r="2" fill="#7dffb0"/></svg>
+  <svg class="th t-g astro" viewBox="0 0 60 70"><path d="M4 30 l10 4 M56 30 l-10 4" stroke="#e9ecff" stroke-width="6" stroke-linecap="round"/><rect x="14" y="26" width="32" height="30" rx="10" fill="#e9ecff"/><rect x="18" y="54" width="9" height="12" rx="4" fill="#e9ecff"/><rect x="33" y="54" width="9" height="12" rx="4" fill="#e9ecff"/>
+    <circle cx="30" cy="18" r="16" fill="#e9ecff"/><ellipse cx="30" cy="19" rx="11" ry="9" fill="#1b2142"/><path d="M23 15 q4 -4 9 -3" stroke="#9fe0ff" stroke-width="2" fill="none" stroke-linecap="round"/><rect x="24" y="36" width="12" height="8" rx="2" fill="#ff6b8a"/></svg>
+  <svg class="th t-h flyer" viewBox="0 0 120 70" fill="#120d24"><path d="M6 44 L80 36 L84 40 L8 48Z"/><path d="M80 34 l30 -8 -4 8 8 4 -10 2 6 8 -30 -10z"/>
     <path d="M40 40 q-2 -16 8 -22 q8 -4 12 4 l4 16z"/><circle cx="54" cy="16" r="7"/><path d="M42 12 L66 10 L60 6 Q56 -10 46 -14 Q52 -2 50 8z"/><path d="M58 22 l12 6 -2 3 -12 -5z"/>
     <path d="M26 40 q4 8 14 6 l-6 4z" fill="#2b1f4d"/></svg>
-  <svg class="halloween spider" viewBox="0 0 26 120"><line x1="13" y1="0" x2="13" y2="96" stroke="#b9b2d6" stroke-width="1"/>
+  <svg class="th t-h spider" viewBox="0 0 26 120"><line x1="13" y1="0" x2="13" y2="96" stroke="#b9b2d6" stroke-width="1"/>
     <g stroke="#1b1530" stroke-width="2" fill="none" stroke-linecap="round"><path d="M8 100 l-6 -5 M8 104 l-7 0 M8 108 l-6 5 M18 100 l6 -5 M18 104 l7 0 M18 108 l6 5"/></g>
     <circle cx="13" cy="104" r="7" fill="#1b1530"/><circle cx="10.5" cy="103" r="1.8" fill="#fff"/><circle cx="15.5" cy="103" r="1.8" fill="#fff"/><circle cx="10.8" cy="103.3" r=".8" fill="#000"/><circle cx="15.8" cy="103.3" r=".8" fill="#000"/></svg>
-  <svg class="halloween pumpkins" viewBox="0 0 120 60"><g stroke="#c45e17" stroke-width="1.5"><ellipse cx="38" cy="42" rx="26" ry="18" fill="#ff8a2a"/><ellipse cx="86" cy="46" rx="18" ry="13" fill="#ff9a3c"/></g>
+  <svg class="th t-h t-v pumpkins" viewBox="0 0 120 60"><g stroke="#c45e17" stroke-width="1.5"><ellipse cx="38" cy="42" rx="26" ry="18" fill="#ff8a2a"/><ellipse cx="86" cy="46" rx="18" ry="13" fill="#ff9a3c"/></g>
     <path d="M38 24 q1 -8 7 -10 M86 33 q1 -6 5 -7" stroke="#4f8a3a" stroke-width="3" fill="none" stroke-linecap="round"/>
     <path d="M28 38 l5 -5 5 5z M40 38 l5 -5 5 5z" fill="#3a1d0a"/><path d="M27 46 q11 8 22 0 l-4 3 -3 -3 -4 3 -4 -3 -3 3z" fill="#3a1d0a"/>
     <circle cx="81" cy="44" r="1.8" fill="#3a1d0a"/><circle cx="91" cy="44" r="1.8" fill="#3a1d0a"/><path d="M82 50 q4 3 8 0" stroke="#3a1d0a" stroke-width="1.5" fill="none"/></svg>
-  <svg class="halloween skullpile" viewBox="0 0 84 50"><path d="M4 50 Q42 30 80 50Z" fill="#2a2148"/>
+  <svg class="th t-h skullpile" viewBox="0 0 84 50"><path d="M4 50 Q42 30 80 50Z" fill="#2a2148"/>
     <path d="M24 44 q-12 0 -12 -12 q0 -14 16 -14 q16 0 16 14 q0 12 -12 12 v4 h-8z" fill="#f4f1ea"/><circle cx="22" cy="31" r="4" fill="#1b1530"/><circle cx="34" cy="31" r="4" fill="#1b1530"/>
     <path d="M28 36 l-2 3 h4z" fill="#1b1530"/><path d="M25 44 v4 M28 44 v4 M31 44 v4" stroke="#1b1530" stroke-width="1"/>
     <path d="M50 46 l18 -8 M52 38 l14 10" stroke="#f4f1ea" stroke-width="3.5" stroke-linecap="round"/><circle cx="49" cy="46" r="2.5" fill="#f4f1ea"/><circle cx="69" cy="38" r="2.5" fill="#f4f1ea"/></svg>
@@ -557,10 +645,32 @@
             <path class="wink" d="M6 1 q5 4 10 0" stroke-width="2.6" stroke-linecap="round" fill="none"/>
             <g class="shut" stroke-width="2.6" stroke-linecap="round" fill="none"><path d="M-16 1 q5 4 10 0"/><path d="M6 1 q5 4 10 0"/></g>
             <ellipse cx="-19" cy="10" rx="4.6" ry="2.7" fill="#ff9ec8" opacity=".75" stroke="none"/><ellipse cx="19" cy="10" rx="4.6" ry="2.7" fill="#ff9ec8" opacity=".75" stroke="none"/>
-            <path class="smile" d="M-5 11 q5 5 10 0" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+            <path class="smile" d="M-5 11 q5 5 10 0" stroke-width="2.6" fill="none" stroke-linecap="round"/><path class="frown" d="M-5 14 q5 -5 10 0" stroke-width="2.6" fill="none" stroke-linecap="round"/>
             <ellipse class="oh" cx="0" cy="13" rx="4" ry="5" fill="#141933" stroke-width="1.6"/>
           </g>
           <!-- Night Sky outfits -->
+          <!-- Harvest / holidays / galaxy costumes -->
+          <g class="acc cos6"><g transform="translate(51 14)"><ellipse cx="-22" cy="-6" rx="6" ry="16" fill="#c8553d" transform="rotate(-50 -22 -6)"/><ellipse cx="-12" cy="-14" rx="6" ry="16" fill="#f28f3b" transform="rotate(-22 -12 -14)"/>
+            <ellipse cx="0" cy="-17" rx="6" ry="16" fill="#ffd166"/><ellipse cx="12" cy="-14" rx="6" ry="16" fill="#f28f3b" transform="rotate(22 12 -14)"/><ellipse cx="22" cy="-6" rx="6" ry="16" fill="#c8553d" transform="rotate(50 22 -6)"/></g>
+            <path d="M47 57 l4 6 4 -6z" fill="#ffb02e"/><path d="M53 61 q4 6 0 11 q-3 -5 0 -11z" fill="#e8394d"/></g>
+          <g class="acc cos7"><ellipse cx="51" cy="10" rx="36" ry="6" fill="#d9b26f" stroke="#b38b47"/><path d="M35 10 Q37 -12 51 -12 Q65 -12 67 10Z" fill="#e8c886" stroke="#b38b47"/><rect x="36" y="3" width="30" height="5" fill="#b5482f"/>
+            <path d="M21 42 l-9 -3 M21 48 l-10 1 M21 54 l-9 4 M81 42 l9 -3 M81 48 l10 1 M81 54 l9 4" stroke="#e8c04a" stroke-width="2.2" stroke-linecap="round"/>
+            <rect x="60" y="78" width="13" height="13" rx="1.5" fill="#c86b4a" transform="rotate(8 66 84)"/><path d="M61 80 l11 1 M61 89 l11 1" stroke="#fff" stroke-dasharray="2 2" stroke-width="1" transform="rotate(8 66 84)"/></g>
+          <g class="acc cos8"><rect x="35" y="58" width="9" height="3" rx="1.2" fill="#0b0d18"/><rect x="58" y="58" width="9" height="3" rx="1.2" fill="#0b0d18"/>
+            <rect x="22" y="72" width="58" height="27" rx="9" fill="#2a6f4b"/><path d="M22 78 h58" stroke="#fff" stroke-width="2"/><text x="51" y="96" text-anchor="middle" font-size="14" font-weight="900" fill="#fff" font-family="ui-rounded,sans-serif">26</text></g>
+          <g class="acc cos10"><path d="M36 14 q-7 -12 -2 -24 M33 2 l-9 -4 M35 -6 l-7 -7 M66 14 q7 -12 2 -24 M69 2 l9 -4 M67 -6 l7 -7" stroke="#8a5a3c" stroke-width="3.6" fill="none" stroke-linecap="round"/>
+            <circle cx="51" cy="59" r="4.6" fill="#ff3b4a"/><circle cx="49.6" cy="57.6" r="1.4" fill="#fff" opacity=".8"/></g>
+          <g class="acc cos11"><rect x="27" y="18" width="48" height="76" rx="12" fill="#b5703c" opacity=".55"/>
+            <path d="M30 26 q4 -4 8 0 q4 4 8 0 q4 -4 8 0 q4 4 8 0 q4 -4 8 0 M30 88 q4 -4 8 0 q4 4 8 0 q4 -4 8 0 q4 4 8 0 q4 -4 8 0" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <circle cx="51" cy="74" r="2.6" fill="#e8394d"/><circle cx="51" cy="82" r="2.6" fill="#2f9e5b"/></g>
+          <g class="acc cos12"><path d="M30 14 Q40 -10 66 -18 Q60 -4 72 14Z" fill="#2f9e5b" stroke="#1f6e3f" stroke-width="1.2"/><rect x="27" y="9" width="48" height="7" rx="3.5" fill="#fff"/><circle cx="67" cy="-18" r="3.4" fill="#ffd98a"/>
+            <path d="M21 46 l-9 -6 4 12z M81 46 l9 -6 -4 12z" fill="#ffb3a0" stroke="#e38f7a" stroke-width="1"/></g>
+          <g class="acc cos13"><ellipse cx="51" cy="52" rx="40" ry="54" fill="rgba(199,230,255,.13)" stroke="#cfe8ff" stroke-width="2.6"/><path d="M26 22 q10 -14 26 -16" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" opacity=".7"/>
+            <line x1="51" y1="-2" x2="51" y2="-14" stroke="#cfe8ff" stroke-width="2"/><circle cx="51" cy="-16" r="3" fill="#ff6b8a"/></g>
+          <g class="acc cos14"><ellipse cx="51" cy="5" rx="28" ry="6.5" fill="#c7d0ff" stroke="#8d96c7" stroke-width="1.2"/><ellipse cx="51" cy="-1" rx="12" ry="9" fill="#9fe0ff" opacity=".85"/>
+            <circle cx="33" cy="6" r="2" fill="#ffd98a"/><circle cx="51" cy="9" r="2" fill="#ff9ec8"/><circle cx="69" cy="6" r="2" fill="#7dffb0"/></g>
+          <g class="acc cos15"><path d="M27 16 Q51 -26 75 16Z" fill="#ff5a5f" stroke="#c43c40" stroke-width="1.2"/><circle cx="51" cy="2" r="4" fill="#9fe0ff" stroke="#fff" stroke-width="1.2"/>
+            <path d="M21 84 L8 104 L22 98Z M81 84 L94 104 L80 98Z" fill="#ff5a5f"/><g class="flame"><path d="M40 104 q11 22 22 0 q-5 6 -11 -2 q-6 8 -11 2z" fill="#ffb02e"/><path d="M45 104 q6 12 12 0 q-6 4 -12 0z" fill="#fff3b0"/></g></g>
           <!-- Monster costumes (Halloween, Stock tab; swap every 10s in a poof) -->
           <g class="acc cos1"><rect x="27" y="18" width="48" height="76" rx="12" fill="#7be08a" opacity=".32"/>
             <path d="M21 27 L21 14 Q21 7 30 7 L72 7 Q81 7 81 14 L81 27 L74 22 L68 28 L61 22 L55 28 L48 22 L42 28 L35 22 L28 28Z" fill="#1d2433"/>
@@ -579,8 +689,8 @@
             <path d="M27 15 l4 -11 4 9 5 -13 4 12 6 -11 3 11 6 -10 3 12" stroke="#3b4a2a" stroke-width="3.2" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
             <rect x="58" y="31" width="15" height="6" rx="2" fill="#f2d6b3" transform="rotate(-20 65 34)"/><path d="M62 32 v4 M66 31 v4" stroke="#d4b38c" stroke-width="1" transform="rotate(-20 65 34)"/>
             <path d="M37 76 l5 4 M42 76 l-5 4 M60 82 l5 4 M65 82 l-5 4" stroke="#3b4a2a" stroke-width="1.6" stroke-linecap="round"/></g>
-          <g class="acc acc-snow"><path d="M30 13 Q39 -14 59 -12 Q73 -10 77 2 L72 13 Z" fill="#e8394d"/><circle cx="77" cy="3" r="4.2" fill="#fff"/><rect x="27" y="8" width="48" height="8" rx="4" fill="#fff"/></g>
-          <g class="acc acc-harvest"><path d="M29 13 Q29 -10 51 -10 Q73 -10 73 13 Z" fill="#ff8a3c"/><rect x="27" y="7" width="48" height="8" rx="3" fill="#8a4b1f" opacity=".85"/><circle cx="51" cy="-12" r="4.5" fill="#fff3dd"/></g>
+          <g class="acc cos9"><path d="M30 13 Q39 -14 59 -12 Q73 -10 77 2 L72 13 Z" fill="#e8394d"/><circle cx="77" cy="3" r="4.2" fill="#fff"/><rect x="27" y="8" width="48" height="8" rx="4" fill="#fff"/></g>
+          <g class="acc cos5"><path d="M29 13 Q29 -10 51 -10 Q73 -10 73 13 Z" fill="#ff8a3c"/><rect x="27" y="7" width="48" height="8" rx="3" fill="#8a4b1f" opacity=".85"/><circle cx="51" cy="-12" r="4.5" fill="#fff3dd"/></g>
           <g class="fit f7"><rect x="21" y="78" width="60" height="20" rx="8" fill="#c8304a"/><path d="M25 84 l4 4 4 -4 4 4 4 -4 4 4 4 -4 4 4 4 -4 4 4 4 -4 4 4 4 -4 4 4" stroke="#fff" stroke-width="1.6" fill="none"/><circle cx="51" cy="93" r="2" fill="#ffd98a"/></g>
           <g class="fit f8"><path d="M29 13 Q29 -10 51 -10 Q73 -10 73 13 Z" fill="#ffb347"/><rect x="27" y="7" width="48" height="8" rx="3" fill="#8a4b1f" opacity=".85"/><circle cx="51" cy="-12" r="4.5" fill="#fff3dd"/></g>
           <g class="acc cos0"><ellipse cx="51" cy="13" rx="26" ry="4.5" fill="#2b1f4d" stroke="#b18cff" stroke-width="1.5"/>
@@ -622,10 +732,27 @@
             <path class="wink" d="M6 1 q5 4 10 0" stroke-width="2.6" stroke-linecap="round" fill="none"/>
             <g class="shut" stroke-width="2.6" stroke-linecap="round" fill="none"><path d="M-16 1 q5 4 10 0"/><path d="M6 1 q5 4 10 0"/></g>
             <ellipse cx="-19" cy="10" rx="4.6" ry="2.7" fill="#ff9ec8" opacity=".75" stroke="none"/><ellipse cx="19" cy="10" rx="4.6" ry="2.7" fill="#ff9ec8" opacity=".75" stroke="none"/>
-            <path class="smile" d="M-5 11 q5 5 10 0" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+            <path class="smile" d="M-5 11 q5 5 10 0" stroke-width="2.6" fill="none" stroke-linecap="round"/><path class="frown" d="M-5 14 q5 -5 10 0" stroke-width="2.6" fill="none" stroke-linecap="round"/>
             <ellipse class="oh" cx="0" cy="13" rx="4" ry="5" fill="#141933" stroke-width="1.6"/>
           </g>
           <!-- Star White outfits -->
+          <!-- Harvest / holidays / galaxy costumes -->
+          <g class="acc cos6"><rect x="115" y="-14" width="28" height="24" rx="2" fill="#1d1d24"/><rect x="115" y="2" width="28" height="5" fill="#3b3b46"/><rect x="125" y="1" width="8" height="7" rx="1" fill="none" stroke="#ffd98a" stroke-width="1.8"/>
+            <ellipse cx="129" cy="11" rx="24" ry="4" fill="#1d1d24"/><path d="M108 80 L129 86 L150 80 L146 94 L129 89 L112 94Z" fill="#fff" stroke="#d9d3c5"/></g>
+          <g class="acc cos7"><circle cx="117" cy="0" r="9" fill="#fff" stroke="#e1ddd2"/><circle cx="129" cy="-6" r="11" fill="#fff" stroke="#e1ddd2"/><circle cx="141" cy="0" r="9" fill="#fff" stroke="#e1ddd2"/><rect x="115" y="2" width="28" height="11" rx="2" fill="#fff" stroke="#e1ddd2"/>
+            <ellipse cx="171" cy="80" rx="12" ry="5" fill="#c97d3b"/><ellipse cx="171" cy="78" rx="11" ry="4" fill="#e8a25a"/><path d="M164 78 l3 -2 M170 77 l3 -2 M176 78 l2 -2" stroke="#9b5a22" stroke-width="1"/></g>
+          <g class="acc cos8"><rect x="162" y="58" width="13" height="22" rx="3" fill="#ffcf3b" stroke="#d9a12a"/><rect x="164.5" y="38" width="7" height="22" rx="3.5" fill="#ffcf3b" stroke="#d9a12a"/>
+            <text x="168.5" y="75" text-anchor="middle" font-size="8" font-weight="900" fill="#2a6f4b" font-family="ui-rounded,sans-serif">#1</text></g>
+          <g class="acc cos10"><rect x="117" y="-12" width="24" height="23" rx="2" fill="#15172a"/><rect x="117" y="4" width="24" height="4" fill="#e8394d"/><ellipse cx="129" cy="11" rx="20" ry="3.6" fill="#15172a"/>
+            <path d="M129 57.5 l11 2.5 -11 2.5z" fill="#ff8a2a"/><path d="M100 80 Q129 90 158 80 L158 88 Q129 98 100 88Z" fill="#e8394d"/><rect x="141" y="86" width="9" height="16" rx="3.5" fill="#e8394d"/></g>
+          <g class="acc cos11"><ellipse cx="129" cy="-6" rx="14" ry="3.6" fill="none" stroke="#ffd98a" stroke-width="3"/>
+            <path d="M99 44 q-22 -14 -18 14 q4 12 18 2z M159 44 q22 -14 18 14 q-4 12 -18 2z" fill="#fff" stroke="#d8d4ff" stroke-width="1.2"/></g>
+          <g class="acc cos12"><path d="M129 12 V42 M129 64 V100 M100 82 H158" stroke="#e8394d" stroke-width="5"/>
+            <path d="M129 10 q-14 -16 -18 -4 q2 8 18 4z M129 10 q14 -16 18 -4 q-2 8 -18 4z" fill="#e8394d" stroke="#b02436"/><circle cx="129" cy="9" r="3.4" fill="#ff6b7a"/></g>
+          <g class="acc cos13"><path d="M118 13 l-6 -18 M140 13 l6 -18" stroke="#7dffb0" stroke-width="2.4" stroke-linecap="round"/><circle cx="111.5" cy="-7" r="4.4" fill="#7dffb0"/><circle cx="146.5" cy="-7" r="4.4" fill="#7dffb0"/>
+            <ellipse cx="129" cy="30" rx="6" ry="7" fill="#1b2142"/><circle cx="131" cy="28" r="1.8" fill="#fff"/></g>
+          <g class="acc cos14"><ellipse cx="129" cy="82" rx="42" ry="8" fill="none" stroke="#c7a8ff" stroke-width="3.2" transform="rotate(-8 129 82)"/><ellipse cx="129" cy="82" rx="34" ry="5.5" fill="none" stroke="#f0c9ff" stroke-width="1.2" transform="rotate(-8 129 82)"/></g>
+          <g class="acc cos15" fill="#ffd98a"><path d="M112 -2l2 5 5 1-4 3 1 5-4-3-4 3 1-5-4-3 5-1z"/><path d="M129 -12l2.4 6 6 1.2-4.8 3.6 1.2 6-4.8-3.6-4.8 3.6 1.2-6-4.8-3.6 6-1.2z"/><path d="M146 -2l2 5 5 1-4 3 1 5-4-3-4 3 1-5-4-3 5-1z"/></g>
           <!-- Monster costumes -->
           <g class="acc cos1" stroke="#cdbf9c" stroke-width="1" fill="#efe6cf">
             <rect x="99" y="19" width="60" height="9" rx="3" transform="rotate(-6 129 23)"/><rect x="99" y="31" width="60" height="8" rx="3" transform="rotate(5 129 35)"/>
@@ -640,8 +767,8 @@
             <path d="M120 0 l4 -5 4 5z M130 0 l4 -5 4 5z" fill="#3a2016"/><path d="M119 6 q10 7 20 0 l-3 3 -3 -3 -4 3 -4 -3 -3 3z" fill="#3a2016"/>
             <path d="M129 -13 q1 -7 7 -8" stroke="#4f8a3a" stroke-width="2.8" fill="none" stroke-linecap="round"/><path d="M135 -18 q6 -3 9 2 q-6 2 -9 -2z" fill="#6fbf4a"/></g>
           <g class="acc cos4"><use href="#ghostS" x="78"/></g>
-          <g class="acc acc-snow"><path d="M108 13 Q117 -14 137 -12 Q151 -10 155 2 L150 13 Z" fill="#e8394d"/><circle cx="155" cy="3" r="4.2" fill="#fff"/><rect x="105" y="8" width="48" height="8" rx="4" fill="#fff"/></g>
-          <g class="acc acc-harvest"><path d="M129 12 q-2 -10 6 -16 q-1 9 -6 16z" fill="#e8603c"/><path d="M129 12 q8 -8 15 -6 q-6 6 -15 6z" fill="#ffc857"/><path d="M129 12 l3 -9" stroke="#7a4a1f" stroke-width="1.2"/>
+          <g class="acc cos9"><path d="M108 13 Q117 -14 137 -12 Q151 -10 155 2 L150 13 Z" fill="#e8394d"/><circle cx="155" cy="3" r="4.2" fill="#fff"/><rect x="105" y="8" width="48" height="8" rx="4" fill="#fff"/></g>
+          <g class="acc cos5"><path d="M129 12 q-2 -10 6 -16 q-1 9 -6 16z" fill="#e8603c"/><path d="M129 12 q8 -8 15 -6 q-6 6 -15 6z" fill="#ffc857"/><path d="M129 12 l3 -9" stroke="#7a4a1f" stroke-width="1.2"/>
             <path d="M163 86 q0 -10 9 -10 q9 0 9 10 q0 8 -9 8 q-9 0 -9 -8z" fill="#ff9a3c" stroke="#d9711f" stroke-width="1.2"/><path d="M172 76 q1 -4 4 -5" stroke="#4f8a3a" stroke-width="2" fill="none"/></g>
           <g class="fit f7"><rect x="99" y="78" width="60" height="20" rx="8" fill="#2f8f5b"/><path d="M103 84 l4 4 4 -4 4 4 4 -4 4 4 4 -4 4 4 4 -4 4 4 4 -4 4 4 4 -4 4 4" stroke="#fff" stroke-width="1.6" fill="none"/><circle cx="129" cy="93" r="2" fill="#ffd98a"/></g>
           <g class="fit f8"><path d="M100 80 Q129 91 158 80 L158 89 Q129 100 100 89Z" fill="#ffb347"/><rect x="140" y="86" width="9" height="17" rx="3.5" fill="#ffb347"/></g>
@@ -677,6 +804,17 @@
       <g class="boo"><use href="#ghostS"/><use href="#ghostS" x="78"/></g>
       <g class="bats" fill="#2a1f4d" stroke="#b18cff" stroke-width=".8">
         <g transform="translate(90 40)"><use class="bat" href="#batS" style="--bx:-70px;--by:-40px"/><use class="bat" href="#batS" style="--bx:70px;--by:-46px"/><use class="bat" href="#batS" style="--bx:-30px;--by:-62px"/><use class="bat" href="#batS" style="--bx:40px;--by:-20px"/></g></g>
+      <g class="jail"><path d="M14 -4 V108 M31 -4 V108 M48 -4 V108 M65 -4 V108 M82 -4 V108 M99 -4 V108 M116 -4 V108 M133 -4 V108 M150 -4 V108 M167 -4 V108" stroke="#a7aed0" stroke-width="3.2" stroke-linecap="round"/><path d="M8 -4 H172 M8 108 H172" stroke="#7a83a8" stroke-width="5" stroke-linecap="round"/>
+        <g transform="translate(90 50)"><g class="lockwig"><path d="M-9 -6 V-14 Q-9 -24 0 -24 Q9 -24 9 -14 V-6" stroke="#ffd98a" stroke-width="3.6" fill="none"/>
+          <rect x="-13" y="-7" width="26" height="22" rx="5" fill="#ffc94a" stroke="#d9a12a" stroke-width="1.5"/><circle cx="0" cy="2" r="3" fill="#6b4a12"/><rect x="-1.2" y="3" width="2.4" height="6" fill="#6b4a12"/></g></g>
+        <path class="sweat" d="M84 14 q4 6 0 9 q-4 -3 0 -9z" fill="#9fd8ff"/><path class="sweat s2" d="M163 14 q4 6 0 9 q-4 -3 0 -9z" fill="#9fd8ff"/></g>
+      <g class="backupc"><g class="bcloud" fill="#e9ecff" opacity=".95"><ellipse cx="90" cy="112" rx="82" ry="10"/><circle cx="36" cy="106" r="12"/><circle cx="66" cy="103" r="15"/><circle cx="112" cy="103" r="15"/><circle cx="144" cy="106" r="12"/></g>
+        <g transform="translate(90 -12)"><rect x="-30" y="-9" width="60" height="16" rx="6" fill="#2a2148" stroke="#9fb0ff" stroke-width="1.5"/>
+          <text x="0" y="3" text-anchor="middle" font-size="9" font-weight="900" fill="#cfe0ff" font-family="ui-rounded, sans-serif" letter-spacing=".5">BACKUP ON</text></g></g>
+      <g class="fx-snow" fill="#fff"><circle cx="20" cy="10" r="3"/><circle cx="60" cy="-6" r="2.4"/><circle cx="100" cy="4" r="3.2"/><circle cx="140" cy="-8" r="2.4"/><circle cx="168" cy="12" r="3"/><circle cx="80" cy="20" r="2"/></g>
+      <g class="fx-leaves"><path d="M20 10 q8 -10 16 0 q-8 10 -16 0z" fill="#e8603c"/><path d="M70 -6 q8 -10 16 0 q-8 10 -16 0z" fill="#ffc857"/><path d="M120 4 q8 -10 16 0 q-8 10 -16 0z" fill="#ff9a3c"/><path d="M156 -10 q8 -10 16 0 q-8 10 -16 0z" fill="#c8553d"/></g>
+      <g class="fx-beam"><path d="M66 -10 L114 -10 L170 112 L10 112Z" fill="#9dffcf" opacity=".22"/><ellipse cx="90" cy="-14" rx="30" ry="7" fill="#c7d0ff" stroke="#8d96c7"/><ellipse cx="90" cy="-19" rx="12" ry="8" fill="#9fe0ff" opacity=".85"/>
+        <circle cx="72" cy="-13" r="2" fill="#ffd98a"/><circle cx="90" cy="-11" r="2" fill="#ff9ec8"/><circle cx="108" cy="-13" r="2" fill="#7dffb0"/></g>
       <g class="cloud"><g fill="#efeaff" stroke="#cfc6ff" stroke-width="1.5"><circle cx="38" cy="62" r="26"/><circle cx="68" cy="38" r="30"/><circle cx="100" cy="64" r="30"/>
         <circle cx="132" cy="36" r="30"/><circle cx="152" cy="66" r="25"/><circle cx="90" cy="88" r="30"/><circle cx="54" cy="90" r="22"/><circle cx="128" cy="90" r="24"/></g>
         <g fill="#efeaff"><circle cx="38" cy="62" r="24"/><circle cx="68" cy="38" r="28"/><circle cx="100" cy="64" r="28"/><circle cx="132" cy="36" r="28"/><circle cx="152" cy="66" r="23"/><circle cx="90" cy="88" r="28"/><circle cx="54" cy="90" r="20"/><circle cx="128" cy="90" r="22"/></g>
@@ -822,10 +960,14 @@
   // Seasonal themes on top of the galaxy. Auto by date, or pick one in Settings (saved on this device),
   // or force with ?theme=halloween|harvest|holidays|galaxy (?spooky=1 still works).
   const THEMES = {
-    halloween: { cls: "spooky", tab: "🎃 Stock", foot: "🎃 <b>Duo Watch</b> 👻 two little phones keeping watch (in costume)" },
-    harvest: { cls: "harvest", tab: "🍂 Stock", foot: "🍂 <b>Duo Watch</b> 🥧 two cozy phones keeping watch" },
-    holidays: { cls: "snowy", tab: "🎄 Stock", foot: "❄️ <b>Duo Watch</b> 🎁 two little elves keeping watch" },
-    galaxy: { cls: "", tab: "🌙 Stock", foot: "" },
+    halloween: { cls: "spooky", tab: "🎃 Stock", font: "Creepster", oracle: "🔮 The cauldron says",
+                 foot: "🎃 <b>Duo Watch</b> 👻 two little phones keeping watch (in costume)" },
+    harvest: { cls: "harvest", tab: "🍂 Stock", font: "Pacifico", oracle: "🥧 The pie oracle says",
+               foot: "🍂 <b>Duo Watch</b> 🥧 two cozy phones keeping watch" },
+    holidays: { cls: "snowy", tab: "🎄 Stock", font: "Mountains+of+Christmas:wght@700", oracle: "🎅 Santa's list says",
+                foot: "❄️ <b>Duo Watch</b> 🎁 two little elves keeping watch" },
+    galaxy: { cls: "galaxy", tab: "🌙 Stock", font: "Orbitron:wght@700", oracle: "🔭 The stars say",
+              foot: "🌙 <b>Duo Watch</b> 🪐 two little phones watching the stars for you" },
   };
   function autoTheme(d = new Date()) {
     const m = d.getMonth(), day = d.getDate();
@@ -841,6 +983,10 @@
   if (THEMES[THEME].cls) document.documentElement.classList.add(THEMES[THEME].cls);
   document.getElementById("tabStock").textContent = THEMES[THEME].tab;
   if (THEMES[THEME].foot) document.getElementById("foot").innerHTML = THEMES[THEME].foot;
+  const GALAXY = THEME === "galaxy";
+  // Title font per theme (Google Fonts; falls back to the rounded system font offline).
+  (() => { const l = document.createElement("link"); l.rel = "stylesheet";
+           l.href = `https://fonts.googleapis.com/css2?family=${THEMES[THEME].font}&display=swap`; document.head.appendChild(l); })();
 
   // Storage badge: Night Sky = blue circle / white text, Star White = white circle / blue text.
   const gbOf = (x) => ((String(x || "").match(/(\d{3,4})\s*(GB|TB)?\b/i) || [])[1]) || "";
@@ -892,10 +1038,24 @@
   // ---------- render ----------
   const sw = (color) => /white/i.test(color) ? "w" : "n";
   const gb = (s) => (s || "").replace(/GB$/i, "");
+  const PADLOCK = `<svg class="lockart" viewBox="0 0 54 54"><path d="M16 24 V16 Q16 4 27 4 Q38 4 38 16 V24" stroke="#ffd98a" stroke-width="5" fill="none"/>
+    <rect x="9" y="22" width="36" height="28" rx="7" fill="#ffc94a" stroke="#d9a12a" stroke-width="2"/><circle cx="21" cy="34" r="2" fill="#6b4a12"/><circle cx="33" cy="34" r="2" fill="#6b4a12"/>
+    <path d="M22 43 q5 -4 10 0" stroke="#6b4a12" stroke-width="2" fill="none" stroke-linecap="round"/><ellipse cx="16" cy="39" rx="3" ry="1.8" fill="#ff9ec8" opacity=".8"/><ellipse cx="38" cy="39" rx="3" ry="1.8" fill="#ff9ec8" opacity=".8"/></svg>`;
+  const CLOUDART = `<svg class="cloudart" viewBox="0 0 60 44"><path d="M14 38 Q2 38 3 28 Q4 19 14 20 Q16 8 29 8 Q41 8 44 19 Q57 18 57 29 Q57 38 46 38Z" fill="#e9ecff" stroke="#9fb0ff" stroke-width="1.5"/>
+    <circle cx="24" cy="27" r="2.2" fill="#1b2142"/><circle cx="36" cy="27" r="2.2" fill="#1b2142"/><path d="M27 32 q3 3 6 0" stroke="#1b2142" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+    <ellipse cx="19" cy="31" rx="2.6" ry="1.6" fill="#ff9ec8" opacity=".8"/><ellipse cx="41" cy="31" rx="2.6" ry="1.6" fill="#ff9ec8" opacity=".8"/></svg>`;
   function renderBanner(stores) {
-    const hot = stores.filter((s) => s.any);
+    const hot = stores.filter((s) => s.any), L = lockState();
     let html = "";
-    if (STATUS.error) {
+    if (L && L.kind === "locked") {
+      html += `<div class="banner lock">${PADLOCK}<div class="cj-text"><b>🔒 Apple put your PC in timeout</b>
+        <small>Too many checks in a row, so Apple paused us for <b style="display:inline" data-since="${esc(L.since)}"></b>.
+        ${L.retry ? `Next try <b style="display:inline" data-retry="${esc(L.retry)}"></b>` : "Retrying every few minutes"} · these usually clear in 15–30 min.
+        ${L.backup ? "☁️ The cloud backup is checking every ~5 min meanwhile." : "☁️ The cloud backup takes over within ~5 min."}</small>
+        <div class="lkbar"><i data-from="${esc(L.since)}"></i></div></div></div>`;
+    } else if (L && L.kind === "backup") {
+      html += `<div class="banner backupb">${CLOUDART}<div class="cj-text"><b>☁️ Backup mode</b><small>${L.pcAge < 1e8 ? `Your PC hasn't checked in ${esc(Math.round(L.pcAge / 60))} min` : "Your PC isn't checking"}, so the cloud backup checks Apple every ~5 min. Alerts still come through.</small></div></div>`;
+    } else if (STATUS.error) {
       html += `<div class="banner err"><div><b>😵 Last check failed</b><small>${esc(STATUS.error)}${STATUS.last_success_at ? ` · showing data from ${esc(when(STATUS.last_success_at))}` : ""}</small></div></div>`;
     }
     if (hot.length) {
@@ -911,9 +1071,9 @@
       if (f) {
         const spell = SPELLS[Math.floor(Date.now() / 90000) % SPELLS.length];
         html += `<div class="banner calm conjure">${CAULDRON}<div class="cj-text"><span class="spell">${esc(spell)}</span>
-          <b>🔮 The cauldron says: ${esc(f.when)}</b><small>Brewing at ${esc(f.stores)} · ${esc(f.colour)}<br>${esc(f.odds)} · ${lastLine}<br><span class="fc-acc">${esc(f.accuracy)}</span></small></div>
+          <b>${THEMES[THEME].oracle}: ${esc(f.when)}</b><small>Brewing at ${esc(f.stores)} · ${esc(f.colour)}<br>${esc(f.odds)} · ${lastLine}<br><span class="fc-acc">${esc(f.accuracy)}</span></small></div>
           <a class="cta star" href="${esc((STATUS.models[0] || {}).url || "https://www.apple.com/shop/buy-iphone")}" target="_blank" rel="noopener">Apple Store ↗</a></div>`;
-        $("banner").innerHTML = html;
+        $("banner").innerHTML = html; updateLockTimers();
         return;
       }
       const detail = last
@@ -923,14 +1083,25 @@
         <a class="cta star" href="${esc((STATUS.models[0] || {}).url || "https://www.apple.com/shop/buy-iphone")}" target="_blank" rel="noopener">Apple Store ↗</a></div>`;
     }
     $("banner").innerHTML = html;
+    updateLockTimers();
   }
 
-  const SPELLS = [
-    "Double, double, restock trouble… 🫧", "Eye of newt and wing of bat, where's a Duo? Tell us that 🦇",
-    "Bubble bubble, 256 or 512? 🫧", "Abra-cad-Apple-Pay ✨", "By the light of the Night Sky moon… 🌙",
-    "Hocus pocus, restock focus 🔮", "Stir clockwise for Star White, counter for Night Sky 🥄",
-    SPOOKY ? "Trick or restock?? 🎃" : SNOWY ? "Jingle bells, restock smells… 🔔" : HARVEST ? "A pinch of cinnamon, a dash of restock 🥧" : "Sim sala bim, pickup today please ✨",
-  ];
+  const SPELL_SETS = {
+    halloween: ["Double, double, restock trouble… 🫧", "Eye of newt and wing of bat, where's a Duo? Tell us that 🦇",
+      "Abra-cad-Apple-Pay ✨", "By the light of the Night Sky moon… 🌙", "Hocus pocus, restock focus 🔮",
+      "Stir clockwise for Star White, counter for Night Sky 🥄", "Trick or restock?? 🎃"],
+    harvest: ["A pinch of cinnamon, a dash of restock 🥧", "Leaves fall, Duos call 🍂", "Gobble gobble, restock wobble 🦃",
+      "Reading the pie crust… 🥧", "Stirring the apple cider… 🍎", "Thankful in advance 🙏"],
+    holidays: ["Jingle bells, restock smells… 🔔", "Making a list, checking it twice 📜", "Visions of Duos danced in our heads 🎄",
+      "Ho ho hold on, Apple's restocking 🎅", "Stirring the hot cocoa… ☕", "Dear Santa, just one Duo please 💌"],
+    galaxy: ["Reading the constellations… ✨", "The stars are aligning 🌌", "Signal from deep space… 📡",
+      "Telescope pointed at NJ 🔭", "Mixing a little stardust… 🪐", "Wish upon a Star White ⭐"],
+  };
+  const SPELLS = SPELL_SETS[THEME];
+  // Mini hats for the forecast pot in the other themes (Santa hats, beanies, alien antennae).
+  const CJ_HATS = (x) => `<g class="cjh cjh-s"><path d="M${x - 11} 35 Q${x - 6} 20 ${x + 4} 21 Q${x + 12} 22 ${x + 13} 28 L${x + 11} 35Z" fill="#e8394d"/><rect x="${x - 13}" y="32" width="26" height="5" rx="2.5" fill="#fff"/><circle cx="${x + 13}" cy="28" r="2.6" fill="#fff"/></g>
+    <g class="cjh cjh-v"><path d="M${x - 11} 35 Q${x - 11} 22 ${x} 22 Q${x + 11} 22 ${x + 11} 35Z" fill="#ff8a3c"/><rect x="${x - 12}" y="32" width="24" height="4" rx="2" fill="#8a4b1f"/><circle cx="${x}" cy="21" r="2.8" fill="#fff3dd"/></g>
+    <g class="cjh cjh-g"><path d="M${x - 5} 35 l-4 -10 M${x + 5} 35 l4 -10" stroke="#7dffb0" stroke-width="1.6"/><circle cx="${x - 9}" cy="24" r="2.4" fill="#7dffb0"/><circle cx="${x + 9}" cy="24" r="2.4" fill="#7dffb0"/></g>`;
   // Two mini Duos stirring a cauldron for the forecast banner.
   const CAULDRON = `<svg class="cauldron" viewBox="0 0 130 86" aria-hidden="true">
     <g class="flames"><path d="M48 84 q4 -10 7 -2 q2 -8 6 -1 q3 -9 7 0 q3 -7 6 1 q3 -6 6 2z" fill="#ff9a3c"/><path d="M55 84 q3 -6 5 -1 q2 -5 5 0 q2 -5 4 0 q2 -3 4 1z" fill="#ffd98a"/></g>
@@ -945,16 +1116,18 @@
       <rect x="4" y="34" width="24" height="38" rx="8" fill="#121a3d" stroke="#6f8cff" stroke-width="1.6"/><rect x="7" y="37" width="18" height="32" rx="5.5" fill="#2b3d8f"/>
       <circle cx="12" cy="50" r="2.1" fill="#fff"/><circle cx="20" cy="50" r="2.1" fill="#fff"/><path d="M13.5 55 q2.5 2.5 5 0" stroke="#fff" stroke-width="1.4" fill="none" stroke-linecap="round"/>
       <ellipse cx="9" cy="54" rx="2" ry="1.2" fill="#ff9ec8" opacity=".8"/><ellipse cx="23" cy="54" rx="2" ry="1.2" fill="#ff9ec8" opacity=".8"/>
-      <ellipse cx="16" cy="35" rx="15" ry="3" fill="#2b1f4d" stroke="#b18cff" stroke-width="1.2"/>
-      <path d="M8 34 Q12 22 17 14 Q19 10 24 12 Q20 15 21 21 L25 34Z" fill="#3a2a6b" stroke="#b18cff" stroke-width="1.2" stroke-linejoin="round"/><path d="M9 31 h15" stroke="#ffa24c" stroke-width="2.4"/>
+      <g class="cjh cjh-h"><ellipse cx="16" cy="35" rx="15" ry="3" fill="#2b1f4d" stroke="#b18cff" stroke-width="1.2"/>
+      <path d="M8 34 Q12 22 17 14 Q19 10 24 12 Q20 15 21 21 L25 34Z" fill="#3a2a6b" stroke="#b18cff" stroke-width="1.2" stroke-linejoin="round"/><path d="M9 31 h15" stroke="#ffa24c" stroke-width="2.4"/></g>
+      ${CJ_HATS(16)}
       <g class="wand wa"><line x1="27" y1="56" x2="44" y2="34" stroke="#c9a46a" stroke-width="2.2" stroke-linecap="round"/><path d="M45 28l1.4 3 3 1.4-3 1.4-1.4 3-1.4-3-3-1.4 3-1.4z" fill="#ffd98a"/></g>
     </g>
     <g class="mc mb">
       <rect x="102" y="34" width="24" height="38" rx="8" fill="#f4f1ea" stroke="#d9d3c5" stroke-width="1.6"/><rect x="105" y="37" width="18" height="32" rx="5.5" fill="#ffffff"/>
       <circle cx="110" cy="50" r="2.1" fill="#1b2142"/><circle cx="118" cy="50" r="2.1" fill="#1b2142"/><path d="M111.5 55 q2.5 2.5 5 0" stroke="#1b2142" stroke-width="1.4" fill="none" stroke-linecap="round"/>
       <ellipse cx="107" cy="54" rx="2" ry="1.2" fill="#ff9ec8" opacity=".8"/><ellipse cx="121" cy="54" rx="2" ry="1.2" fill="#ff9ec8" opacity=".8"/>
-      <ellipse cx="114" cy="35" rx="15" ry="3" fill="#4a2a12" stroke="#ffa24c" stroke-width="1.2"/>
-      <path d="M122 34 Q118 22 113 14 Q111 10 106 12 Q110 15 109 21 L105 34Z" fill="#ff9a3c" stroke="#d9711f" stroke-width="1.2" stroke-linejoin="round"/><path d="M106 31 h15" stroke="#3a2a6b" stroke-width="2.4"/>
+      <g class="cjh cjh-h"><ellipse cx="114" cy="35" rx="15" ry="3" fill="#4a2a12" stroke="#ffa24c" stroke-width="1.2"/>
+      <path d="M122 34 Q118 22 113 14 Q111 10 106 12 Q110 15 109 21 L105 34Z" fill="#ff9a3c" stroke="#d9711f" stroke-width="1.2" stroke-linejoin="round"/><path d="M106 31 h15" stroke="#3a2a6b" stroke-width="2.4"/></g>
+      ${CJ_HATS(114)}
       <g class="wand wb"><line x1="103" y1="56" x2="86" y2="34" stroke="#c9a46a" stroke-width="2.2" stroke-linecap="round"/><path d="M85 28l1.4 3 3 1.4-3 1.4-1.4 3-1.4-3-3-1.4 3-1.4z" fill="#ffd98a"/></g>
     </g></svg>`;
 
@@ -1285,7 +1458,9 @@
     if (usual !== null) lines.push(`Restocks here usually land around ${hourLabel(usual)} ⏰`);
     if (SPOOKY) lines.push("Psst… a little ghost is hiding somewhere on this page 👀", "Trick or restock? 🎃", "We dressed up but we're still watching 👀🎃", "Boo! …no Duos yet 👻", "Tap us for a spooky trick 🦇");
     if (HARVEST) lines.push("Grateful for every restock 🦃", "Pumpkin spice and Duo watch 🍂☕", "Cozy season, eyes still open 🧣");
-    if (SNOWY) lines.push("Santa checks his list twice, we check every minute 🎅", "All we want for Christmas is a Duo 🎁", "Snowed in, still watching ❄️");
+    if (GALAXY) lines.push("Houston, we have no restock… yet 🚀", "Scanning the galaxy for Duos 🛰️", "One small tap for you, one giant restock 🌕", "Psst… someone small is hiding on this page 👽");
+    if (HARVEST) lines.push("Psst… a little turkey is hiding somewhere 🦃");
+    if (SNOWY) lines.push("Psst… a gingerbread buddy is hiding somewhere 🍪", "Santa checks his list twice, we check every minute 🎅", "All we want for Christmas is a Duo 🎁", "Snowed in, still watching ❄️");
     if (h >= 6 && h < 12) lines.push("Good morning ☀️ mornings are prime restock time");
     else if (h >= 12 && h < 18) lines.push("Afternoon shift 🍵 still watching");
     else if (h >= 18 && h < 23) lines.push("Evening watch 🌆 stores close soon, eyes open");
@@ -1299,14 +1474,34 @@
     holdUntil = Date.now() + ms; lastMood = text;
     b.textContent = text; b.classList.remove("say"); void b.offsetWidth; b.classList.add("say");
   }
+  // Is Apple blocking the PC (HTTP 541), or is the cloud backup doing the checking?
+  function lockState() {
+    if (!STATUS) return null;
+    const own = STATUS.source !== "github", pc = own ? { ...(STATUS.pc || {}), checked_at: STATUS.checked_at, error: STATUS.error } : (STATUS.pc || {});
+    const pcAge = pc.checked_at ? secondsAgo(pc.checked_at) : 1e9;
+    if (pc.error && /541/.test(pc.error) && pcAge <= 1500)
+      return { kind: "locked", since: pc.block_since || STATUS.last_success_at || pc.checked_at, retry: pc.retry_at, backup: !own };
+    if (!own && secondsAgo(STATUS.checked_at) <= 1200) return { kind: "backup", pcAge };
+    return null;
+  }
+  const minsUntil = (iso) => Math.max(0, Math.round((new Date(iso) - Date.now()) / 60000));
+  function updateLockTimers() {
+    document.querySelectorAll("[data-since]").forEach((el) => { el.textContent = Math.max(0, Math.round(secondsAgo(el.dataset.since) / 60)) + " min"; });
+    document.querySelectorAll("[data-retry]").forEach((el) => { const m = minsUntil(el.dataset.retry); el.textContent = m ? `in ~${m} min` : "any second"; });
+    document.querySelectorAll(".lkbar i[data-from]").forEach((el) => { el.style.transform = `scaleX(${Math.min(1, secondsAgo(el.dataset.from) / 1800).toFixed(3)})`; });
+  }
   function renderMascot(cls) {
     const stores = STATUS ? storesFrom(STATUS) : [];
-    const hot = stores.filter((x) => x.any);
-    const mood = hot.length ? "happy" : (cls === "stale" || (STATUS && STATUS.error)) ? "sleepy" : "watching";
+    const hot = stores.filter((x) => x.any), L = lockState();
+    const mood = hot.length ? "happy" : L && L.kind === "locked" ? "locked" : L && L.kind === "backup" ? "backup"
+      : (cls === "stale" || (STATUS && STATUS.error)) ? "sleepy" : "watching";
     const m = $("mascot"); if (m && !trickBusy) m.setAttribute("class", "mascot " + mood);
     if (trickBusy || (!hot.length && Date.now() < holdUntil)) return;
     let text;
     if (hot.length) text = `IT'S HERE!! ${hot[0].name}, go go go! 🎉📱`;
+    else if (mood === "locked") text = (quipIdx % 2 ? "Apple put us in timeout 🔒 backup's covering for us"
+      : `Locked out by Apple 🔒 ${L.retry ? (minsUntil(L.retry) ? `trying again in ~${minsUntil(L.retry)} min` : "trying again any second") : "trying again soon"}`);
+    else if (mood === "backup") text = (quipIdx % 2 ? "PC's napping 😴 cloud backup on duty ☁️" : "Backup mode ☁️ checking every ~5 min");
     else if (mood === "sleepy") text = STATUS && STATUS.error ? "Apple's ignoring us rn… retrying 💤" : "Zzz… the PC stopped checking 💤";
     else if (checkingSince) text = "Peeking at Apple right now… 👀";
     else {
@@ -1344,7 +1539,7 @@
       ? `checking Apple now… ${Math.round((Date.now() - checkingSince) / 1000)}s`
       : STATUS.error ? `last check failed · ${ago(sec)}` : `last Apple check ${tm(STATUS.checked_at)} · ${ago(sec)}`;
     renderMascot(cls);
-    renderScan();
+    renderScan(); updateLockTimers();
   }
 
   function toast(msg) {
@@ -1465,7 +1660,9 @@
     ["t-wink", "We got you 😉"], ["t-squish", "Squish! 🍡"], ["t-star", "Wish upon a Star White ⭐"],
     ["t-swap", "Switcheroo! 🔄 Night Sky ⇄ Star White"],
   ];
-  if (SNOWY) TRICKS.push(["t-star", "Ho ho ho ⭐ make a wish"]);
+  if (SNOWY) TRICKS.push(["t-star", "Ho ho ho ⭐ make a wish"], ["t-snow", "Snowball fight! ❄️❄️"], ["t-snow", "Let it snow, let it Duo ❄️"]);
+  if (HARVEST) TRICKS.push(["t-leaves", "Leaf pile jump! 🍂🍂"], ["t-leaves", "Crunchy leaves are the best 🍁"]);
+  if (GALAXY) TRICKS.push(["t-beam", "Beam us up! 🛸"], ["t-beam", "Abducted… by restock vibes 👽"], ["t-star", "Shooting star, make a wish 🌠"]);
   if (SPOOKY) TRICKS.push(["t-boo", "BOO! 👻 …did we scare you?"], ["t-boo", "We're ghosts now 👻 spooky Duos"], ["t-bats", "Bat squad, go find Duos! 🦇🦇"]);
   const SOLO = {
     a: ["Hey! That tickles 🤭", "Night Sky reporting for duty 🫡", "Boop received 🌙", "I'm the dark-mode one 😎", "Stop it, I'm watching Apple 👀"],
@@ -1529,27 +1726,47 @@
 
 
   // ---------- Halloween: monster costume swaps (Stock tab, every 10s, inside a poof cloud) ----------
-  const COSTUMES = [
-    "🧙‍♀️🐱 Witch & kitty, classic", "🧟‍♂️ Frankenstein & the Mummy reporting for duty", "💀🧛 Skeleton & Dracula, spooky squad",
-    "🐺🎃 Werewolf & the Pumpkin King", "🧟👻 Zombie & a shy little ghost",
-  ];
+  const COSTUME_SETS = {
+    halloween: [[0, "🧙‍♀️🐱 Witch & kitty, classic"], [1, "🧟‍♂️ Frankenstein & the Mummy reporting for duty"], [2, "💀🧛 Skeleton & Dracula, spooky squad"],
+                [3, "🐺🎃 Werewolf & the Pumpkin King"], [4, "🧟👻 Zombie & a shy little ghost"]],
+    harvest: [[5, "🍂 Beanie & a little leaf, cozy season"], [6, "🦃 Turkey & a pilgrim, happy Thanksgiving"], [7, "🌾 Scarecrow & the pie chef"], [8, "🏈 Game day! Go team"]],
+    holidays: [[9, "🎅 Two Santas… we both wanted the hat"], [10, "🦌 Rudolph & Frosty"], [11, "🍪 Gingerbread & a little angel"], [12, "🧝 An elf & a present (it's me!)"]],
+    galaxy: [[-1, "🌙 Just us, no costume"], [13, "🧑‍🚀 Astronaut & alien, first contact"], [14, "🛸 UFO hat & Saturn rings"], [15, "🚀 Rocket & a star crown, 3… 2… 1…"]],
+  };
+  const COSTUMES = COSTUME_SETS[THEME];
   let cosIdx = 0;
+  $("mascot").dataset.cos = COSTUMES[0][0];
   setInterval(() => {
     const m = $("mascot");
-    if (!SPOOKY || document.body.dataset.tab !== "stock" || trickBusy || document.documentElement.classList.contains("paused")) return;
+    if (document.body.dataset.tab !== "stock" || trickBusy || document.documentElement.classList.contains("paused")) return;
     m.dataset.pc = m.dataset.pc === "a" ? "b" : "a";            // restart the poof cloud animation
     setTimeout(() => {
-      cosIdx = (cosIdx + 1) % COSTUMES.length; m.dataset.cos = cosIdx;
-      if (!document.body.classList.contains("instock")) say("💨 POOF! " + COSTUMES[cosIdx], 3200);
+      cosIdx = (cosIdx + 1) % COSTUMES.length; m.dataset.cos = COSTUMES[cosIdx][0];
+      if (!document.body.classList.contains("instock") && !/locked|backup/.test(m.getAttribute("class"))) say("💨 POOF! " + COSTUMES[cosIdx][1], 3200);
     }, 320);
   }, 10000);
 
   // ---------- Hide-and-seek ghost: a new hiding spot each time the page opens ----------
   (() => {
-    if (!SPOOKY) return;
-    const GHOST = `<svg viewBox="0 0 38 44"><path d="M4 44 V18 Q4 2 19 2 Q34 2 34 18 V44 l-5 -5 -5 5 -5 -5 -5 5 -5 -5z" fill="#fbfaff" stroke="#cfc6ff" stroke-width="1.5"/>
+    const GHOST_SVG = `<svg viewBox="0 0 38 44"><path d="M4 44 V18 Q4 2 19 2 Q34 2 34 18 V44 l-5 -5 -5 5 -5 -5 -5 5 -5 -5z" fill="#fbfaff" stroke="#cfc6ff" stroke-width="1.5"/>
       <ellipse cx="14" cy="17" rx="2.6" ry="3.2" fill="#1b2142"/><ellipse cx="24" cy="17" rx="2.6" ry="3.2" fill="#1b2142"/><circle cx="15" cy="16" r=".9" fill="#fff"/><circle cx="25" cy="16" r=".9" fill="#fff"/>
       <ellipse cx="10" cy="22" rx="2.6" ry="1.5" fill="#ff9ec8" opacity=".8"/><ellipse cx="28" cy="22" rx="2.6" ry="1.5" fill="#ff9ec8" opacity=".8"/><ellipse cx="19" cy="23" rx="2" ry="2.4" fill="#1b2142"/></svg>`;
+    const HIDERS = {
+      halloween: { svg: GHOST_SVG, msg: "👻 Eek! You found me!", label: "ghosts" },
+      harvest: { label: "turkeys", msg: "🦃 Gobble! You found me!", svg: `<svg viewBox="0 0 38 44"><g transform="translate(19 20)"><ellipse cx="-12" cy="-6" rx="5" ry="12" fill="#c8553d" transform="rotate(-40 -12 -6)"/><ellipse cx="-6" cy="-10" rx="5" ry="12" fill="#f28f3b" transform="rotate(-18 -6 -10)"/>
+        <ellipse cx="0" cy="-11" rx="5" ry="12" fill="#ffd166"/><ellipse cx="6" cy="-10" rx="5" ry="12" fill="#f28f3b" transform="rotate(18 6 -10)"/><ellipse cx="12" cy="-6" rx="5" ry="12" fill="#c8553d" transform="rotate(40 12 -6)"/></g>
+        <ellipse cx="19" cy="30" rx="11" ry="14" fill="#8a5a3c"/><circle cx="15" cy="24" r="2.6" fill="#fff"/><circle cx="23" cy="24" r="2.6" fill="#fff"/><circle cx="15.4" cy="24.4" r="1.3" fill="#1b1530"/><circle cx="23.4" cy="24.4" r="1.3" fill="#1b1530"/>
+        <path d="M17 28 l2 4 2 -4z" fill="#ffb02e"/><path d="M20 31 q3 4 0 7 q-2 -3 0 -7z" fill="#e8394d"/></svg>` },
+      holidays: { label: "gingerbread buddies", msg: "🍪 Hey! You found the gingerbread!", svg: `<svg viewBox="0 0 38 44"><circle cx="19" cy="15" r="11" fill="#b5703c"/><path d="M6 44 V30 Q6 24 12 24 H26 Q32 24 32 30 V44Z" fill="#b5703c"/>
+        <circle cx="15" cy="13" r="1.9" fill="#fff"/><circle cx="23" cy="13" r="1.9" fill="#fff"/><path d="M14 18.5 q5 4 10 0" stroke="#fff" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+        <ellipse cx="11" cy="17" rx="2.2" ry="1.3" fill="#ff9ec8"/><ellipse cx="27" cy="17" rx="2.2" ry="1.3" fill="#ff9ec8"/><circle cx="19" cy="31" r="1.8" fill="#e8394d"/><circle cx="19" cy="37" r="1.8" fill="#2f9e5b"/>
+        <path d="M10 6 Q16 -2 26 3 L28 8 L10 8Z" fill="#e8394d"/><rect x="9" y="6" width="20" height="3.5" rx="1.7" fill="#fff"/></svg>` },
+      galaxy: { label: "aliens", msg: "👽 Beep boop, you found me!", svg: `<svg viewBox="0 0 38 44"><path d="M13 9 l-4 -6 M25 9 l4 -6" stroke="#7dffb0" stroke-width="1.8"/><circle cx="9" cy="3.5" r="2.4" fill="#7dffb0"/><circle cx="29" cy="3.5" r="2.4" fill="#7dffb0"/>
+        <ellipse cx="19" cy="19" rx="14" ry="12" fill="#7dffb0"/><path d="M8 44 V34 Q8 28 19 28 Q30 28 30 34 V44Z" fill="#5fd99a"/>
+        <ellipse cx="13" cy="19" rx="4" ry="5.5" fill="#1b2142" transform="rotate(-15 13 19)"/><ellipse cx="25" cy="19" rx="4" ry="5.5" fill="#1b2142" transform="rotate(15 25 19)"/><circle cx="12" cy="17" r="1.3" fill="#fff"/><circle cx="24" cy="17" r="1.3" fill="#fff"/>
+        <path d="M17 26 q2 1.6 4 0" stroke="#1b2142" stroke-width="1.3" fill="none" stroke-linecap="round"/></svg>` },
+    };
+    const H = HIDERS[THEME], GHOST = H.svg;
     const SPOTS = [
       { sel: ".status", style: "top:-28px;right:24%" }, { sel: "details.settings", style: "top:-28px;left:16%" },
       { sel: ".foot", style: "top:-28px;right:14%" }, { sel: ".scan-label", style: "top:-36px;left:40%" },
@@ -1557,7 +1774,8 @@
       { fixed: "right", style: "right:0;top:58%" }, { fixed: "left", style: "left:0;top:42%" },
       { fixed: "bottom", style: "bottom:0;left:62%" }, { fixed: "right", style: "right:0;top:28%" },
     ];
-    let found = Number(store.get("ghostsFound") || 0);
+    const FOUND_KEY = THEME === "halloween" ? "ghostsFound" : "found_" + THEME;
+    let found = Number(store.get(FOUND_KEY) || 0);
     function hide(avoid) {
       let i; do { i = Math.floor(Math.random() * SPOTS.length); } while (i === avoid && SPOTS.length > 1);
       store.set("ghostSpot", String(i));
@@ -1573,9 +1791,9 @@
       }
       g.addEventListener("click", (e) => {
         e.preventDefault(); e.stopPropagation();
-        found++; store.set("ghostsFound", String(found));
+        found++; store.set(FOUND_KEY, String(found));
         g.classList.add("found");
-        say(found === 1 ? "👻 Eek! You found me! Bet you can't do it again…" : `👻 Eek! You found me! (${found} ghosts found)`, 3200);
+        say(found === 1 ? `${H.msg} Bet you can't do it again…` : `${H.msg} (${found} ${H.label} found)`, 3200);
         try { navigator.vibrate && navigator.vibrate([10, 40, 10]); } catch {}
         setTimeout(() => g.remove(), 1200);
         setTimeout(() => hide(i), 45000);                    // it hides somewhere else later

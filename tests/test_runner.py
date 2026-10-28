@@ -303,3 +303,16 @@ class SignatureTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class BlockInfoTests(unittest.TestCase):
+    def test_block_info(self):
+        from datetime import datetime, timezone
+        now = datetime(2026, 10, 28, 12, 0, tzinfo=timezone.utc)
+        self.assertEqual(lr.block_info({"error": None}, None, 0, now), {})
+        first = lr.block_info({"error": "HTTP 541", "checked_at": "2026-10-28T12:00:00+00:00"}, None, 0, now)
+        self.assertEqual(first["block_since"], "2026-10-28T12:00:00+00:00")
+        self.assertEqual(first["retry_at"], "2026-10-28T12:15:00+00:00")       # 15 min before the first retry
+        later = lr.block_info({"error": "HTTP 541"}, {"start": "2026-10-28T11:40:00+00:00"}, 3, now)
+        self.assertEqual(later["block_since"], "2026-10-28T11:40:00+00:00")
+        self.assertEqual(later["retry_at"], "2026-10-28T12:05:00+00:00")       # then every 5 min

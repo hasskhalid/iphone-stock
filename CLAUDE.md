@@ -118,7 +118,20 @@ home-screen dashboard. Keep it free to run and dependency-light.
   (`data-pc` a/b restarts it) swaps monster costumes (`data-cos` 0-4: witch & cat, Frankenstein & mummy,
   skeleton & Dracula, werewolf & pumpkin, zombie & ghost). Hide-and-seek ghost (`.hideghost`): random spot
   from SPOTS each page load (never the same twice), tap = found count in localStorage, re-hides after 45s.
-  Sky decor: witch flying past the moon, pumpkins, skull pile, dangling spider (static on desktop). No "other trackers" section any more.
+  Sky decor: witch flying past the moon, pumpkins, skull pile, dangling spider (static on desktop).
+  Every theme now has the same kit (Oct 28): costume set swapped in a POOF every 10s on Stock
+  (`COSTUME_SETS`: halloween cos0-4, harvest cos5-8 beanie/turkey+pilgrim/scarecrow+chef/game day,
+  holidays cos9-12 Santas/Rudolph+Frosty/gingerbread+angel/elf+present, galaxy -1 & cos13-15
+  astronaut+alien/UFO+Saturn/rocket+stars), hidden friend (`HIDERS`: ghost / turkey / gingerbread / alien,
+  found counts per theme), sky flyers (witch / geese / Santa's sleigh / UFO + floating astronaut),
+  scan bar (toxic cauldron / autumn / candy cane / starfield), forecast pot (cider / hot cocoa / stardust,
+  per-theme mini hats, `oracle` title), spells (`SPELL_SETS`), duo tricks (boo+bats / leaves / snow / UFO beam),
+  title font (Creepster / Pacifico / Mountains of Christmas / Orbitron via Google Fonts).
+  Lockout + backup: `lockState()` = "locked" when the PC's error is HTTP 541 (pc.block_since / pc.retry_at,
+  published by the runner via `block_info()`), "backup" when the backup published and the PC is quiet.
+  Locked = Duos behind jail bars with a wiggling padlock, frowns, sweat drops, padlock banner with minutes
+  locked, next retry countdown and a 30-min progress bar. Backup = Duos float on a cloud holding a
+  "BACKUP ON" sign + cloud banner. No "other trackers" section any more.
   "Patterns & news" tab renders `docs/news.json`
   ({updated_at, summary, items:[{title, summary, source, url, date}]}), refreshed daily at 7:47 AM ET
   by a scheduled Claude task (paraphrased summaries with links, never copied text). Other trackers'
