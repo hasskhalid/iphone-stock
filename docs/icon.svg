@@ -1,66 +1,59 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Duo Watch, Halloween edition: Night Sky as a witch, Star White as a vampire. -->
   <defs>
-    <radialGradient id="bg" cx="50%" cy="0%" r="110%"><stop offset="0" stop-color="#22306b"/><stop offset=".55" stop-color="#0c1226"/><stop offset="1" stop-color="#070a16"/></radialGradient>
-    <radialGradient id="glowN" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#6f8cff" stop-opacity=".55"/><stop offset="1" stop-color="#6f8cff" stop-opacity="0"/></radialGradient>
-    <radialGradient id="glowW" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#f4f1ea" stop-opacity=".28"/><stop offset="1" stop-color="#f4f1ea" stop-opacity="0"/></radialGradient>
-    <linearGradient id="glass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".16"/><stop offset="1" stop-color="#fff" stop-opacity=".03"/></linearGradient>
+    <radialGradient id="bg" cx="50%" cy="0%" r="115%"><stop offset="0" stop-color="#3a2470"/><stop offset=".55" stop-color="#140f2e"/><stop offset="1" stop-color="#08061a"/></radialGradient>
+    <radialGradient id="moonGlow" cx="50%" cy="50%" r="50%"><stop offset=".3" stop-color="#ffb066" stop-opacity=".45"/><stop offset="1" stop-color="#ffb066" stop-opacity="0"/></radialGradient>
+    <radialGradient id="ground" cx="50%" cy="100%" r="60%"><stop offset="0" stop-color="#7dffb0" stop-opacity=".25"/><stop offset="1" stop-color="#7dffb0" stop-opacity="0"/></radialGradient>
+    <linearGradient id="scrN" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22306b"/><stop offset="1" stop-color="#3b4fa8"/></linearGradient>
+    <linearGradient id="scrW" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#e4e0d6"/></linearGradient>
+    <mask id="cres"><rect width="512" height="512" fill="#fff"/><circle cx="452" cy="70" r="38" fill="#000"/></mask>
+    <path id="bat" d="M0 4 Q-6 -6 -12 -2 Q-18 -12 -28 -4 Q-20 0 -18 8 Q-12 4 -8 10 Q-4 4 0 8 Q4 4 8 10 Q12 4 18 8 Q20 0 28 -4 Q18 -12 12 -2 Q6 -6 0 4Z"/>
   </defs>
   <rect width="512" height="512" fill="url(#bg)"/>
-  <circle cx="170" cy="250" r="190" fill="url(#glowN)"/><circle cx="350" cy="270" r="170" fill="url(#glowW)"/>
-  <g fill="#fff"><circle cx="70" cy="80" r="3"/><circle cx="440" cy="60" r="2.4"/><circle cx="400" cy="130" r="1.8"/><circle cx="110" cy="150" r="1.6"/><circle cx="460" cy="400" r="2"/><circle cx="50" cy="420" r="2.2"/><circle cx="250" cy="40" r="1.8"/></g>
-  <g fill="#ffd98a"><path d="M70 420l5 12 12 5-12 5-5 12-5-12-12-5 12-5z"/><path d="M430 300l4 9 9 4-9 4-4 9-4-9-9-4 9-4z"/></g>
-  <g transform="translate(46 116) scale(2.33)">
-      <defs>
-        <linearGradient id="scrN" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22306b"/><stop offset="1" stop-color="#3b4fa8"/></linearGradient>
-        <linearGradient id="scrW" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#e4e0d6"/></linearGradient>
-      </defs>
-      
-      
-      <g class="chibi a">
-        <g class="bod">
-          <path d="M22 64 q-9 3 -8 13" stroke="#6f8cff" stroke-width="5" stroke-linecap="round" fill="none"/>
-          <path d="M80 64 q8 2 9 9" stroke="#6f8cff" stroke-width="5" stroke-linecap="round" fill="none"/>
-          <rect x="34" y="96" width="10" height="9" rx="4.5" fill="#6f8cff"/><rect x="58" y="96" width="10" height="9" rx="4.5" fill="#6f8cff"/>
-          <rect x="21" y="12" width="60" height="88" rx="17" fill="#121a3d" stroke="#6f8cff" stroke-width="2.6"/>
-          <rect x="27" y="18" width="48" height="76" rx="12" fill="url(#scrN)"/>
-          <line x1="51" y1="19" x2="51" y2="93" stroke="rgba(255,255,255,.2)" stroke-width="1.6" stroke-dasharray="3 5"/>
-          <circle cx="36" cy="25" r="2.2" fill="#070a16"/><circle cx="66" cy="25" r="2.2" fill="#070a16"/>
-          <g transform="translate(51 52)" stroke="#fff">
-            <g class="eyes"><ellipse cx="-11" cy="0" rx="5" ry="6.3" fill="#fff" stroke="none"/><ellipse class="eye-r" cx="11" cy="0" rx="5" ry="6.3" fill="#fff" stroke="none"/>
-              <g class="pupils" stroke="none"><circle cx="-10" cy="1.3" r="3.1" fill="#141933"/><circle class="eye-r" cx="12" cy="1.3" r="3.1" fill="#141933"/>
-                <circle cx="-8.6" cy="-.6" r="1.1" fill="#fff"/><circle class="eye-r" cx="13.4" cy="-.6" r="1.1" fill="#fff"/></g></g>
-            
-            
-            <ellipse cx="-19" cy="10" rx="4.6" ry="2.7" fill="#ff9ec8" opacity=".75" stroke="none"/><ellipse cx="19" cy="10" rx="4.6" ry="2.7" fill="#ff9ec8" opacity=".75" stroke="none"/>
-            <path class="smile" d="M-5 11 q5 5 10 0" stroke-width="2.6" fill="none" stroke-linecap="round"/>
-            
-          </g>
-        </g>
-      </g>
-      <g class="chibi b">
-        <g class="bod">
-          <path d="M100 64 q-8 2 -9 9" stroke="#d9d3c5" stroke-width="5" stroke-linecap="round" fill="none"/>
-          <path d="M158 64 q9 3 8 13" stroke="#d9d3c5" stroke-width="5" stroke-linecap="round" fill="none"/>
-          <rect x="112" y="96" width="10" height="9" rx="4.5" fill="#d9d3c5"/><rect x="136" y="96" width="10" height="9" rx="4.5" fill="#d9d3c5"/>
-          <rect x="99" y="12" width="60" height="88" rx="17" fill="#f4f1ea" stroke="#d9d3c5" stroke-width="2.6"/>
-          <rect x="105" y="18" width="48" height="76" rx="12" fill="url(#scrW)"/>
-          <line x1="129" y1="19" x2="129" y2="93" stroke="rgba(20,25,51,.12)" stroke-width="1.6" stroke-dasharray="3 5"/>
-          <circle cx="114" cy="25" r="2.2" fill="#c9c2b1"/><circle cx="144" cy="25" r="2.2" fill="#c9c2b1"/>
-          <g transform="translate(129 52)" stroke="#141933">
-            <g class="eyes"><ellipse cx="-11" cy="0" rx="5" ry="6.3" fill="#1b2142" stroke="none"/><ellipse class="eye-r" cx="11" cy="0" rx="5" ry="6.3" fill="#1b2142" stroke="none"/>
-              <g class="pupils" stroke="none"><circle cx="-10" cy="1.3" r="3.1" fill="#1b2142"/><circle class="eye-r" cx="12" cy="1.3" r="3.1" fill="#1b2142"/>
-                <circle cx="-8.6" cy="-.6" r="1.1" fill="#fff"/><circle class="eye-r" cx="13.4" cy="-.6" r="1.1" fill="#fff"/></g></g>
-            
-            
-            <ellipse cx="-19" cy="10" rx="4.6" ry="2.7" fill="#ff9ec8" opacity=".75" stroke="none"/><ellipse cx="19" cy="10" rx="4.6" ry="2.7" fill="#ff9ec8" opacity=".75" stroke="none"/>
-            <path class="smile" d="M-5 11 q5 5 10 0" stroke-width="2.6" fill="none" stroke-linecap="round"/>
-            
-          </g>
-        </g>
-      </g>
-      
-      
-      
-      
-    </g>
+  <rect width="512" height="512" fill="url(#ground)"/>
+  <circle cx="430" cy="88" r="110" fill="url(#moonGlow)"/>
+  <circle cx="430" cy="88" r="46" fill="#ffe2a8" mask="url(#cres)"/>
+  <g fill="#fff" opacity=".85"><circle cx="60" cy="70" r="3"/><circle cx="250" cy="34" r="2.2"/><circle cx="330" cy="120" r="1.8"/><circle cx="40" cy="250" r="2"/><circle cx="480" cy="300" r="2.4"/><circle cx="470" cy="470" r="2"/></g>
+  <g fill="#1d1538" stroke="#a585ee" stroke-width="2"><use href="#bat" transform="translate(330 70) scale(1.1)"/><use href="#bat" transform="translate(372 150) scale(.8)"/><use href="#bat" transform="translate(70 150) scale(.9)"/></g>
+  <ellipse cx="256" cy="458" rx="200" ry="14" fill="rgba(0,0,0,.45)"/>
+
+  <!-- Night Sky: witch -->
+  <path d="M60 330 q-30 10 -28 48" stroke="#6f8cff" stroke-width="16" stroke-linecap="round" fill="none"/>
+  <rect x="96" y="420" width="30" height="30" rx="15" fill="#6f8cff"/><rect x="164" y="420" width="30" height="30" rx="15" fill="#6f8cff"/>
+  <rect x="64" y="200" width="162" height="234" rx="48" fill="#121a3d" stroke="#6f8cff" stroke-width="8"/>
+  <rect x="80" y="216" width="130" height="202" rx="34" fill="url(#scrN)"/>
+  <ellipse cx="117" cy="306" rx="15" ry="19" fill="#fff"/><ellipse cx="173" cy="306" rx="15" ry="19" fill="#fff"/>
+  <circle cx="120" cy="310" r="9.5" fill="#141933"/><circle cx="176" cy="310" r="9.5" fill="#141933"/>
+  <circle cx="124" cy="304" r="3.4" fill="#fff"/><circle cx="180" cy="304" r="3.4" fill="#fff"/>
+  <ellipse cx="96" cy="336" rx="13" ry="7.5" fill="#ff9ec8" opacity=".8"/><ellipse cx="194" cy="336" rx="13" ry="7.5" fill="#ff9ec8" opacity=".8"/>
+  <path d="M131 340 q14 14 28 0" stroke="#fff" stroke-width="7" fill="none" stroke-linecap="round"/>
+  <ellipse cx="145" cy="206" rx="92" ry="17" fill="#2b1f4d" stroke="#b18cff" stroke-width="5"/>
+  <path d="M96 202 Q118 126 150 70 Q166 44 204 54 Q176 74 179 112 L196 202 Z" fill="#3a2a6b" stroke="#b18cff" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M100 178 L192 178 L196 198 L96 198Z" fill="#ff9a3c"/>
+  <path d="M146 166l4 9 9 4-9 4-4 9-4-9-9-4 9-4z" fill="#ffd98a"/>
+  <!-- broom wand -->
+  <line x1="40" y1="380" x2="20" y2="300" stroke="#c9a46a" stroke-width="7" stroke-linecap="round"/>
+  <path d="M20 284l5 11 11 5-11 5-5 11-5-11-11-5 11-5z" fill="#ffd98a"/>
+
+  <!-- Star White: vampire -->
+  <path d="M302 262 L246 160 L292 340 Z" fill="#a5263f"/><path d="M434 262 L490 160 L444 340 Z" fill="#a5263f"/>
+  <path d="M300 268 L260 196 L292 320 Z" fill="#5c0f24"/><path d="M436 268 L476 196 L444 320 Z" fill="#5c0f24"/>
+  <path d="M452 330 q30 10 28 48" stroke="#d9d3c5" stroke-width="16" stroke-linecap="round" fill="none"/>
+  <rect x="318" y="420" width="30" height="30" rx="15" fill="#d9d3c5"/><rect x="386" y="420" width="30" height="30" rx="15" fill="#d9d3c5"/>
+  <rect x="286" y="200" width="162" height="234" rx="48" fill="#f4f1ea" stroke="#d9d3c5" stroke-width="8"/>
+  <rect x="302" y="216" width="130" height="202" rx="34" fill="url(#scrW)"/>
+  <path d="M286 252 Q286 200 334 200 L400 200 Q448 200 448 252 L448 246 Q424 232 367 270 Q310 232 286 246 Z" fill="#1d1530"/>
+  <path d="M330 214 q20 -6 34 4" stroke="#4a3d78" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <ellipse cx="339" cy="308" rx="15" ry="19" fill="#1b2142"/><ellipse cx="395" cy="308" rx="15" ry="19" fill="#1b2142"/>
+  <circle cx="345" cy="302" r="4" fill="#fff"/><circle cx="401" cy="302" r="4" fill="#fff"/>
+  <ellipse cx="318" cy="338" rx="13" ry="7.5" fill="#ff9ec8" opacity=".85"/><ellipse cx="416" cy="338" rx="13" ry="7.5" fill="#ff9ec8" opacity=".85"/>
+  <path d="M352 340 q15 14 30 0" stroke="#1b2142" stroke-width="7" fill="none" stroke-linecap="round"/>
+  <path d="M356 343 l5 13 5 -11Z M368 343 l5 11 5 -13Z" fill="#fff" stroke="#c9c2b1" stroke-width="1.5" stroke-linejoin="round"/>
+  <circle cx="367" cy="404" r="9" fill="#d63a5c" stroke="#7a1f3d" stroke-width="3"/>
+
+  <!-- little pumpkin -->
+  <ellipse cx="256" cy="440" rx="30" ry="24" fill="#ff9a3c" stroke="#d9711f" stroke-width="3"/>
+  <path d="M256 418 V462 M240 420 Q232 440 240 460 M272 420 Q280 440 272 460" stroke="#d9711f" stroke-width="2.5" fill="none"/>
+  <path d="M256 418 q2 -12 12 -14" stroke="#4f8a3a" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <path d="M243 436 l6 -6 6 6z M257 436 l6 -6 6 6z" fill="#3a2016"/><path d="M244 448 q12 8 24 0" stroke="#3a2016" stroke-width="3" fill="none"/>
 </svg>

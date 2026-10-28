@@ -1,6 +1,6 @@
 // Minimal service worker: caches the app shell so it opens instantly from the
 // home screen. Stock data is always fetched fresh from the network.
-const CACHE = "iphone-stock-v34";
+const CACHE = "iphone-stock-v35";
 const SHELL = ["./", "index.html", "manifest.json", "icon.svg", "icon-180.png", "icon-192.png"];
 
 self.addEventListener("install", (e) => {
