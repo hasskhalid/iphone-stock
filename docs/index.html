@@ -353,8 +353,10 @@
   .gb.on { box-shadow: 0 0 0 2px var(--ok), 0 0 12px rgba(110,242,177,.65); }
   .gb.off { opacity: .35; }
   /* Hollow = sold out / not in stock right now; filled = in stock (green glow). */
+  .gb.hol { opacity: .55; }
   .gb.hol.n { background: transparent; color: #9fb0ff; box-shadow: inset 0 0 0 2px #5873ff; }
   .gb.hol.w { background: transparent; color: #f6f3ec; box-shadow: inset 0 0 0 2px #e9e4d8; }
+  .sw .gb.hol { opacity: .8; }
   .sw.w .gb.hol.w { color: #2c47d8; box-shadow: inset 0 0 0 2px #2c47d8; }   /* readable on the white swatch */
   .gbs { display: flex; align-items: center; gap: 4px; margin-top: 5px; min-width: 0; }
   .gbs em { margin-left: 4px; font-size: 11.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
