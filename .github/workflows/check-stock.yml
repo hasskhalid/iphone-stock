@@ -35,9 +35,6 @@ jobs:
             git show origin/status:history.json > prev_history.json 2>/dev/null || echo '{"events": []}' > prev_history.json
           fi
 
-      - uses: actions/setup-python@v6
-        with:
-          python-version: "3.12"
 
       - name: Check Apple pickup availability
         env:
@@ -49,7 +46,7 @@ jobs:
           PUSHOVER_TOKEN: ${{ secrets.PUSHOVER_TOKEN }}
           PUSHOVER_USER: ${{ secrets.PUSHOVER_USER }}
         run: >
-          python checker/check_stock.py --config config.json --source github
+          python3 checker/check_stock.py --config config.json --source github
           --defer-to-pc ${{ github.event.inputs.force == 'true' && '0' || '300' }}
           --prev prev_status.json --out status.json
           --history-in prev_history.json --history-out history.json
@@ -57,7 +54,7 @@ jobs:
       - name: Forecast the next restock
         if: hashFiles('status.json') != ''
         continue-on-error: true
-        run: python tools/forecast.py --status status.json --history history.json --priors docs/priors.json --out forecast.json
+        run: python3 tools/forecast.py --status status.json --history history.json --priors docs/priors.json --out forecast.json
 
       - name: Publish status to the status branch
         if: hashFiles('status.json') != ''

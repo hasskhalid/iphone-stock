@@ -194,7 +194,10 @@ class HandoffTests(unittest.TestCase):
         self.assertEqual(lr.pick_poll(at(9, 15)), lr.PEAK_POLL)       # morning rush
         self.assertEqual(lr.pick_poll(at(14, 0)), lr.PEAK_POLL)       # afternoon wave
         self.assertEqual(lr.pick_poll(at(11, 30)), lr.STEADY_POLL)    # break between windows
-        self.assertEqual(lr.pick_poll(at(2, 0)), lr.STEADY_POLL)      # overnight
+        self.assertEqual(lr.pick_poll(at(2, 0)), lr.SLOW_POLL)        # overnight 90s
+        self.assertEqual(lr.pick_poll(at(23, 30)), lr.SLOW_POLL)
+        self.assertEqual(lr.pick_poll(at(7, 0)), lr.STEADY_POLL)      # 75s from 7 AM
+        self.assertEqual(lr.pick_poll(at(22, 59)), lr.STEADY_POLL)
         self.assertEqual(lr.pick_poll(at(10, 30)), lr.STEADY_POLL)    # window ends at 10:30
 
     def test_blocks_are_remembered_for_the_day_only(self):

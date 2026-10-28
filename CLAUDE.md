@@ -45,7 +45,8 @@ home-screen dashboard. Keep it free to run and dependency-light.
 - Pacing (measured Oct 27; the old Pace ladder is kept only for state compatibility): 75s ran all
   day with no blocks; 60s was blocked after 2h49m and again after 2h42m; blocks lasted 17-32 min.
   `pick_poll(now, no_peak_day, slow_day)`: 60s inside `PEAK_WINDOWS` (8:30-10:30 AM and
-  12:30-2:30 PM PC-local Eastern time; owner's request), 75s otherwise and overnight. Any block
+  12:30-2:30 PM PC-local Eastern time; owner's request), 90s in `QUIET_HOURS` (11 PM-7 AM, owner's
+  choice Oct 27), 75s otherwise. Any block
   sets `no_peak_day` = today (75s for the rest of the day); a block while already at 75s+ also sets
   `slow_day` (90s rest of day). Both are saved in runner_state.json so a restart can't forget a block
   (a restart right after a block used to go straight back to 60s and get blocked again). Next day
@@ -62,7 +63,8 @@ home-screen dashboard. Keep it free to run and dependency-light.
   in runner_state (`block_open`, `blocks_today`, survives restarts) and published as
   status.runner.blocks_today. Oct 27 blocks: 6:45 AM (60s, 18-32 min), 2:04 PM, ~2:16 PM (60s),
   4:30 PM (60s after 49 min, 25-30 min), 6:54 PM (75s after 1h54m, 25-30 min).
-- `.github/workflows/check-stock.yml`: backup, runs every 5 min; `--defer-to-pc 300` makes it
+- `.github/workflows/check-stock.yml`: backup, runs every 5 min (uses the runner's system python3,
+  no setup-python step, to start faster; never make it check more often to cover a PC block); `--defer-to-pc 300` makes it
   skip (and not publish) while the PC runner's status (`source: "pc"`) is < 5 min old and not erroring. Reads the previous status
   from the `status` branch, runs the checker, force-pushes a single-commit `status`
   branch containing `status.json` + `history.json` (keeps main history clean).
