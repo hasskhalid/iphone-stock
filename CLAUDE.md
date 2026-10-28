@@ -51,12 +51,17 @@ home-screen dashboard. Keep it free to run and dependency-light.
   (a restart right after a block used to go straight back to 60s and get blocked again). Next day
   starts fresh. On HTTP 541, `block_wait()`: 15 min before the first retry, then every 5 min.
   Non-541 errors keep exponential backoff (max 900s).
-  Experiments (config.json `pace_mode`; default "windows" = PEAK_WINDOWS schedule): "burst" (Oct 27
+  Owner chose (Oct 27 night) `pace_mode: "windows"` (both 60s windows). Experiments (config.json `pace_mode`; default "windows" = PEAK_WINDOWS schedule): "burst" (Oct 27
   test, owner's request) = 60s for BURST_MINUTES (120) from the first check of the day, then 75s;
   "flip" = alternate 60s/75s every check. A block ends the experiment for that day (75s after).
   Owner chose to keep the cooldown at 15 min then 5-min retries (a block on Oct 27 still failed at
   17.5 min). `runner_state.flip` {day, started_at, burst_done_at, blocked_at, checks} is published as
   status.runner.test for review. Don't change pace_mode after a test without the owner's input.
+- Block log: every Apple error is appended to gitignored `blocks.local.jsonl` (one JSON per line);
+  when a block clears, a record {start, end, minutes, at_least_minutes, pace} is logged too, kept
+  in runner_state (`block_open`, `blocks_today`, survives restarts) and published as
+  status.runner.blocks_today. Oct 27 blocks: 6:45 AM (60s, 18-32 min), 2:04 PM, ~2:16 PM (60s),
+  4:30 PM (60s after 49 min, 25-30 min), 6:54 PM (75s after 1h54m, 25-30 min).
 - `.github/workflows/check-stock.yml`: backup, runs every 5 min; `--defer-to-pc 300` makes it
   skip (and not publish) while the PC runner's status (`source: "pc"`) is < 5 min old and not erroring. Reads the previous status
   from the `status` branch, runs the checker, force-pushes a single-commit `status`
@@ -109,8 +114,13 @@ home-screen dashboard. Keep it free to run and dependency-light.
   Apple's bot checks; the buying path is alert → Apple Store app → Apple Pay.
 - `config.json`: models (`label`, `color`, `part`, `url`), `zip`, `radius_miles`, `max_stores`,
   optional `ntfy_topic`. Env vars `APPLE_ZIP` / `NTFY_TOPIC` (repo secrets) override.
-- Tracking: iPhone Duo unlocked 256GB only (owner dropped 512GB): Night Sky `MK1F4LL/A` /
-  Star White `MK1E4LL/A`. Models carry `storage`; alert titles use `color_of()` = label minus
+- Tracking (Oct 27): iPhone Duo unlocked 256GB AND 512GB, both colours: 256GB Night Sky
+  `MK1F4LL/A` / Star White `MK1E4LL/A`, 512GB Night Sky `MK1H4LL/A` / Star White `MK1G4LL/A`.
+  NJ stores only: config `only_states: ["NJ"]` makes `filter_area()` keep only NJ (any distance,
+  all 12 NJ Apple Stores), dropping NY. Owner's search ZIPs for that: home + Rockaway area (8 NJ
+  stores incl. Garden State Plaza, Willowbrook, Tice's Corner) + South Jersey; the American Dream
+  (NYC-overlap) zone is no longer needed. In stock = pickupDisplay "available" AND
+  storePickEligible not false (Apple's response has no isBuyable/inventory fields; checked Oct 27). Models carry `storage`; alert titles use `color_of()` = label minus
   "iPhone Duo" → "256GB NIGHT SKY @ Store".
 - Zones: Apple returns only the ~12 nearest stores per ZIP, so `extra_zips` (config) /
   `APPLE_EXTRA_ZIPS` (secret, comma-separated) add search centers. Each check queries ONE zone

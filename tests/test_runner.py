@@ -203,6 +203,14 @@ class HandoffTests(unittest.TestCase):
         self.assertEqual(lr.pick_poll(at(27, 9), "2026-10-27", slow_day="2026-10-27"), lr.SLOW_POLL)
         self.assertEqual(lr.pick_poll(at(28, 9), "2026-10-27", "2026-10-27"), lr.PEAK_POLL)  # next day: fresh
 
+    def test_close_block_records_range(self):
+        tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".jsonl"); tmp.close()
+        orig, lr.BLOCK_LOG = lr.BLOCK_LOG, tmp.name
+        self.addCleanup(lambda: (setattr(lr, "BLOCK_LOG", orig), os.remove(tmp.name)))
+        b = lr.close_block({"start": "2026-10-27T22:54:25+00:00", "last_fail": "2026-10-27T23:19:31+00:00", "pace": 75},
+                           "2026-10-27T23:24:22+00:00")
+        self.assertEqual((b["at_least_minutes"], b["minutes"]), (25, 30))
+
     def test_flip_alternates_60_and_75(self):
         self.assertEqual([lr.flip_poll(n) for n in range(4)], [60, 75, 60, 75])
 

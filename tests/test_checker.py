@@ -200,6 +200,27 @@ class AreaTests(unittest.TestCase):
             self.assertNotIn("33333", json.dumps(st))
 
 
+class NJOnlyAndEligibilityTests(unittest.TestCase):
+    def test_only_states_keeps_nj_at_any_distance_and_drops_ny(self):
+        rows = [{"id": "a", "state": "NJ", "miles": 55, "available": False},
+                {"id": "b", "state": "NY", "miles": 5, "available": True}]
+        out = cs.filter_area([{"part": "P", "stores": rows}], 25, [], ["NJ"])[0]
+        self.assertEqual([r["id"] for r in out["stores"]], ["a"])
+        self.assertFalse(out["any_available"])
+
+    def test_available_requires_pickup_eligible(self):
+        def resp(eligible):
+            pa = {"pickupDisplay": "available", "pickupSearchQuote": "Today"}
+            if eligible is not None:
+                pa["storePickEligible"] = eligible
+            return {"body": {"stores": [{"storeNumber": "R1", "storeName": "X", "state": "NJ",
+                                         "partsAvailability": {"A1/A": pa}}]}}
+        models = [{"part": "A1/A", "label": "x"}]
+        self.assertTrue(cs.parse_response(resp(True), models, 12)[0]["stores"][0]["available"])
+        self.assertTrue(cs.parse_response(resp(None), models, 12)[0]["stores"][0]["available"])
+        self.assertFalse(cs.parse_response(resp(False), models, 12)[0]["stores"][0]["available"])
+
+
 class RestartTests(unittest.TestCase):
     def test_home_is_checked_first_when_its_data_is_missing(self):
         settings = {"models": MODELS, "zip": "11111", "extra_zips": ["22222", "33333"], "max_stores": 12,

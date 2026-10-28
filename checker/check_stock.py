@@ -151,7 +151,8 @@ def parse_response(data: dict, models: list[dict], max_stores: int,
                 "state": store.get("state") or "",
                 "distance": store.get("storeDistanceWithUnit", ""),
                 "miles": store_miles(store),
-                "available": display == "available",
+                # Both must agree: "available" AND pickup-eligible (when Apple sends the flag).
+                "available": display == "available" and avail.get("storePickEligible", True) is not False,
                 "quote": avail.get("pickupSearchQuote") or "",
                 "lat": _coord(store.get("storelatitude")),
                 "lng": _coord(store.get("storelongitude")),
@@ -355,6 +356,7 @@ def load_settings(config: dict) -> dict:
         "max_stores": int(config.get("max_stores", 12)),
         "radius": float(radius) if radius else None,
         "keep_states": [x.strip() for x in (config.get("keep_states") or []) if str(x).strip()],
+        "only_states": [x.strip() for x in (config.get("only_states") or []) if str(x).strip()],
         "topic": (os.environ.get("NTFY_TOPIC") or str(config.get("ntfy_topic", ""))).strip(),
         "server": os.environ.get("NTFY_SERVER", "https://ntfy.sh"),
         "alert_click": str(config.get("alert_click", "product")),   # "product" (opens app) or "bag" (Safari)
@@ -500,11 +502,16 @@ def load_plan(path: str) -> dict:
     return plan if isinstance(plan, dict) else {}
 
 
-def filter_area(models: list[dict], radius: float | None, keep_states: list[str]) -> list[dict]:
-    """Keep stores within `radius` of home, plus every store in `keep_states` (e.g. all of NJ)."""
+def filter_area(models: list[dict], radius: float | None, keep_states: list[str],
+                only_states: list[str] | None = None) -> list[dict]:
+    """Keep stores within `radius` of home, plus every store in `keep_states` (e.g. all of NJ).
+    With `only_states`, keep ONLY stores in those states, at any distance (owner: NJ pickup only)."""
     states = {x.upper() for x in keep_states}
+    only = {x.upper() for x in (only_states or [])}
 
     def keep(st: dict) -> bool:
+        if only:
+            return (st.get("state") or "").upper() in only
         if (st.get("state") or "").upper() in states:
             return True
         m = st.get("miles")
@@ -557,7 +564,8 @@ def check_once(settings: dict, prev: dict, history: dict, *, source: str = "cli"
         # Extra zones aren't cut by radius here: the final area rule below uses distance from HOME.
         parsed = parse_response(data, models, settings["max_stores"], settings["radius"] if idx == 0 else None)
         if len(zips) == 1:
-            status["models"] = parsed
+            status["models"] = filter_area(parsed, settings["radius"], [], settings.get("only_states")) \
+                if settings.get("only_states") else parsed
         else:
             # Zones are keyed z0, z1… (never the ZIP itself: status.json is public).
             zones = {k: v for k, v in (prev.get("zones") or {}).items()
@@ -568,7 +576,8 @@ def check_once(settings: dict, prev: dict, history: dict, *, source: str = "cli"
             status["next_zone"] = pos if idx != order[pos] else (pos + 1) % len(order)
             if rush:
                 status["rush_zones"] = rush
-            status["models"] = filter_area(merge_zones(zones, models), settings["radius"], settings.get("keep_states") or [])
+            status["models"] = filter_area(merge_zones(zones, models), settings["radius"], settings.get("keep_states") or [],
+                                           settings.get("only_states"))
     except Exception as e:  # keep the last good data visible on the dashboard
         status["error"] = str(e)
         status["models"] = prev.get("models", [])

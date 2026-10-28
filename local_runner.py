@@ -296,6 +296,28 @@ def flip_poll(n: int) -> int:
     return PEAK_POLL if n % 2 == 0 else STEADY_POLL
 
 
+BLOCK_LOG = "blocks.local.jsonl"   # every Apple error, one JSON line each (gitignored)
+
+
+def log_block_event(event: dict) -> None:
+    try:
+        with open(BLOCK_LOG, "a", encoding="utf-8") as f:
+            f.write(json.dumps(event) + "\n")
+    except OSError:
+        pass
+
+
+def close_block(block: dict, cleared_at: str) -> dict:
+    """Finish a block record: it lasted somewhere between the last failure and the first success."""
+    start = datetime.fromisoformat(block["start"])
+    end = datetime.fromisoformat(cleared_at)
+    last_fail = datetime.fromisoformat(block.get("last_fail") or block["start"])
+    done = {**block, "end": cleared_at, "minutes": round((end - start).total_seconds() / 60),
+            "at_least_minutes": round((last_fail - start).total_seconds() / 60)}
+    log_block_event({"t": cleared_at, "block": done})
+    return done
+
+
 def block_wait(errors_in_row: int) -> int:
     """Apple 541 block: one long wait, then light probes (fewer requests while blocked)."""
     return BLOCK_FIRST_WAIT if errors_in_row <= 1 else BLOCK_PROBE
@@ -447,6 +469,8 @@ def main(argv: list[str] | None = None) -> int:
         print("(the GitHub backup keeps checking meanwhile; restarting won't make this faster)")
         time.sleep(wait0)
     plan_checked = time.time()
+    block_open = state.get("block_open")          # an Apple block still in progress (survives restarts)
+    blocks_today = [b for b in (state.get("blocks_today") or []) if b.get("start", "")[:10] == time.strftime("%Y-%m-%d")]
     fc_json, fc_events, fc_at = None, -1, 0.0
     try:
         while True:
@@ -488,7 +512,8 @@ def main(argv: list[str] | None = None) -> int:
                         flip["burst_done_at"] = datetime.now(timezone.utc).isoformat(timespec="seconds")
                         print(f"           2h at 60s finished with no Apple block; 75s for the rest of today")
             status["poll_seconds"] = poll
-            status["runner"] = {"started_at": started, "checks": checks, "mode": pace_mode}
+            status["runner"] = {"started_at": started, "checks": checks, "mode": pace_mode,
+                                "blocks_today": [b for b in blocks_today if b["start"][:10] == datetime.now(timezone.utc).strftime("%Y-%m-%d")]}
             if pace_mode in ("flip", "burst"):
                 status["runner"]["test"] = flip
             pc_hb = {"checked_at": status["checked_at"], "error": status.get("error"), "poll_seconds": poll, "warned": False}
@@ -563,9 +588,20 @@ def main(argv: list[str] | None = None) -> int:
             print(f"[{time.strftime('%H:%M:%S')}] {summary(status)}{note}")
             if not status.get("error"):
                 prev = status
+                if errors_in_row and block_open:
+                    block_open = close_block(block_open, status["checked_at"])
+                    blocks_today = [b for b in blocks_today if b["start"][:10] == block_open["start"][:10]] + [block_open]
+                    print(f"           Apple block cleared after ~{block_open['minutes']} min (logged to {BLOCK_LOG})")
+                    block_open = None
                 errors_in_row = 0
             else:
                 errors_in_row += 1
+                log_block_event({"t": status["checked_at"], "error": status.get("error"), "poll": poll,
+                                 "errors_in_row": errors_in_row})
+                if errors_in_row == 1 and "541" in (status.get("error") or ""):
+                    block_open = {"start": status["checked_at"], "pace": poll, "last_fail": status["checked_at"]}
+                elif block_open:
+                    block_open["last_fail"] = status["checked_at"]
                 # Start of an Apple rate-limit episode: one step slower from now on.
                 if errors_in_row == 1 and "541" in (status.get("error") or ""):
                     today = time.strftime("%Y-%m-%d")
@@ -592,6 +628,7 @@ def main(argv: list[str] | None = None) -> int:
                 wait = min(MAX_BACKOFF, poll * 2 ** errors_in_row)
             try:
                 save_json("runner_state.json", {"pace": pace.to_state(), "no_peak_day": no_peak_day, "slow_day": slow_day, "flip": flip,
+                                                "block_open": block_open, "blocks_today": blocks_today[-20:],
                                                 "blocked_until": (time.time() + wait) if errors_in_row else 0})
             except OSError:
                 pass
