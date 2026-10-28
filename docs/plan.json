@@ -1,19 +1,17 @@
 {
-  "updated_at": "2026-10-27T11:50:53+00:00",
+  "updated_at": "2026-10-28T03:44:46+00:00",
   "zone_weights": [
-    6,
-    5,
     3,
+    6,
     1
   ],
   "window_days": 7,
   "restocks": 8,
   "unseen_restocks": 0,
   "zones": {
-    "z0": 3.5,
-    "z1": 3.0,
-    "z2": 1.5,
-    "z3": 0.0
+    "z0": 2.33,
+    "z1": 5.33,
+    "z2": 0.33
   },
   "top_stores": [
     [
@@ -21,7 +19,7 @@
       3
     ],
     [
-      "Downtown Brooklyn",
+      "Willowbrook",
       2
     ],
     [
@@ -29,18 +27,18 @@
       1
     ],
     [
-      "Williamsburg",
+      "Menlo Park",
       1
     ],
     [
-      "Grand Central",
+      "Rockaway",
       1
     ]
   ],
   "peak_hours": [
+    "9am",
     "10am",
-    "2pm",
-    "4pm"
+    "2pm"
   ],
   "colors": {
     "Night Sky": 5,
@@ -48,16 +46,6 @@
   },
   "zip_suggestion": null,
   "yesterday": [
-    {
-      "t": "2026-10-26T04:43:01+00:00",
-      "store": "Williamsburg",
-      "color": "Star White"
-    },
-    {
-      "t": "2026-10-26T06:37:33+00:00",
-      "store": "Grand Central",
-      "color": "Star White"
-    },
     {
       "t": "2026-10-26T14:45:51+00:00",
       "store": "American Dream",
@@ -74,5 +62,6 @@
       "color": "Night Sky"
     }
   ],
-  "summary": "8 restocks in the last 7 days; busiest: American Dream (3), Downtown Brooklyn (2), Short Hills (1); peak hours 10am, 2pm, 4pm. Yesterday: 5 restock(s). Checking split: home area 40%, American Dream area 33%, Rockaway area 20%, Cherry Hill area 7%"
+  "summary": "8 restocks this week \u00b7 top American Dream \u00d73 \u00b7 peak 9am \u00b7 yesterday 3",
+  "split": "home area 30%, Rockaway area 60%, Cherry Hill area 10%"
 }

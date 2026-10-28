@@ -335,6 +335,16 @@
   html.harvest body[data-tab="stock"] .mascot .acc-harvest, html.snowy body[data-tab="stock"] .mascot .acc-snow { display: block; }
   body[data-tab="changes"] .mascot[data-fit="7"] .f7, body[data-tab="changes"] .mascot[data-fit="8"] .f8 { display: block; animation: fitIn .45s cubic-bezier(.3,1.7,.5,1); }
 
+  /* ---------- Halloween: toxic green cauldron scan bar ---------- */
+  html.spooky .scan { height: 8px; background: rgba(60,255,140,.07); box-shadow: inset 0 0 0 1px rgba(125,255,176,.18); }
+  html.spooky .scan i { overflow: hidden; background: linear-gradient(90deg, #1fb85a, #7dffb0 65%, #d4ff6b); box-shadow: 0 0 12px rgba(125,255,176,.75), 0 0 2px #d4ff6b; }
+  html.spooky .scan i::after { content: ""; position: absolute; top: 0; bottom: 0; left: -16px; right: 0;
+    background: radial-gradient(circle, rgba(235,255,240,.95) 0 1.4px, transparent 2px) 0 30% / 16px 100% repeat-x,
+                radial-gradient(circle, rgba(200,255,120,.8) 0 1px, transparent 1.6px) 8px 75% / 16px 100% repeat-x;
+    animation: fizz .9s linear infinite; }
+  html.spooky .scan.due i { background: linear-gradient(90deg, #1fb85a, #d4ff6b, #1fb85a); background-size: 200% 100%; }
+  @keyframes fizz { to { transform: translateX(16px); } }
+
   /* ---------- Storage badges: Night Sky = blue circle / white text, Star White = white circle / blue text ---------- */
   .gb { display: inline-grid; place-items: center; flex: none; width: 27px; height: 27px; border-radius: 50%; font-style: normal;
         font-size: 9.5px; font-weight: 900; letter-spacing: -.03em; font-variant-numeric: tabular-nums; line-height: 1; vertical-align: middle; }
@@ -417,7 +427,7 @@
   .hb.now::after { content: ""; position: absolute; left: 50%; bottom: -7px; width: 4px; height: 4px; margin-left: -2px; border-radius: 50%; background: var(--ok); }
   .hdetail { padding: 4px 16px 14px; }
   .hd-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
-  .hd-top b { font-size: 17px; letter-spacing: -.01em; }
+  .hd-top b { font-size: 17px; letter-spacing: -.01em; white-space: nowrap; }
   .hd-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
   @media (min-width: 640px) { .hd-grid { grid-template-columns: repeat(4, 1fr); } }
   .hd-grid > div { background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.08); border-radius: 14px; padding: 8px 10px; min-width: 0; }
@@ -776,7 +786,13 @@
       .map((s) => ({ ...s, colors: s.colors.sort((a, b) => vkey(a) - vkey(b)), any: s.colors.some((c) => c.available) }))
       .sort((a, b) => (b.any - a.any) || ((a.miles ?? 999) - (b.miles ?? 999)));
   }
-  function restocks() { return (HISTORY.events || []).filter((e) => e.kind === "in"); }
+  // Only history for the stores and models being watched now (NJ, 256GB): old NY / 512GB events are hidden.
+  function watchedHistory() {
+    const ids = new Set(), parts = new Set();
+    for (const m of (STATUS && STATUS.models) || []) { if (m.part) parts.add(m.part); for (const st of m.stores || []) ids.add(String(st.id)); }
+    return (HISTORY.events || []).filter((e) => (!ids.size || ids.has(String(e.store_id))) && (!parts.size || !e.part || parts.has(e.part)));
+  }
+  function restocks() { return watchedHistory().filter((e) => e.kind === "in"); }
   function typicalHour(events) {
     if (!events.length) return null;
     const c = new Array(24).fill(0);
@@ -966,7 +982,7 @@
   }
 
   function renderChanges() {
-    const ev = (HISTORY.events || []).slice().reverse().slice(0, 100);
+    const ev = watchedHistory().slice().reverse().slice(0, 100);
     $("changes").innerHTML = ev.length ? ev.map((e) => `
       <div class="row">
         <div class="evl">${badge(evColor(e), evStorage(e), e.kind === "in" ? "" : "hol")}<div><b>${esc(e.store)}</b><br><span class="when">${evStorage(e) ? esc(evStorage(e)) + "GB " : ""}${esc(evColor(e))} · ${esc(when(e.t))}</span></div></div>
@@ -991,7 +1007,7 @@
       : z ? `<div class="insight"><b>✅ Search ZIPs look right</b><span>${esc(z.why)}</span></div>` : "";
     return `
       <h2 style="margin-top:0">This week's plan · updated ${esc(PLAN.updated_at ? shortAgo(PLAN.updated_at) : "")}</h2>
-      <div class="panel"><div class="insight"><b>🌙 What the tracker learned</b><span>${esc(PLAN.summary)}</span></div>${tip}</div>`;
+      <div class="panel"><div class="insight"><b>🧠 Short memory</b><span>${esc(PLAN.summary)}</span></div>${tip}</div>`;
   }
   let NEWS = null;
   async function loadNews() {
@@ -1031,7 +1047,23 @@
     ev.forEach((e) => { const k = `${evStorage(e)}|${/white/i.test(evColor(e)) ? "Star White" : "Night Sky"}`; m.set(k, (m.get(k) || 0) + 1); });
     return [...m.entries()].sort().map(([k, n]) => { const [st, c] = k.split("|"); return `<span class="vc">${badge(c, st)}×${n}</span>`; }).join("");
   }
+  function dayDetail() {
+    const F = PAT_F, hours = new Array(24).fill(0);
+    PAT_R.forEach((e) => hours[new Date(e.t).getHours()]++);
+    const bestLocal = PAT_R.length ? hours.indexOf(Math.max(...hours)) : null;
+    const by = new Map(); PAT_R.forEach((e) => by.set(e.store, (by.get(e.store) || 0) + 1));
+    const top = [...by.entries()].sort((a, b) => b[1] - a[1])[0];
+    const lbl = (h) => (h % 12 || 12) + (h < 12 ? " AM" : " PM");
+    return `<div class="hd-top"><b>🗓️ Whole day</b><span class="tag out">👆 swipe for an hour</span></div>
+      <div class="hd-grid">
+        <div><small>🕵️ Your tracker</small><b>${PAT_R.length}</b><span>NJ 256GB restocks</span></div>
+        <div><small>⏰ Busiest hour</small><b>${bestLocal !== null ? hourLabel(bestLocal) : "—"}</b><span>${top ? esc(`top store ${top[0]} ×${top[1]}`) : "no restocks yet"}</span></div>
+        <div><small>🔮 Best window</small><b>${F && F.window ? `${lbl(F.window.start_et)}` : "—"}</b><span>${F && F.window ? `to ${lbl(F.window.end_et)} (forecast)` : "needs a forecast"}</span></div>
+        <div><small>📈 Rate</small><b>${F ? F.rate_per_day : "—"}</b><span>restocks per day lately</span></div>
+      </div>${PAT_R.length ? `<div class="vcs">${variantCounts(PAT_R)}</div>` : ""}`;
+  }
   function hourDetail(h) {
+    if (h < 0) return dayDetail();
     const ev = PAT_R.filter((e) => new Date(e.t).getHours() === h), F = PAT_F;
     const by = new Map(); ev.forEach((e) => by.set(e.store, (by.get(e.store) || 0) + 1));
     const top = [...by.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3).map(([n, c]) => `${n}${c > 1 ? ` ×${c}` : ""}`).join(", ");
@@ -1053,7 +1085,8 @@
     document.querySelectorAll("#scrub .hb").forEach((b) => b.classList.toggle("sel", +b.dataset.h === h));
     const d = $("hdetail"); if (d) d.innerHTML = hourDetail(h);
     try { navigator.vibrate && navigator.vibrate(4); } catch {}
-    if (talk) {
+    if (talk && h < 0) say("🗓️ Back to the whole day", 1800);
+    else if (talk) {
       const n = PAT_R.filter((e) => new Date(e.t).getHours() === h).length;
       say(n ? `🕵️ ${hourLabel(h)}: ${n} clue${n > 1 ? "s" : ""} found!` : `🔍 ${hourLabel(h)}… no clues here`, 2200);
     }
@@ -1067,7 +1100,7 @@
       $("patterns").innerHTML = `${planHTML()}<div class="panel"><div class="empty"><span class="big">🕵️</span>The detectives need clues: patterns build up as your tracker sees restocks.</div></div>${newsHTML()}`;
       return;
     }
-    if (selHour === null) selHour = new Date().getHours();
+    if (selHour === null) selHour = -1;   // start on the whole-day view
     const hours = new Array(24).fill(0);
     r.forEach((e) => hours[new Date(e.t).getHours()]++);
     const maxL = Math.max(1, ...hours), maxF = F ? Math.max(...F.hours_et) || 1 : 1, nowH = new Date().getHours();
@@ -1076,7 +1109,7 @@
     const rows = [...byStore.entries()].map(([name, ev]) => [name, ev, weekCount(ev[0].store_id)])
       .sort((a, b) => (b[2] - a[2]) || (b[1].length - a[1].length));
     $("patterns").innerHTML = `${planHTML()}
-      <h2${PLAN ? "" : ' style="margin-top:0"'}>🕵️ Restock clues by hour · swipe the chart</h2>
+      <h2${PLAN ? "" : ' style="margin-top:0"'}>🕵️ Restock clues · swipe, double-tap for the whole day</h2>
       <div class="panel">
         <div class="scrub" id="scrub">
           <div class="hours">${hours.map((n, h) => `<div class="hb${h === selHour ? " sel" : ""}${h === nowH ? " now" : ""}" data-h="${h}">
@@ -1095,7 +1128,7 @@
       </div>` : ""}${newsHTML()}`;
   }
   (() => {
-    const pat = $("patterns");
+    const pat = $("patterns"); let lastTap = 0;
     const hourAt = (e) => {
       const hs = pat.querySelector("#scrub .hours"); if (!hs) return;
       const r = hs.getBoundingClientRect(), pad = 16;
@@ -1103,6 +1136,9 @@
     };
     pat.addEventListener("pointerdown", (e) => {
       const sc = e.target.closest("#scrub"); if (!sc) return;
+      const now = Date.now();
+      if (now - lastTap < 320) { lastTap = 0; setHour(-1); return; }        // double-tap = whole-day view
+      lastTap = now;
       scrubbing = true; try { sc.setPointerCapture(e.pointerId); } catch {} hourAt(e);
     });
     pat.addEventListener("pointermove", (e) => { if (scrubbing || (e.pointerType === "mouse" && e.target.closest("#scrub"))) hourAt(e); });
@@ -1128,8 +1164,8 @@
     bar.classList.toggle("due", checkingSince > 0 || left === 0);
     document.body.classList.toggle("scanning", checkingSince > 0 || left === 0);
     $("scanFill").style.width = Math.min(100, (sec / period) * 100) + "%";
-    $("scanLeft").textContent = checkingSince ? "🔍 Checking Apple now…"
-      : left > 0 ? `${live ? "🖥️ PC" : "☁️ Backup"} checks again in ~${left}s` : "🔍 Checking any second…";
+    $("scanLeft").textContent = checkingSince ? (SPOOKY ? "🫧 Brewing a fresh check…" : "🔍 Checking Apple now…")
+      : left > 0 ? `${SPOOKY ? "🧪 " : ""}${live ? "🖥️ PC" : "☁️ Backup"} checks again in ~${left}s` : (SPOOKY ? "🫧 Cauldron's bubbling… any second" : "🔍 Checking any second…");
     const n = STATUS.runner && STATUS.runner.checks;
     $("scanRight").textContent = REPO && !store.get("ghToken") ? "⚡ save a GitHub token in Settings for instant updates"
       : n ? `${n} check${n === 1 ? "" : "s"} this session` : "";

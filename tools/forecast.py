@@ -41,10 +41,15 @@ def _t(s: str) -> datetime:
     return datetime.fromisoformat(s.replace("Z", "+00:00"))
 
 
-def restock_events(history: dict, priors: dict, names_to_ids: dict) -> list[dict]:
-    """Local 256GB restocks, oldest first, with flapping merged and external sightings added."""
+def restock_events(history: dict, priors: dict, names_to_ids: dict, parts: set | None = None) -> list[dict]:
+    """Restocks at the watched stores (names_to_ids) for the tracked models (parts), oldest first,
+    with flapping merged and external sightings added. Old history from stores or models no longer
+    watched (NY stores, 512GB) is ignored so the model learns only what the owner can buy."""
+    watched = set(names_to_ids.values())
     ev = [{"t": _t(e["t"]), "store_id": str(e.get("store_id")), "store": e.get("store"), "color": e.get("color") or ""}
-          for e in (history.get("events") or []) if e.get("kind") == "in" and e.get("t")]
+          for e in (history.get("events") or []) if e.get("kind") == "in" and e.get("t")
+          and (not watched or str(e.get("store_id")) in watched)
+          and (not parts or not e.get("part") or e.get("part") in parts)]
     for x in priors.get("external_local_restocks") or []:
         sid = names_to_ids.get(x.get("store"))
         if sid:
@@ -141,7 +146,8 @@ def forecast(status: dict, history: dict, priors: dict, now: datetime | None = N
         for st in m.get("stores") or []:
             stores[str(st["id"])] = st.get("name") or str(st["id"])
     names_to_ids = {v: k for k, v in stores.items()}
-    events = restock_events(history, priors, names_to_ids)
+    parts = {m.get("part") for m in status.get("models") or [] if m.get("part")}
+    events = restock_events(history, priors, names_to_ids, parts)
     hours = hour_profile(events, priors)
     colours = colour_probs(events, priors)
     sp = store_probs(events, stores, now)

@@ -139,7 +139,11 @@ def split_text(weights: list[int], names: list[str] | None = None) -> str:
 
 def plan(status: dict, history: dict, now: datetime | None = None) -> dict:
     now = now or datetime.now(timezone.utc)
-    events = [e for e in (history.get("events") or []) if e.get("kind") == "in" and e.get("t")]
+    ids = {str(st.get("id")) for m in status.get("models") or [] for st in m.get("stores") or []}
+    parts = {m.get("part") for m in status.get("models") or [] if m.get("part")}
+    events = [e for e in (history.get("events") or []) if e.get("kind") == "in" and e.get("t")
+              and (not ids or str(e.get("store_id")) in ids)                      # watched (NJ) stores only
+              and (not parts or not e.get("part") or e.get("part") in parts)]     # tracked models only
     recent = [e for e in events if now - datetime.fromisoformat(e["t"].replace("Z", "+00:00")) <= timedelta(days=WINDOW_DAYS)]
     members = zone_members(status)
     keys = sorted(members, key=lambda k: int(k[1:])) if members else []
@@ -172,11 +176,14 @@ def plan(status: dict, history: dict, now: datetime | None = None) -> dict:
         return f"{h % 12 or 12}{'am' if h < 12 else 'pm'}"
 
     peak = [hour_label(h) for h, _ in hours.most_common(3)]
-    summary = (f"{len(recent)} restocks in the last {WINDOW_DAYS} days"
-               + (f"; busiest: {', '.join(f'{n} ({c})' for n, c in stores.most_common(3))}" if stores else "")
-               + (f"; peak hours {', '.join(peak)}" if peak else "")
-               + (f". Yesterday: {len(y_events)} restock(s)" if y_events else ". Yesterday: none seen")
-               + (f". Checking split: {split_text(weights, zone_names(status))}" if weights else ". Not enough data yet: default schedule"))
+    # Short memory: one glanceable line.
+    top = stores.most_common(1)
+    summary = " · ".join(x for x in [
+        f"{len(recent)} restock{'s' if len(recent) != 1 else ''} this week",
+        f"top {top[0][0]} ×{top[0][1]}" if top else "",
+        f"peak {peak[0]}" if peak else "",
+        f"yesterday {len(y_events)}",
+    ] if x)
     return {
         "updated_at": now.isoformat(timespec="seconds"),
         "zone_weights": weights,
@@ -190,6 +197,7 @@ def plan(status: dict, history: dict, now: datetime | None = None) -> dict:
         "zip_suggestion": suggest_extra_zips(status, recent, history_days(events, now)),
         "yesterday": [{"t": e["t"], "store": e.get("store"), "color": e.get("color")} for e in y_events],
         "summary": summary,
+        "split": split_text(weights, zone_names(status)) if weights else None,
     }
 
 

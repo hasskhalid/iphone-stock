@@ -45,6 +45,13 @@ class ForecastTests(unittest.TestCase):
         self.assertEqual(b["n"], 2)
         self.assertEqual(b["hits"]["top3_store"], 2)   # A keeps restocking: should be predicted
 
+    def test_ignores_unwatched_stores_and_models(self):
+        hist = {"events": [ev("A", 5), ev("NY1", 4), dict(ev("B", 3), part="BIG512")]}
+        status = {"models": [dict(STATUS["models"][0], part="P256")]}
+        got = fc.restock_events(hist, {}, {"Alpha": "A", "Beta": "B"}, {"P256"})
+        self.assertEqual([e["store_id"] for e in got], ["A"])
+        self.assertEqual(fc.forecast(status, hist, PRIORS, NOW)["local_restocks"], 1)
+
     def test_no_zip_or_secrets(self):
         f = fc.forecast(STATUS, {"events": [ev("A", 3)]}, PRIORS, NOW)
         self.assertNotRegex(json.dumps(f), r"\b0\d{4}\b")

@@ -111,7 +111,10 @@ home-screen dashboard. Keep it free to run and dependency-light.
   blue text, "256"/"512". Watching rows show badges + last restock only (weekly "🔥 N× this week"
   lives in Patterns → Hot stores with per-variant counts). Patterns hour chart is swipeable
   (pointer events, touch-action pan-y; your NJ restocks + forecast hours_et ghost bars) with an hour
-  detail card (count, share, daily odds, PC pace). No "other trackers" section any more.
+  detail card (count, share, daily odds, PC pace); starts on a whole-day card, double-tap returns to it.
+  Changes / stats / Patterns show only history for watched stores + tracked parts (`watchedHistory()`);
+  forecast.py and update_plan.py likewise ignore old NY / 512GB events. Plan summary is a one-line
+  "short memory". Halloween scan bar = toxic green fizzing cauldron. No "other trackers" section any more.
   "Patterns & news" tab renders `docs/news.json`
   ({updated_at, summary, items:[{title, summary, source, url, date}]}), refreshed daily at 7:47 AM ET
   by a scheduled Claude task (paraphrased summaries with links, never copied text). Other trackers'
