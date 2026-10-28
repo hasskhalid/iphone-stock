@@ -1,52 +1,52 @@
 {
-  "updated_at": "2026-10-27T11:52:15Z",
-  "summary": "Pickup restocks now hit hundreds of US stores a day but each lasts about two minutes, and online orders still quote late January. Locally, American Dream and Downtown Brooklyn restocked most this week, around 10am, 2pm and 4pm, so act on the alert instantly.",
+  "updated_at": "2026-10-28T11:52:08Z",
+  "summary": "Pickup restocks are now constant nationwide but most sell out in about a minute, and online orders still quote late January. Locally, American Dream restocked most this week and 9am is the peak hour, so act on the alert instantly.",
   "items": [
     {
-      "title": "Late-night drops in Portland and Wisconsin on Oct 26",
-      "summary": "Pioneer Place got several 256GB Night Sky and Star White units around 10:30 PM ET, after a 1:30 PM ET Midwest wave. No NJ or NYC store showed stock that day.",
+      "title": "Overnight NYC drops at Bay Plaza and Brooklyn on Oct 28",
+      "summary": "Around 1:15 AM ET, Bay Plaza, Downtown Brooklyn and Williamsburg showed 256GB pickup stock; the Brooklyn units lasted about a minute. No NJ store was listed.",
+      "source": "InStockRadar",
+      "url": "https://instockradar.com/us/iphone-duo/restocks",
+      "date": "2026-10-28"
+    },
+    {
+      "title": "Oct 27 was the busiest restock day yet",
+      "summary": "The tracker logged about 1,369 US store restocks on Tuesday, up from roughly 400 Monday. Half arrive between 9:30 and 10:40 AM local time, and a typical drop lasts one minute.",
       "source": "InStockRadar",
       "url": "https://instockradar.com/us/iphone-duo",
-      "date": "2026-10-26"
+      "date": "2026-10-27"
     },
     {
-      "title": "Hundreds of daily US restocks, most in mid-morning",
-      "summary": "The tracker counted 374 store restocks on Oct 26 (707 since Oct 24). About half land between 9:40 and 11 AM store-local time, and stock usually vanishes in roughly two minutes.",
-      "source": "InStockRadar",
-      "url": "https://instockradar.com/us/restocks",
-      "date": "2026-10-26"
-    },
-    {
-      "title": "Manzana: latest drop 11:35 AM ET, peaks 10 AM to 1 PM",
-      "summary": "Its most recent US restock came at 11:35 AM ET on Oct 26; fifteen minutes later none of its 269 stores had pickup. It has logged 111 restocks since Oct 16, busiest on Sundays.",
+      "title": "Manzana: mornings and Tuesdays are best",
+      "summary": "Its latest US drop came at 11:51 AM ET on Oct 27, with pickup at just 5 of 269 stores. It sees most restocks from 9 AM to noon ET, most often on Tuesdays.",
       "source": "Manzana Tracker",
       "url": "https://manzanatracker.com/stock/iphone-duo",
-      "date": "2026-10-26"
+      "date": "2026-10-27"
+    },
+    {
+      "title": "Apple confirms inner-screen defect on some Duos",
+      "summary": "Apple acknowledged a folding-display problem on a small number of units; replacement stock is limited and some owners are waiting. No cause or fix timeline was given.",
+      "source": "24/7 Wall St.",
+      "url": "https://247wallst.com/investing/2026/10/27/apple-could-lose-its-5-trillion-valuation-as-iphone-duo-screens-crack/",
+      "date": "2026-10-27"
     },
     {
       "title": "Report: Apple asks suppliers for 30% more Duos",
-      "summary": "Taiwan's Economic Daily says Apple raised orders about 30%, lifting this year's shipment outlook to 8-10 million, though the next big shipment wave still points to around Jan 22. Not confirmed by Apple.",
+      "summary": "Taiwan's Economic Daily says Apple raised orders about 30%, lifting this year's outlook to 8-10 million units, though online ship dates still point to late January. Not confirmed by Apple.",
       "source": "Yahoo Finance",
       "url": "https://finance.yahoo.com/markets/stocks/articles/apple-reportedly-increases-iphone-duo-114818918.html",
       "date": "2026-10-26"
     },
     {
-      "title": "Assembly yields reportedly near 60%, analysts cut forecasts",
-      "summary": "Supply-chain accounts put Foxconn's final assembly yield slightly above 60%; JPMorgan blames three-month waits partly on ramp problems. These are reports, not Apple guidance.",
-      "source": "Invezz",
-      "url": "https://invezz.com/news/2026/10/26/apple-stock-hits-record-as-iphone-duo-demand-soars-but-wall-street-warns/",
-      "date": "2026-10-26"
-    },
-    {
       "title": "Pickup reservations reopened for about five minutes",
-      "summary": "US and Canada pickup slots appeared around 8:10 AM ET on Oct 24 and disappeared roughly five minutes later; most stores never showed any.",
+      "summary": "US and Canada pickup slots appeared around 8:10 AM ET on Oct 24 and vanished roughly five minutes later; most stores never showed any.",
       "source": "MacRumors",
       "url": "https://www.macrumors.com/2026/10/24/apple-store-pickup-iphone-duo-us/",
       "date": "2026-10-24"
     },
     {
       "title": "Carriers quote December while Apple says late January",
-      "summary": "Apple's online estimate sits near Jan 22; Verizon and AT&T promised some units around mid-December, T-Mobile late December to January. Best Buy requires a carrier-locked phone.",
+      "summary": "Apple's online estimate sits near late January; Verizon and AT&T promised some units around mid-December, T-Mobile late December to January. Best Buy sells carrier-locked phones only.",
       "source": "Tom's Guide",
       "url": "https://www.tomsguide.com/phones/iphones/iphone-duo-wait-times-latest-updates-and-how-to-beat-apples-january-delay",
       "date": "2026-10-23"
