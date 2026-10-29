@@ -28,7 +28,11 @@
   "also_stores": [
     "R095",
     "R582",
-    "R251"
+    "R251",
+    "R415",
+    "R032",
+    "R250",
+    "R654"
   ],
-  "also_stores_note": "Fifth Avenue, Upper East Side, Upper West Side (owner, Oct 28). Kept alongside only_states NJ."
+  "also_stores_note": "All Manhattan stores (owner, Oct 29): Fifth Avenue, Upper East Side, Upper West Side, Grand Central, SoHo, West 14th Street, World Trade Center. No Brooklyn/Staten Island/Bronx. Kept alongside only_states NJ; all are inside the home + Willowbrook (07470) searches."
 }

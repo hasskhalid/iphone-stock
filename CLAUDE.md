@@ -162,8 +162,9 @@ home-screen dashboard. Keep it free to run and dependency-light.
   Apple's bot checks; the buying path is alert → Apple Store app → Apple Pay.
 - `config.json`: models (`label`, `color`, `part`, `url`), `zip`, `radius_miles`, `max_stores`,
   optional `ntfy_topic`. Env vars `APPLE_ZIP` / `NTFY_TOPIC` (repo secrets) override.
-- Extra stores (Oct 28): config `also_stores` = Fifth Avenue R095, Upper East Side R582, Upper West Side
-  R251 are kept alongside `only_states` NJ (`filter_area(..., also_stores)`). To see them reliably the
+- Extra stores: config `also_stores` = all 7 Manhattan stores (Oct 29: Fifth Avenue R095, Upper East Side R582,
+  Upper West Side R251, Grand Central R415, SoHo R032, West 14th Street R250, World Trade Center R654; no
+  Brooklyn/Staten Island/Bronx) are kept alongside `only_states` NJ (`filter_area(..., also_stores)`). To see them reliably the
   owner's first extra zip should be Willowbrook's 07470 (estimated 12 nearest: Willowbrook, Garden State
   Plaza, American Dream, Short Hills, Tice's Corner, Rockaway, UWS, W 14th, Fifth Ave, UES, Grand Central,
   SoHo) instead of the Rockaway-area zip; Bridgewater/Menlo Park stay covered by home. Owner applies it
