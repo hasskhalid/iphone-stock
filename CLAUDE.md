@@ -44,9 +44,14 @@ home-screen dashboard. Keep it free to run and dependency-light.
   Local state: `prev_status.json`, `history.local.json`. All gitignored.
 - Pacing (measured Oct 27; the old Pace ladder is kept only for state compatibility): 75s ran all
   day with no blocks; 60s was blocked after 2h49m and again after 2h42m; blocks lasted 17-32 min.
-  `pick_poll(now, no_peak_day, slow_day)`: 60s inside `PEAK_WINDOWS` (8:30-10:30 AM and
-  12:30-2:30 PM PC-local Eastern time; owner's request), `QUIET_POLL` 75s in `QUIET_HOURS` (11 PM-7 AM; owner's choice Oct 28 2:15 PM,
-  after trying 90s then 120s). A block during QUIET_HOURS sets `night_slow_until` (next 7 AM, saved in
+  `pick_poll(now, no_peak_day, slow_day)`: OPTION C (owner's choice at the Oct 28 review): ONE 60s
+  window `PEAK_WINDOWS` = 9:00-11:30 AM PC-local Eastern time, `QUIET_POLL` 120s in `QUIET_HOURS`
+  (11 PM-7 AM), 75s otherwise. Why (Oct 27-28 data): fresh 60s runs got ~2.5-3h before a 541
+  (2h49m, 2h42m, 2h36m), but 60s right after a full night of 90s checks lasted only 23 min, and
+  after a block even 75s got blocked once (10:52 AM Oct 28). One 2.5h window over the busiest hours
+  (NJ restocks 9:45, 9:52, 9:57, 10:45; nationally ~half land 9:40-11) fits that allowance; the
+  old two windows (8:30-10:30 + 12:30-2:30 = 4h) didn't. Oct 28 12:40-1:01 PM errors were HTTP 503
+  (Apple store outage for the MacBook launch), not 541 blocks. A block during QUIET_HOURS sets `night_slow_until` (next 7 AM, saved in
   runner_state): 90s for the rest of that night only, and does NOT set no_peak_day/slow_day, so the next
   day's 60s windows are untouched (owner: "if it locks overnight do 90s but that's it"), 75s otherwise. Any block
   sets `no_peak_day` = today (75s for the rest of the day); a block while already at 75s+ also sets
@@ -65,7 +70,8 @@ home-screen dashboard. Keep it free to run and dependency-light.
 - Block log: every Apple error is appended to gitignored `blocks.local.jsonl` (one JSON per line);
   when a block clears, a record {start, end, minutes, at_least_minutes, pace} is logged too, kept
   in runner_state (`block_open`, `blocks_today`, survives restarts) and published as
-  status.runner.blocks_today. Oct 28: Apple's online store was down ~12:00-1:10 PM for a MacBook launch (may explain errors then).
+  status.runner.blocks_today (filtered by the PC's LOCAL date via `local_day()`; it used the UTC date and
+  emptied after 8 PM Eastern until Oct 28). Oct 28: Apple's online store was down ~12:00-1:10 PM for a MacBook launch (may explain errors then).
   Oct 27 blocks: 6:45 AM (60s, 18-32 min), 2:04 PM, ~2:16 PM (60s),
   4:30 PM (60s after 49 min, 25-30 min), 6:54 PM (75s after 1h54m, 25-30 min).
 - `.github/workflows/check-stock.yml`: backup, runs every 5 min (uses the runner's system python3,
@@ -138,7 +144,7 @@ home-screen dashboard. Keep it free to run and dependency-light.
   locked, next retry countdown and a 30-min progress bar. Backup = Duos float on a cloud holding a
   "BACKUP ON" sign + cloud banner. No "other trackers" section any more.
   "Patterns & news" tab renders `docs/news.json`
-  ({updated_at, summary, items:[{title, summary, source, url, date}]}), refreshed daily at 7:47 AM ET
+  ({updated_at, summary, items:[{title, summary, source, url, date}]}), refreshed daily at 7:47 AM ET, 2-3 stock-only items (owner, Oct 28; dashboard shows at most 3),
   by a scheduled Claude task (paraphrased summaries with links, never copied text). Other trackers'
   data is never scraped or imported (owner asked Oct 27 to pull their status as a backup: declined).
 - Forecast: `tools/forecast.py` (stdlib) = smoothed probability model, not ML: hour-of-day profile
@@ -156,6 +162,12 @@ home-screen dashboard. Keep it free to run and dependency-light.
   Apple's bot checks; the buying path is alert → Apple Store app → Apple Pay.
 - `config.json`: models (`label`, `color`, `part`, `url`), `zip`, `radius_miles`, `max_stores`,
   optional `ntfy_topic`. Env vars `APPLE_ZIP` / `NTFY_TOPIC` (repo secrets) override.
+- Extra stores (Oct 28): config `also_stores` = Fifth Avenue R095, Upper East Side R582, Upper West Side
+  R251 are kept alongside `only_states` NJ (`filter_area(..., also_stores)`). To see them reliably the
+  owner's first extra zip should be Willowbrook's 07470 (estimated 12 nearest: Willowbrook, Garden State
+  Plaza, American Dream, Short Hills, Tice's Corner, Rockaway, UWS, W 14th, Fifth Ave, UES, Grand Central,
+  SoHo) instead of the Rockaway-area zip; Bridgewater/Menlo Park stay covered by home. Owner applies it
+  by hand (config.local.json extra_zips + APPLE_EXTRA_ZIPS secret).
 - Tracking: iPhone Duo unlocked 256GB only, both colours: Night Sky `MK1F4LL/A` / Star White
   `MK1E4LL/A` (512GB `MK1H4LL/A`/`MK1G4LL/A` was added Oct 27 then removed the same night at the
   owner's request; don't re-add without asking).

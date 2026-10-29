@@ -197,15 +197,17 @@ class HandoffTests(unittest.TestCase):
 
     def test_pick_poll_rush_and_steady(self):
         at = lambda h, m: time.struct_time((2026, 10, 27, h, m, 0, 1, 300, 1))
-        self.assertEqual(lr.pick_poll(at(9, 15)), lr.PEAK_POLL)       # morning rush
-        self.assertEqual(lr.pick_poll(at(14, 0)), lr.PEAK_POLL)       # afternoon wave
-        self.assertEqual(lr.pick_poll(at(11, 30)), lr.STEADY_POLL)    # break between windows
-        self.assertEqual(lr.pick_poll(at(2, 0)), 75)                  # overnight 75s
-        self.assertEqual(lr.pick_poll(at(23, 30)), 75)
-        self.assertEqual(lr.pick_poll(at(2, 0), night_slow=True), 90)   # after a night block
+        # Option C (Oct 28): one 60s window 9:00-11:30, 120s overnight, 75s otherwise.
+        self.assertEqual(lr.pick_poll(at(9, 0)), lr.PEAK_POLL)
+        self.assertEqual(lr.pick_poll(at(11, 29)), lr.PEAK_POLL)
+        self.assertEqual(lr.pick_poll(at(11, 30)), lr.STEADY_POLL)    # window ends at 11:30
+        self.assertEqual(lr.pick_poll(at(8, 45)), lr.STEADY_POLL)     # 75s before 9:00
+        self.assertEqual(lr.pick_poll(at(13, 0)), lr.STEADY_POLL)     # no afternoon window
+        self.assertEqual(lr.pick_poll(at(2, 0)), 120)                 # overnight 120s
+        self.assertEqual(lr.pick_poll(at(23, 30)), 120)
+        self.assertEqual(lr.pick_poll(at(2, 0), night_slow=True), 120)  # a night block never speeds it up
         self.assertEqual(lr.pick_poll(at(7, 0)), lr.STEADY_POLL)      # 75s from 7 AM
         self.assertEqual(lr.pick_poll(at(22, 59)), lr.STEADY_POLL)
-        self.assertEqual(lr.pick_poll(at(10, 30)), lr.STEADY_POLL)    # window ends at 10:30
 
     def test_blocks_are_remembered_for_the_day_only(self):
         at = lambda d, h: time.struct_time((2026, 10, d, h, 0, 0, 1, 300, 1))
@@ -346,3 +348,13 @@ class NightBlockTests(unittest.TestCase):
     def test_night_slow_does_not_touch_daytime(self):
         at = lambda d, h: time.strptime(f"2026-10-{d} {h:02d}:00", "%Y-%m-%d %H:%M")
         self.assertEqual(lr.pick_poll(at(29, 9), night_slow=True), lr.PEAK_POLL)   # 60s window still on
+
+
+class LocalDayTests(unittest.TestCase):
+    def test_local_day_uses_pc_time_zone(self):
+        os.environ["TZ"] = "America/New_York"; time.tzset()
+        try:
+            self.assertEqual(lr.local_day("2026-10-29T01:30:00+00:00"), "2026-10-28")   # 9:30 PM Eastern
+            self.assertEqual(lr.local_day("bad"), "")
+        finally:
+            os.environ.pop("TZ", None); time.tzset()

@@ -1280,7 +1280,7 @@
   }
   function newsHTML() {
     if (!NEWS || !Array.isArray(NEWS.items) || !NEWS.items.length) return "";
-    const items = NEWS.items.slice(0, 8).map((n) => `
+    const items = NEWS.items.slice(0, 3).map((n) => `
         <div class="insight"><b>${esc(n.title)}</b><span>${esc(n.summary)}</span><br>
           <a href="${esc(n.url)}" target="_blank" rel="noopener">${esc(n.source)} ↗</a>${n.date ? ` <span style="font-size:12px">· ${esc(n.date)}</span>` : ""}</div>`).join("");
     return `
@@ -1292,12 +1292,11 @@
 
   // ---------- Patterns: detective board with a swipe-through hour chart ----------
   let selHour = null, scrubbing = false, patternsDirty = false, PAT_R = [], PAT_F = null;
-  const inPeak = (h) => h === 9 || h === 13;
+  const inPeak = (h) => h === 9 || h === 10;   // the one 60s window: 9:00-11:30
   function paceFor(h) {
-    if (h === 8) return ["60s", "from 8:30 peak"]; if (h === 10) return ["60s", "until 10:30, then 75s"];
-    if (h === 12) return ["60s", "from 12:30 peak"]; if (h === 14) return ["60s", "until 2:30, then 75s"];
+    if (h === 11) return ["60s", "until 11:30, then 75s"];
     if (inPeak(h)) return ["60s", "peak window"];
-    if (h >= 23 || h < 7) return ["75s", "overnight (90s after a night block)"];
+    if (h >= 23 || h < 7) return ["120s", "quiet overnight"];
     return ["75s", "steady"];
   }
   function watchedEvents() {

@@ -1,17 +1,17 @@
 {
-  "updated_at": "2026-10-28T11:50:57+00:00",
+  "updated_at": "2026-10-29T02:11:43+00:00",
   "zone_weights": [
     3,
     6,
     2
   ],
   "window_days": 7,
-  "restocks": 9,
+  "restocks": 10,
   "unseen_restocks": 0,
   "zones": {
-    "z0": 2.33,
-    "z1": 5.33,
-    "z2": 1.33
+    "z0": 2.67,
+    "z1": 5.67,
+    "z2": 1.67
   },
   "top_stores": [
     [
@@ -19,15 +19,15 @@
       3
     ],
     [
+      "Menlo Park",
+      2
+    ],
+    [
       "Willowbrook",
       2
     ],
     [
       "Short Hills",
-      1
-    ],
-    [
-      "Menlo Park",
       1
     ],
     [
@@ -41,7 +41,7 @@
     "2pm"
   ],
   "colors": {
-    "Night Sky": 5,
+    "Night Sky": 6,
     "Star White": 4
   },
   "zip_suggestion": null,
@@ -67,6 +67,6 @@
       "color": "Star White"
     }
   ],
-  "summary": "9 restocks this week \u00b7 top American Dream \u00d73 \u00b7 peak 9am \u00b7 yesterday 4",
+  "summary": "10 restocks this week \u00b7 top American Dream \u00d73 \u00b7 peak 9am \u00b7 yesterday 4",
   "split": "home area 27%, Rockaway area 55%, Cherry Hill area 18%"
 }

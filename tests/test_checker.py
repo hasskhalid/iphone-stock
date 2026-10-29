@@ -205,6 +205,9 @@ class NJOnlyAndEligibilityTests(unittest.TestCase):
         rows = [{"id": "a", "state": "NJ", "miles": 55, "available": False},
                 {"id": "b", "state": "NY", "miles": 5, "available": True}]
         out = cs.filter_area([{"part": "P", "stores": rows}], 25, [], ["NJ"])[0]
+        also = cs.filter_area([{"part": "P", "stores": rows + [{"id": "R095", "name": "Fifth Avenue", "state": "NY", "miles": 20, "available": False}]}],
+                              25, [], ["NJ"], ["R095"])[0]
+        self.assertIn("R095", [r.get("id") for r in also["stores"]])
         self.assertEqual([r["id"] for r in out["stores"]], ["a"])
         self.assertFalse(out["any_available"])
 

@@ -52,12 +52,12 @@ STEADY_POLL = 75
 PEAK_POLL = 60
 # 60s windows, local (Eastern) time on the PC: the morning rush and the early-afternoon wave
 # (Oct 27 restocks: 8:50-9:52 and 1:19-1:51 PM), each 2h (under the ~2h45m limit) with 2h at 75s between.
-PEAK_WINDOWS = (((8, 30), (10, 30)), ((12, 30), (14, 30)))
+PEAK_WINDOWS = (((9, 0), (11, 30)),)   # option C (Oct 28 review): one 2.5h 60s window over the busiest hours
 # Overnight 90s: restocks are rare then, and Apple seems to count requests over a long stretch,
 # so checking less overnight leaves more room for the 60s windows the next morning.
 QUIET_HOURS = ((23, 0), (7, 0))
-QUIET_POLL = 75    # overnight pace. Owner's choice (Oct 28 2:15 PM): 75s at night, 90s for the rest of
-                   # that night only if Apple blocks overnight; a night block doesn't touch the next day.
+QUIET_POLL = 120   # overnight pace (option C, Oct 28 review): a quiet night leaves Apple's allowance for the
+                   # 9:00 60s window. A night block keeps it at 120s (never faster than SLOW_POLL).
 BURST_MINUTES = 120                    # "burst" test: 60s this long (under the ~2h45m seen before a block)
 SLOW_POLL = 90                         # only if Apple blocks even 75s on a given day
 BLOCK_FIRST_WAIT = 900
@@ -286,6 +286,15 @@ class Pace:
         return {"v": PACE_VERSION, "rungs": self.rungs, "idx": self.idx, "cooldown": self.cooldown, "clean": round(self.clean)}
 
 
+def local_day(iso: str) -> str:
+    """YYYY-MM-DD of a UTC ISO time in the PC's local time zone (blocks_today used the UTC date,
+    so after 8 PM Eastern the dashboard's list of today's blocks came back empty)."""
+    try:
+        return datetime.fromisoformat(iso.replace("Z", "+00:00")).astimezone().strftime("%Y-%m-%d")
+    except (ValueError, AttributeError):
+        return ""
+
+
 def in_quiet_hours(now: time.struct_time) -> bool:
     (qh1, qm1), (qh2, qm2) = QUIET_HOURS
     minutes = now.tm_hour * 60 + now.tm_min
@@ -316,7 +325,7 @@ def pick_poll(now: time.struct_time, no_peak_day: str | None = None, slow_day: s
     minutes = now.tm_hour * 60 + now.tm_min
     quiet = in_quiet_hours(now)
     if quiet:
-        return SLOW_POLL if night_slow else QUIET_POLL
+        return max(SLOW_POLL, QUIET_POLL) if night_slow else QUIET_POLL
     if push_day == today and no_peak_day != today and not quiet:
         return PEAK_POLL
     if no_peak_day != today and any(h1 * 60 + m1 <= minutes < h2 * 60 + m2 for (h1, m1), (h2, m2) in PEAK_WINDOWS):
@@ -523,7 +532,7 @@ def main(argv: list[str] | None = None) -> int:
     plan_checked = time.time()
     block_open = state.get("block_open")          # an Apple block still in progress (survives restarts)
     errors_in_row = resume_errors(block_open)
-    blocks_today = [b for b in (state.get("blocks_today") or []) if b.get("start", "")[:10] == time.strftime("%Y-%m-%d")]
+    blocks_today = [b for b in (state.get("blocks_today") or []) if local_day(b.get("start", "")) == time.strftime("%Y-%m-%d")]
     fc_json, fc_events, fc_at = None, -1, 0.0
     try:
         while True:
@@ -566,7 +575,7 @@ def main(argv: list[str] | None = None) -> int:
                         print(f"           2h at 60s finished with no Apple block; 75s for the rest of today")
             status["poll_seconds"] = poll
             status["runner"] = {"started_at": started, "checks": checks, "mode": pace_mode,
-                                "blocks_today": [b for b in blocks_today if b["start"][:10] == datetime.now(timezone.utc).strftime("%Y-%m-%d")]}
+                                "blocks_today": [b for b in blocks_today if local_day(b["start"]) == time.strftime("%Y-%m-%d")]}
             if pace_mode in ("flip", "burst"):
                 status["runner"]["test"] = flip
             pc_hb = {"checked_at": status["checked_at"], "error": status.get("error"), "poll_seconds": poll, "warned": False,
@@ -644,7 +653,7 @@ def main(argv: list[str] | None = None) -> int:
                 prev = status
                 if errors_in_row and block_open:
                     block_open = close_block(block_open, status["checked_at"])
-                    blocks_today = [b for b in blocks_today if b["start"][:10] == block_open["start"][:10]] + [block_open]
+                    blocks_today = [b for b in blocks_today if local_day(b["start"]) == local_day(block_open["start"])] + [block_open]
                     print(f"           Apple block cleared after ~{block_open['minutes']} min (logged to {BLOCK_LOG})")
                     block_open = None
                 errors_in_row = 0

@@ -24,5 +24,11 @@
   ],
   "only_states": [
     "NJ"
-  ]
+  ],
+  "also_stores": [
+    "R095",
+    "R582",
+    "R251"
+  ],
+  "also_stores_note": "Fifth Avenue, Upper East Side, Upper West Side (owner, Oct 28). Kept alongside only_states NJ."
 }
