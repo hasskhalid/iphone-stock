@@ -1,27 +1,27 @@
 {
- "updated_at": "2026-10-28T11:52:08Z",
- "summary": "Restocks are frequent but sell out in about a minute; mornings (around 9-11 AM) are the best time, so act on the alert instantly.",
+ "updated_at": "2026-10-29T11:52:25Z",
+ "summary": "Restocks slowed Wednesday and still vanish in 1-2 minutes; keep the 9-11:30 AM window sharp and act on alerts instantly, even overnight.",
  "items": [
   {
-   "title": "Overnight NYC drops at Bay Plaza and Brooklyn on Oct 28",
-   "summary": "Around 1:15 AM ET, Bay Plaza, Downtown Brooklyn and Williamsburg showed 256GB pickup stock; the Brooklyn units lasted about a minute. No NJ store was listed.",
+   "title": "Another overnight wave on Oct 29, including Brooklyn",
+   "summary": "Around 1:15-1:26 AM ET, Downtown Brooklyn (256GB Night Sky) and Christiana Mall, DE showed pickup stock; each lasted 1-2 minutes. No NJ or Manhattan store listed.",
    "source": "InStockRadar",
    "url": "https://instockradar.com/us/iphone-duo/restocks",
+   "date": "2026-10-29"
+  },
+  {
+   "title": "Wednesday restocks fell to less than half of Tuesday's",
+   "summary": "US drops dipped to about 595 on Oct 28 from 1,369 the day before. Manzana's last East Coast-time drop came at 11:49 AM ET; mornings remain the peak.",
+   "source": "Manzana Tracker",
+   "url": "https://manzanatracker.com/stock/iphone-duo",
    "date": "2026-10-28"
   },
   {
-   "title": "Oct 27 was the busiest restock day yet",
-   "summary": "The tracker logged about 1,369 US store restocks on Tuesday, up from roughly 400 Monday. Half arrive between 9:30 and 10:40 AM local time, and a typical drop lasts one minute.",
-   "source": "InStockRadar",
-   "url": "https://instockradar.com/us/iphone-duo",
-   "date": "2026-10-27"
-  },
-  {
-   "title": "Manzana: mornings and Tuesdays are best",
-   "summary": "Its latest US drop came at 11:51 AM ET on Oct 27, with pickup at just 5 of 269 stores. It sees most restocks from 9 AM to noon ET, most often on Tuesdays.",
-   "source": "Manzana Tracker",
-   "url": "https://manzanatracker.com/stock/iphone-duo",
-   "date": "2026-10-27"
+   "title": "Bigger production order won't speed up 2026 deliveries",
+   "summary": "Apple reportedly raised its Duo plan about 44%, but spread over 12 months; US online orders still ship around January 25, so pickup is the fastest route.",
+   "source": "iDevice",
+   "url": "https://idevice.com/apple-asks-for-44-more-iphone-duos-as-u-s-orders-slip-to-january.md",
+   "date": "2026-10-22"
   }
  ]
 }

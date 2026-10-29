@@ -1,22 +1,26 @@
 {
-  "updated_at": "2026-10-29T02:11:43+00:00",
+  "updated_at": "2026-10-29T11:51:13+00:00",
   "zone_weights": [
     3,
     6,
     2
   ],
   "window_days": 7,
-  "restocks": 10,
+  "restocks": 14,
   "unseen_restocks": 0,
   "zones": {
-    "z0": 2.67,
-    "z1": 5.67,
-    "z2": 1.67
+    "z0": 3.5,
+    "z1": 8.5,
+    "z2": 2.0
   },
   "top_stores": [
     [
       "American Dream",
       3
+    ],
+    [
+      "Upper West Side",
+      2
     ],
     [
       "Menlo Park",
@@ -29,10 +33,6 @@
     [
       "Short Hills",
       1
-    ],
-    [
-      "Rockaway",
-      1
     ]
   ],
   "peak_hours": [
@@ -41,32 +41,22 @@
     "2pm"
   ],
   "colors": {
-    "Night Sky": 6,
-    "Star White": 4
+    "Night Sky": 7,
+    "Star White": 7
   },
   "zip_suggestion": null,
   "yesterday": [
     {
-      "t": "2026-10-27T13:44:57+00:00",
+      "t": "2026-10-28T05:19:26+00:00",
+      "store": "Cherry Hill",
+      "color": "Star White"
+    },
+    {
+      "t": "2026-10-28T13:45:09+00:00",
       "store": "Menlo Park",
       "color": "Night Sky"
-    },
-    {
-      "t": "2026-10-27T13:52:39+00:00",
-      "store": "Willowbrook",
-      "color": "Star White"
-    },
-    {
-      "t": "2026-10-27T13:52:39+00:00",
-      "store": "Willowbrook",
-      "color": "Night Sky"
-    },
-    {
-      "t": "2026-10-27T17:51:24+00:00",
-      "store": "Rockaway",
-      "color": "Star White"
     }
   ],
-  "summary": "10 restocks this week \u00b7 top American Dream \u00d73 \u00b7 peak 9am \u00b7 yesterday 4",
-  "split": "home area 27%, Rockaway area 55%, Cherry Hill area 18%"
+  "summary": "14 restocks this week \u00b7 top American Dream \u00d73 \u00b7 peak 9am \u00b7 yesterday 2",
+  "split": "home area 27%, Willowbrook area 55%, Cherry Hill area 18%"
 }
