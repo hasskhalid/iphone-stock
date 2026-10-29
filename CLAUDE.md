@@ -58,7 +58,9 @@ home-screen dashboard. Keep it free to run and dependency-light.
   `slow_day` (90s rest of day). Both are saved in runner_state.json so a restart can't forget a block
   (a restart right after a block used to go straight back to 60s and get blocked again). Next day
   starts fresh. On HTTP 541, `block_wait()`: 15 min before the first retry, then every 5 min.
-  Non-541 errors keep exponential backoff (max 900s). A restart mid-block resumes it (`resume_errors()`:
+  Non-541 errors keep exponential backoff (max 900s). Restart without touching the PC: create `restart.request` in the tracker folder (e.g. through the
+  linked folder); the runner deletes it and exits before its next check, and start-runner.bat restarts
+  it 10s later with the latest files. A restart mid-block resumes it (`resume_errors()`:
   same start, 5-min retries, not a new block). `push_day` (runner_state, set by hand for one day): 60s all
   day except overnight until the first block, then normal block rules (owner used it Oct 28 afternoon).
   Owner chose (Oct 27 night) `pace_mode: "windows"` (both 60s windows). Experiments (config.json `pace_mode`; default "windows" = PEAK_WINDOWS schedule): "burst" (Oct 27

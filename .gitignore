@@ -19,3 +19,6 @@ checkout.local.json
 checkout_debug/
 checkout.lock
 blocks.local.jsonl
+
+restart.request
+update-and-restart.bat

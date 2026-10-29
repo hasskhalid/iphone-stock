@@ -358,3 +358,12 @@ class LocalDayTests(unittest.TestCase):
             self.assertEqual(lr.local_day("bad"), "")
         finally:
             os.environ.pop("TZ", None); time.tzset()
+
+
+class RestartFlagTests(unittest.TestCase):
+    def test_restart_flag_is_consumed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            self.assertFalse(lr.restart_requested(tmp))
+            open(os.path.join(tmp, lr.RESTART_FILE), "w").close()
+            self.assertTrue(lr.restart_requested(tmp))
+            self.assertFalse(lr.restart_requested(tmp))      # one restart per request

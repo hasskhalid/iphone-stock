@@ -370,6 +370,23 @@ def block_info(status: dict, block_open: dict | None, errors_in_row: int, now: d
             "retry_at": retry.isoformat(timespec="seconds")}
 
 
+RESTART_FILE = "restart.request"
+
+
+def restart_requested(folder: str) -> bool:
+    """A file named restart.request in the tracker folder makes the runner exit cleanly before its
+    next check; start-runner.bat then starts it again with the latest code and config. Lets the
+    owner (or Claude, through the linked folder) restart it without touching the PC."""
+    path = os.path.join(folder, RESTART_FILE)
+    if not os.path.exists(path):
+        return False
+    try:
+        os.remove(path)
+    except OSError:
+        pass
+    return True
+
+
 def resume_errors(block_open: dict | None) -> int:
     """After a restart in the middle of an Apple block, carry on with the same block: keep its start
     time, keep 5-min retries, and don't count it as a NEW block (Oct 28: a restart mid-block was
@@ -537,6 +554,9 @@ def main(argv: list[str] | None = None) -> int:
     try:
         while True:
             t0 = time.time()
+            if restart_requested(HERE):
+                print("Restart requested (restart.request found); restarting to load the latest code/config.")
+                return 0          # start-runner.bat starts it again 10s later with the new files
             # The daily task updates plan.json on GitHub (which areas to check most); pick it up hourly.
             if publisher and t0 - plan_checked > PLAN_REFRESH_SECONDS:
                 plan_checked = t0
