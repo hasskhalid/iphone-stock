@@ -1,27 +1,27 @@
 {
- "updated_at": "2026-10-29T11:52:25Z",
- "summary": "Restocks slowed Wednesday and still vanish in 1-2 minutes; keep the 9-11:30 AM window sharp and act on alerts instantly, even overnight.",
+ "updated_at": "2026-10-30T11:50:30Z",
+ "summary": "US restocks keep shrinking and vanish in about a minute, but Fifth Avenue popped overnight; keep the 9-11:30 AM window sharp and act on every alert, even at 1 AM.",
  "items": [
   {
-   "title": "Another overnight wave on Oct 29, including Brooklyn",
-   "summary": "Around 1:15-1:26 AM ET, Downtown Brooklyn (256GB Night Sky) and Christiana Mall, DE showed pickup stock; each lasted 1-2 minutes. No NJ or Manhattan store listed.",
+   "title": "Fifth Avenue had a 256GB Night Sky around 1:09 AM Friday",
+   "summary": "A brief overnight wave (about 1:05-1:10 AM ET Oct 30) also hit Queens Center and Pheasant Lane; each lasted roughly a minute. US drops fell to ~380 Thursday from 595.",
    "source": "InStockRadar",
    "url": "https://instockradar.com/us/iphone-duo/restocks",
-   "date": "2026-10-29"
+   "date": "2026-10-30"
   },
   {
-   "title": "Wednesday restocks fell to less than half of Tuesday's",
-   "summary": "US drops dipped to about 595 on Oct 28 from 1,369 the day before. Manzana's latest logged drop came at 11:49 AM ET; mornings remain the peak.",
-   "source": "Manzana Tracker",
-   "url": "https://manzanatracker.com/stock/iphone-duo",
-   "date": "2026-10-28"
+   "title": "Report: most launch stock went to stores, Fifth Avenue got extra",
+   "summary": "Per Bloomberg's Gurman, about 80% of initial Duos were sent to retail; smaller stores got ~50 units, flagships ~250, and Fifth Avenue notably more.",
+   "source": "iPhone in Canada",
+   "url": "https://www.iphoneincanada.ca/2026/10/30/apple-reportedly-reserved-80-of-iphone-duo-launch-stock-for-retail/",
+   "date": "2026-10-30"
   },
   {
-   "title": "Bigger production order won't speed up 2026 deliveries",
-   "summary": "Apple reportedly raised its Duo plan about 44%, but spread over 12 months; US online orders still ship around January 25, so pickup is the fastest route.",
-   "source": "iDevice",
-   "url": "https://idevice.com/apple-asks-for-44-more-iphone-duos-as-u-s-orders-slip-to-january.md",
-   "date": "2026-10-22"
+   "title": "Online orders still quote late January delivery",
+   "summary": "Apple's site has pointed US online Duo orders to around January 25, so in-store pickup restocks remain the fastest way to get one.",
+   "source": "Android Headlines",
+   "url": "https://www.androidheadlines.com/2026/10/apple-is-telling-stores-not-to-sell-the-iphone-duo-in-store-and-stock-is-the-reason.html",
+   "date": "2026-10-19"
   }
  ]
 }

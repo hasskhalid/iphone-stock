@@ -1,21 +1,25 @@
 {
-  "updated_at": "2026-10-29T11:51:13+00:00",
+  "updated_at": "2026-10-30T11:49:31+00:00",
   "zone_weights": [
     3,
     6,
-    2
+    3
   ],
   "window_days": 7,
-  "restocks": 14,
+  "restocks": 17,
   "unseen_restocks": 0,
   "zones": {
-    "z0": 3.5,
-    "z1": 8.5,
-    "z2": 2.0
+    "z0": 4.5,
+    "z1": 9.5,
+    "z2": 3.0
   },
   "top_stores": [
     [
       "American Dream",
+      3
+    ],
+    [
+      "Fifth Avenue",
       3
     ],
     [
@@ -29,34 +33,35 @@
     [
       "Willowbrook",
       2
-    ],
-    [
-      "Short Hills",
-      1
     ]
   ],
   "peak_hours": [
     "9am",
-    "10am",
-    "2pm"
+    "8am",
+    "10am"
   ],
   "colors": {
-    "Night Sky": 7,
-    "Star White": 7
+    "Night Sky": 9,
+    "Star White": 8
   },
   "zip_suggestion": null,
   "yesterday": [
     {
-      "t": "2026-10-28T05:19:26+00:00",
-      "store": "Cherry Hill",
+      "t": "2026-10-29T12:46:05+00:00",
+      "store": "Fifth Avenue",
       "color": "Star White"
     },
     {
-      "t": "2026-10-28T13:45:09+00:00",
-      "store": "Menlo Park",
+      "t": "2026-10-29T12:46:05+00:00",
+      "store": "Fifth Avenue",
+      "color": "Night Sky"
+    },
+    {
+      "t": "2026-10-29T13:15:22+00:00",
+      "store": "Quaker Bridge",
       "color": "Night Sky"
     }
   ],
-  "summary": "14 restocks this week \u00b7 top American Dream \u00d73 \u00b7 peak 9am \u00b7 yesterday 2",
-  "split": "home area 27%, Willowbrook area 55%, Cherry Hill area 18%"
+  "summary": "17 restocks this week \u00b7 top American Dream \u00d73 \u00b7 peak 9am \u00b7 yesterday 3",
+  "split": "home area 25%, Willowbrook area 50%, Cherry Hill area 25%"
 }
