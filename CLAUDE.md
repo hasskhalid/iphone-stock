@@ -171,9 +171,11 @@ home-screen dashboard. Keep it free to run and dependency-light.
   Plaza, American Dream, Short Hills, Tice's Corner, Rockaway, UWS, W 14th, Fifth Ave, UES, Grand Central,
   SoHo) instead of the Rockaway-area zip; Bridgewater/Menlo Park stay covered by home. Owner applies it
   by hand (config.local.json extra_zips + APPLE_EXTRA_ZIPS secret).
-- Tracking: iPhone Duo unlocked 256GB only, both colours: Night Sky `MK1F4LL/A` / Star White
-  `MK1E4LL/A` (512GB `MK1H4LL/A`/`MK1G4LL/A` was added Oct 27 then removed the same night at the
-  owner's request; don't re-add without asking).
+- Tracking: iPhone Duo unlocked 256GB AND 512GB, both colours: 256GB Night Sky `MK1F4LL/A` / Star White
+  `MK1E4LL/A`, 512GB Night Sky `MK1H4LL/A` / Star White `MK1G4LL/A`. 512GB was added Oct 27, removed that
+  night, and re-added Oct 30 at the owner's request after iPhone Stock Checker data (shared by him) showed
+  every Northeast restock on Oct 29 afternoon was 512GB. One Apple request covers all parts, so more
+  models never add requests.
   NJ stores only: config `only_states: ["NJ"]` makes `filter_area()` keep only NJ (any distance,
   all 12 NJ Apple Stores), dropping NY. Owner's search ZIPs for that: home + Rockaway area (8 NJ
   stores incl. Garden State Plaza, Willowbrook, Tice's Corner) + South Jersey; the American Dream
