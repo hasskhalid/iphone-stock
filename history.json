@@ -1,0 +1,525 @@
+{
+ "events": [
+  {
+   "t": "2026-10-25T14:17:20+00:00",
+   "kind": "in",
+   "part": "MK1F4LL/A",
+   "label": "iPhone Duo 256GB Night Sky",
+   "color": "Night Sky",
+   "store_id": "R715",
+   "store": "Downtown Brooklyn",
+   "quote": "Available Today"
+  },
+  {
+   "t": "2026-10-25T14:18:36+00:00",
+   "kind": "out",
+   "part": "MK1F4LL/A",
+   "label": "iPhone Duo 256GB Night Sky",
+   "color": "Night Sky",
+   "store_id": "R715",
+   "store": "Downtown Brooklyn",
+   "quote": ""
+  },
+  {
+   "t": "2026-10-25T14:45:15+00:00",
+   "kind": "in",
+   "part": "MK1F4LL/A",
+   "label": "iPhone Duo 256GB Night Sky",
+   "color": "Night Sky",
+   "store_id": "R043",
+   "store": "Short Hills",
+   "quote": "Available Today"
+  },
+  {
+   "t": "2026-10-25T14:46:15+00:00",
+   "kind": "out",
+   "part": "MK1F4LL/A",
+   "label": "iPhone Duo 256GB Night Sky",
+   "color": "Night Sky",
+   "store_id": "R043",
+   "store": "Short Hills",
+   "quote": ""
+  },
+  {
+   "t": "2026-10-25T20:09:57+00:00",
+   "kind": "in",
+   "part": "MK1F4LL/A",
+   "label": "iPhone Duo 256GB Night Sky",
+   "color": "Night Sky",
+   "store_id": "R715",
+   "store": "Downtown Brooklyn",
+   "quote": "Available Today"
+  },
+  {
+   "t": "2026-10-25T20:10:59+00:00",
+   "kind": "out",
+   "part": "MK1F4LL/A",
+   "label": "iPhone Duo 256GB Night Sky",
+   "color": "Night Sky",
+   "store_id": "R715",
+   "store": "Downtown Brooklyn",
+   "quote": ""
+  },
+  {
+   "t": "2026-10-26T04:43:01+00:00",
+   "kind": "in",
+   "part": "MK1E4LL/A",
+   "label": "iPhone Duo 256GB Star White",
+   "color": "Star White",
+   "store_id": "R594",
+   "store": "Williamsburg",
+   "quote": "Available Today"
+  },
+  {
+   "t": "2026-10-26T04:44:32+00:00",
+   "kind": "out",
+   "part": "MK1E4LL/A",
+   "label": "iPhone Duo 256GB Star White",
+   "color": "Star White",
+   "store_id": "R594",
+   "store": "Williamsburg",
+   "quote": ""
+  },
+  {
+   "t": "2026-10-26T06:37:33+00:00",
+   "kind": "in",
+   "part": "MK1E4LL/A",
+   "label": "iPhone Duo 256GB Star White",
+   "color": "Star White",
+   "store_id": "R415",
+   "store": "Grand Central",
+   "quote": "Available Today"
+  },
+  {
+   "t": "2026-10-26T06:39:03+00:00",
+   "kind": "out",
+   "part": "MK1E4LL/A",
+   "label": "iPhone Duo 256GB Star White",
+   "color": "Star White",
+   "store_id": "R415",
+   "store": "Grand Central",
+   "quote": ""
+  },
+  {
+   "t": "2026-10-26T14:45:51+00:00",
+   "kind": "in",
+   "part": "MK1E4LL/A",
+   "label": "iPhone Duo 256GB Star White",
+   "color": "Star White",
+   "store_id": "R755",
+   "store": "American Dream",
+   "quote": "Available Today"
+  },
+  {
+   "t": "2026-10-26T14:46:51+00:00",
+   "kind": "out",
+   "part": "MK1E4LL/A",
+   "label": "iPhone Duo 256GB Star White",
+   "color": "Star White",
+   "store_id": "R755",
+   "store": "American Dream",
+   "quote": ""
+  },
+  {
+   "t": "2026-10-26T18:02:16+00:00",
+   "kind": "in",
+   "part": "MK1F4LL/A",
+   "label": "iPhone Duo 256GB Night Sky",
+   "color": "Night Sky",
+   "store_id": "R755",
+   "store": "American Dream",
+   "quote": "Available Today"
+  },
+  {
+   "t": "2026-10-26T18:03:04+00:00",
+   "kind": "out",
+   "part": "MK1F4LL/A",
+   "label": "iPhone Duo 256GB Night Sky",
+   "color": "Night Sky",
+   "store_id": "R755",
+   "store": "American Dream",
+   "quote": ""
+  },
+  {
+   "t": "2026-10-26T18:11:39+00:00",
+   "kind": "in",
+   "part": "MK1F4LL/A",
+   "label": "iPhone Duo 256GB Night Sky",
+   "color": "Night Sky",
+   "store_id": "R755",
+   "store": "American Dream",
+   "quote": "Available Today"
+  },
+  {
+   "t": "2026-10-26T18:12:27+00:00",
+   "kind": "out",
+   "part": "MK1F4LL/A",
+   "label": "iPhone Duo 256GB Night Sky",
+   "color": "Night Sky",
+   "store_id": "R755",
+   "store": "American Dream",
+   "quote": ""
+  },
+  {
+   "t": "2026-10-27T12:50:04+00:00",
+   "kind": "in",
+   "part": "MK1E4LL/A",
+   "label": "iPhone Duo 256GB Star White",
+   "color": "Star White",
+   "store_id": "R582",
+   "store": "Upper East Side",
+   "quote": "Available Today"
+  },
+  {
+   "t": "2026-10-27T12:56:27+00:00",
+   "kind": "out",
+   "part": "MK1E4LL/A",
+   "label": "iPhone Duo 256GB Star White",
+   "color": "Star White",
+   "store_id": "R582",
+   "store": "Upper East Side",
+   "quote": ""
+  },
+  {
+   "t": "2026-10-27T13:05:25+00:00",
+   "kind": "in",
+   "part": "MK1E4LL/A",
+   "label": "iPhone Duo 256GB Star White",
+   "color": "Star White",
+   "store_id": "R251",
+   "store": "Upper West Side",
+   "quote": "Available Today"
+  },
+  {
+   "t": "2026-10-27T13:07:59+00:00",
+   "kind": "in",
+   "part": "MK1F4LL/A",
+   "label": "iPhone Duo 256GB Night Sky",
+   "color": "Night Sky",
+   "store_id": "R251",
+   "store": "Upper West Side",
+   "quote": "Available Today"
+  },
+  {
+   "t": "2026-10-27T13:13:08+00:00",
+   "kind": "out",
+   "part": "MK1E4LL/A",
+   "label": "iPhone Duo 256GB Star White",
+   "color": "Star White",
+   "store_id": "R251",
+   "store": "Upper West Side",
+   "quote": ""
+  },
+  {
+   "t": "2026-10-27T13:13:08+00:00",
+   "kind": "out",
+   "part": "MK1F4LL/A",
+   "label": "iPhone Duo 256GB Night Sky",
+   "color": "Night Sky",
+   "store_id": "R251",
+   "store": "Upper West Side",
+   "quote": ""
+  },
+  {
+   "t": "2026-10-27T13:20:42+00:00",
+   "kind": "in",
+   "part": "MK1E4LL/A",
+   "label": "iPhone Duo 256GB Star White",
+   "color": "Star White",
+   "store_id": "R095",
+   "store": "Fifth Avenue",
+   "quote": "Available Today"
+  },
+  {
+   "t": "2026-10-27T13:22:00+00:00",
+   "kind": "out",
+   "part": "MK1E4LL/A",
+   "label": "iPhone Duo 256GB Star White",
+   "color": "Star White",
+   "store_id": "R095",
+   "store": "Fifth Avenue",
+   "quote": ""
+  },
+  {
+   "t": "2026-10-27T13:44:57+00:00",
+   "kind": "in",
+   "part": "MK1F4LL/A",
+   "label": "iPhone Duo 256GB Night Sky",
+   "color": "Night Sky",
+   "store_id": "R067",
+   "store": "Menlo Park",
+   "quote": "Available Today"
+  },
+  {
+   "t": "2026-10-27T13:47:30+00:00",
+   "kind": "out",
+   "part": "MK1F4LL/A",
+   "label": "iPhone Duo 256GB Night Sky",
+   "color": "Night Sky",
+   "store_id": "R067",
+   "store": "Menlo Park",
+   "quote": ""
+  },
+  {
+   "t": "2026-10-27T13:50:04+00:00",
+   "kind": "in",
+   "part": "MK1E4LL/A",
+   "label": "iPhone Duo 256GB Star White",
+   "color": "Star White",
+   "store_id": "R152",
+   "store": "Staten Island",
+   "quote": "Available Today"
+  },
+  {
+   "t": "2026-10-27T13:52:39+00:00",
+   "kind": "in",
+   "part": "MK1E4LL/A",
+   "label": "iPhone Duo 256GB Star White",
+   "color": "Star White",
+   "store_id": "R325",
+   "store": "Willowbrook",
+   "quote": "Available Today"
+  },
+  {
+   "t": "2026-10-27T13:52:39+00:00",
+   "kind": "in",
+   "part": "MK1F4LL/A",
+   "label": "iPhone Duo 256GB Night Sky",
+   "color": "Night Sky",
+   "store_id": "R325",
+   "store": "Willowbrook",
+   "quote": "Available Today"
+  },
+  {
+   "t": "2026-10-27T13:55:11+00:00",
+   "kind": "out",
+   "part": "MK1E4LL/A",
+   "label": "iPhone Duo 256GB Star White",
+   "color": "Star White",
+   "store_id": "R152",
+   "store": "Staten Island",
+   "quote": ""
+  },
+  {
+   "t": "2026-10-27T13:57:45+00:00",
+   "kind": "out",
+   "part": "MK1E4LL/A",
+   "label": "iPhone Duo 256GB Star White",
+   "color": "Star White",
+   "store_id": "R325",
+   "store": "Willowbrook",
+   "quote": ""
+  },
+  {
+   "t": "2026-10-27T13:57:45+00:00",
+   "kind": "out",
+   "part": "MK1F4LL/A",
+   "label": "iPhone Duo 256GB Night Sky",
+   "color": "Night Sky",
+   "store_id": "R325",
+   "store": "Willowbrook",
+   "quote": ""
+  },
+  {
+   "t": "2026-10-27T17:19:39+00:00",
+   "kind": "in",
+   "part": "MK1E4LL/A",
+   "label": "iPhone Duo 256GB Star White",
+   "color": "Star White",
+   "store_id": "R654",
+   "store": "World Trade Center",
+   "quote": "Available Today"
+  },
+  {
+   "t": "2026-10-27T17:20:42+00:00",
+   "kind": "out",
+   "part": "MK1E4LL/A",
+   "label": "iPhone Duo 256GB Star White",
+   "color": "Star White",
+   "store_id": "R654",
+   "store": "World Trade Center",
+   "quote": ""
+  },
+  {
+   "t": "2026-10-27T17:51:24+00:00",
+   "kind": "in",
+   "part": "MK1E4LL/A",
+   "label": "iPhone Duo 256GB Star White",
+   "color": "Star White",
+   "store_id": "R103",
+   "store": "Rockaway",
+   "quote": "Available Today"
+  },
+  {
+   "t": "2026-10-27T17:56:33+00:00",
+   "kind": "out",
+   "part": "MK1E4LL/A",
+   "label": "iPhone Duo 256GB Star White",
+   "color": "Star White",
+   "store_id": "R103",
+   "store": "Rockaway",
+   "quote": ""
+  },
+  {
+   "t": "2026-10-28T05:19:26+00:00",
+   "kind": "in",
+   "part": "MK1E4LL/A",
+   "label": "iPhone Duo 256GB Star White",
+   "color": "Star White",
+   "store_id": "R206",
+   "store": "Cherry Hill",
+   "quote": "Available Today"
+  },
+  {
+   "t": "2026-10-28T05:36:17+00:00",
+   "kind": "out",
+   "part": "MK1E4LL/A",
+   "label": "iPhone Duo 256GB Star White",
+   "color": "Star White",
+   "store_id": "R206",
+   "store": "Cherry Hill",
+   "quote": ""
+  },
+  {
+   "t": "2026-10-28T13:45:09+00:00",
+   "kind": "in",
+   "part": "MK1F4LL/A",
+   "label": "iPhone Duo 256GB Night Sky",
+   "color": "Night Sky",
+   "store_id": "R067",
+   "store": "Menlo Park",
+   "quote": "Available Today"
+  },
+  {
+   "t": "2026-10-28T13:46:24+00:00",
+   "kind": "out",
+   "part": "MK1F4LL/A",
+   "label": "iPhone Duo 256GB Night Sky",
+   "color": "Night Sky",
+   "store_id": "R067",
+   "store": "Menlo Park",
+   "quote": ""
+  },
+  {
+   "t": "2026-10-29T12:46:05+00:00",
+   "kind": "in",
+   "part": "MK1E4LL/A",
+   "label": "iPhone Duo 256GB Star White",
+   "color": "Star White",
+   "store_id": "R095",
+   "store": "Fifth Avenue",
+   "quote": "Available Today"
+  },
+  {
+   "t": "2026-10-29T12:46:05+00:00",
+   "kind": "in",
+   "part": "MK1F4LL/A",
+   "label": "iPhone Duo 256GB Night Sky",
+   "color": "Night Sky",
+   "store_id": "R095",
+   "store": "Fifth Avenue",
+   "quote": "Available Today"
+  },
+  {
+   "t": "2026-10-29T12:47:21+00:00",
+   "kind": "out",
+   "part": "MK1E4LL/A",
+   "label": "iPhone Duo 256GB Star White",
+   "color": "Star White",
+   "store_id": "R095",
+   "store": "Fifth Avenue",
+   "quote": ""
+  },
+  {
+   "t": "2026-10-29T12:47:21+00:00",
+   "kind": "out",
+   "part": "MK1F4LL/A",
+   "label": "iPhone Duo 256GB Night Sky",
+   "color": "Night Sky",
+   "store_id": "R095",
+   "store": "Fifth Avenue",
+   "quote": ""
+  },
+  {
+   "t": "2026-10-29T13:15:22+00:00",
+   "kind": "in",
+   "part": "MK1F4LL/A",
+   "label": "iPhone Duo 256GB Night Sky",
+   "color": "Night Sky",
+   "store_id": "R549",
+   "store": "Quaker Bridge",
+   "quote": "Available Today"
+  },
+  {
+   "t": "2026-10-29T13:23:32+00:00",
+   "kind": "out",
+   "part": "MK1F4LL/A",
+   "label": "iPhone Duo 256GB Night Sky",
+   "color": "Night Sky",
+   "store_id": "R549",
+   "store": "Quaker Bridge",
+   "quote": ""
+  },
+  {
+   "t": "2026-10-30T13:42:11+00:00",
+   "kind": "in",
+   "part": "MK1F4LL/A",
+   "label": "iPhone Duo 256GB Night Sky",
+   "color": "Night Sky",
+   "store_id": "R095",
+   "store": "Fifth Avenue",
+   "quote": "Available Today"
+  },
+  {
+   "t": "2026-10-30T13:43:44+00:00",
+   "kind": "out",
+   "part": "MK1F4LL/A",
+   "label": "iPhone Duo 256GB Night Sky",
+   "color": "Night Sky",
+   "store_id": "R095",
+   "store": "Fifth Avenue",
+   "quote": ""
+  },
+  {
+   "t": "2026-10-30T13:45:15+00:00",
+   "kind": "in",
+   "part": "MK1E4LL/A",
+   "label": "iPhone Duo 256GB Star White",
+   "color": "Star White",
+   "store_id": "R067",
+   "store": "Menlo Park",
+   "quote": "Available Today"
+  },
+  {
+   "t": "2026-10-30T13:45:15+00:00",
+   "kind": "in",
+   "part": "MK1F4LL/A",
+   "label": "iPhone Duo 256GB Night Sky",
+   "color": "Night Sky",
+   "store_id": "R067",
+   "store": "Menlo Park",
+   "quote": "Available Today"
+  },
+  {
+   "t": "2026-10-30T13:46:48+00:00",
+   "kind": "out",
+   "part": "MK1E4LL/A",
+   "label": "iPhone Duo 256GB Star White",
+   "color": "Star White",
+   "store_id": "R067",
+   "store": "Menlo Park",
+   "quote": ""
+  },
+  {
+   "t": "2026-10-30T13:46:48+00:00",
+   "kind": "out",
+   "part": "MK1F4LL/A",
+   "label": "iPhone Duo 256GB Night Sky",
+   "color": "Night Sky",
+   "store_id": "R067",
+   "store": "Menlo Park",
+   "quote": ""
+  }
+ ],
+ "updated_at": "2026-10-31T01:47:47+00:00"
+}
